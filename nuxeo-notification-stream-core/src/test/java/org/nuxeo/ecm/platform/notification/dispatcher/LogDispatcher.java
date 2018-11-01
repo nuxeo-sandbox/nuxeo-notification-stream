@@ -20,7 +20,7 @@ package org.nuxeo.ecm.platform.notification.dispatcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class LogDispatcher implements Dispatcher {
+public class LogDispatcher extends Dispatcher {
     private static final Log log = LogFactory.getLog(LogDispatcher.class);
 
     @Override

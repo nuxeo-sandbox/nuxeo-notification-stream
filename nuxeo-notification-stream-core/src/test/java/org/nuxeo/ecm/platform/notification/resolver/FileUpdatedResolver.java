@@ -16,28 +16,26 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.resolver.impl;
+package org.nuxeo.ecm.platform.notification.resolver;
+
+import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+
+import java.util.List;
 
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.ecm.platform.notification.resolver.impl.DocumentEventResolver;
 
-/**
- * Resolver aims to ease DocumentEvent resolution
- * 
- * @since XXX
- */
-public abstract class DocumentEventResolver extends Resolver {
+public class FileUpdatedResolver extends DocumentEventResolver {
+
     @Override
-    public boolean accept(Event event) {
-        if (!(event.getContext() instanceof DocumentEventContext)) {
-            return false;
-        }
-
-        DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-        return accept(event, ctx, ctx.getSourceDocument());
+    public List<String> resolveTargetUsers(DocumentModel doc) {
+        return null;
     }
 
-    public abstract boolean accept(Event event, DocumentEventContext ctx, DocumentModel source);
+    @Override
+    public boolean accept(Event event, DocumentEventContext ctx, DocumentModel source) {
+        return source.getType().equals("File") && event.getName().equals(DOCUMENT_UPDATED);
+    }
 }

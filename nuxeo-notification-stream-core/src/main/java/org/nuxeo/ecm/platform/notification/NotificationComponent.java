@@ -18,9 +18,13 @@
 
 package org.nuxeo.ecm.platform.notification;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
@@ -29,6 +33,9 @@ import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.nuxeo.runtime.model.Descriptor;
 
+/**
+ * @since XXX
+ */
 public class NotificationComponent extends DefaultComponent implements NotificationService {
     public static final String XP_DISPATCHER = "dispatcher";
 
@@ -41,18 +48,16 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     @Override
     public void unregisterContribution(Object contribution, String xp, ComponentInstance component) {
         super.unregisterContribution(contribution, xp, component);
-        cleanupRegistry(contribution, xp);
+        removeContributionInstance(contribution, xp);
     }
 
     @Override
     public void registerContribution(Object contribution, String xp, ComponentInstance component) {
         super.registerContribution(contribution, xp, component);
-
-        // Ensure to reset current state when registering a new contribution
-        cleanupRegistry(contribution, xp);
+        createContributionInstance(contribution, xp);
     }
 
-    protected void cleanupRegistry(Object contribution, String xp) {
+    protected void removeContributionInstance(Object contribution, String xp) {
         if (!(contribution instanceof Descriptor)) {
             return;
         }
@@ -65,25 +70,44 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
     }
 
+    protected void createContributionInstance(Object contribution, String xp) {
+        if (!(contribution instanceof Descriptor)) {
+            return;
+        }
+
+        Descriptor desc = (Descriptor) contribution;
+        if (XP_DISPATCHER.equals(xp)) {
+            dispatchers.put(desc.getId(), ((DispatcherDescriptor) desc).newInstance());
+        } else if (XP_RESOLVER.equals(xp)) {
+            resolvers.put(desc.getId(), ((ResolverDescriptor) desc).newInstance());
+        }
+    }
+
     @Override
     public Dispatcher getDispatcher(String id) {
-        return dispatchers.computeIfAbsent(id, s -> {
-            Descriptor descriptor = getDescriptor(XP_DISPATCHER, s);
-            if (descriptor != null) {
-                return ((DispatcherDescriptor) descriptor).newInstance();
-            }
-            return null;
-        });
+        return dispatchers.get(id);
+    }
+
+    @Override
+    public Collection<Dispatcher> getDispatchers() {
+        return dispatchers.values();
     }
 
     @Override
     public Resolver getResolver(String id) {
-        return resolvers.computeIfAbsent(id, s -> {
-            Descriptor descriptor = getDescriptor(XP_RESOLVER, s);
-            if (descriptor != null) {
-                return ((ResolverDescriptor) descriptor).newInstance();
-            }
-            return null;
-        });
+        return resolvers.get(id);
+    }
+
+    @Override
+    public Collection<Resolver> getResolvers() {
+        return resolvers.values();
+    }
+
+    @Override
+    public Collection<Resolver> getResolvers(Event event) {
+        return getResolvers().stream()
+                             .filter(r -> r.accept(event))
+                             .sorted(Comparator.comparing(Resolver::getOrder))
+                             .collect(Collectors.toList());
     }
 }

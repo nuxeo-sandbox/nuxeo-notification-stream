@@ -18,7 +18,20 @@
 
 package org.nuxeo.ecm.platform.notification.dispatcher;
 
-public interface Dispatcher {
+/**
+ * @since XXX
+ */
+public abstract class Dispatcher {
 
-    void dispatch();
+    public abstract void dispatch();
+
+    /**
+     * Initialize Dispatcher
+     * 
+     * @param desc tied to the Dispatcher.
+     * @return the current instance.
+     */
+    protected Dispatcher init(DispatcherDescriptor desc) {
+        return this;
+    }
 }

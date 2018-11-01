@@ -23,6 +23,9 @@ import org.nuxeo.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.model.Descriptor;
 
+/**
+ * @since XXX
+ */
 @XObject("dispatcher")
 public class DispatcherDescriptor implements Descriptor {
     @XNode("@id")
@@ -38,7 +41,7 @@ public class DispatcherDescriptor implements Descriptor {
 
     public Dispatcher newInstance() {
         try {
-            return dispatcherClass.newInstance();
+            return dispatcherClass.newInstance().init(this);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }
