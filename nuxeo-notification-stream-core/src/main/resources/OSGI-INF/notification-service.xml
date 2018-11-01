@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.NotificationComponent">
+
+  <implementation class="org.nuxeo.ecm.platform.notification.NotificationComponent" />
+
+  <service>
+    <provide interface="org.nuxeo.ecm.platform.notification.NotificationService" />
+  </service>
+
+  <extension-point name="resolver">
+    <documentation>
+      <code>
+        Register notifications resolvers. A resolver has a name and aims to identify if a core event deserves a
+        notification
+        <resolver id="deliverable"
+                  class="org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver" />
+      </code>
+    </documentation>
+
+    <object class="org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor" />
+  </extension-point>
+
+  <extension-point name="dispatcher">
+    <documentation>
+      Register notifications dispatcher. A dispatcher is a distribution channel, each dispatcher are the final step of a
+      notification, and must distribute it.
+      <code>
+        <dispatcher id="inapp"
+                    class="org.nuxeo.ecm.platform.notification.dispatcher.DummyDispatcher" />
+      </code>
+    </documentation>
+
+    <object class="org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor" />
+  </extension-point>
+
+
+</component>

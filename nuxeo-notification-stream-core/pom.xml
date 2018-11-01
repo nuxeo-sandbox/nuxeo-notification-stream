@@ -8,9 +8,19 @@
     <artifactId>nuxeo-notification-stream-parent</artifactId>
     <version>10.3-SNAPSHOT</version>
   </parent>
-
   <artifactId>nuxeo-notification-stream-core</artifactId>
   <name>Nuxeo notification stream core</name>
   <description>Nuxeo Notification Stream - Core</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-event</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

@@ -5,4 +5,5 @@ Bundle-Vendor: org.nuxeo.ecm.platform
 Bundle-Version: 1.0.0
 Bundle-Name: nuxeo-notification-stream-core
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.nuxeo.ecm.platform.ecm.notification.stream.core;singleton=true
+Bundle-SymbolicName: org.nuxeo.ecm.platform.notification.stream.core;singleton=true
+Nuxeo-Component: OSGI-INF/notification-service.xml
