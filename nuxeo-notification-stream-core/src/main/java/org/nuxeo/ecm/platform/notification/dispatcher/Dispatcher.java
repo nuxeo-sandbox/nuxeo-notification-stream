@@ -18,20 +18,28 @@
 
 package org.nuxeo.ecm.platform.notification.dispatcher;
 
+import org.nuxeo.lib.stream.computation.AbstractComputation;
+import org.nuxeo.lib.stream.computation.ComputationContext;
+import org.nuxeo.lib.stream.computation.Record;
+
 /**
  * @since XXX
  */
-public abstract class Dispatcher {
+public abstract class Dispatcher extends AbstractComputation {
 
-    public abstract void dispatch();
-
-    /**
-     * Initialize Dispatcher
-     * 
-     * @param desc tied to the Dispatcher.
-     * @return the current instance.
-     */
-    protected Dispatcher init(DispatcherDescriptor desc) {
-        return this;
+    public Dispatcher(String name, int nbInputStreams, int nbOutputStreams) {
+        super(name, nbInputStreams, nbOutputStreams);
     }
+
+    @Override
+    public void processRecord(ComputationContext ctx, String inputStreamName, Record record) {
+        process(record);
+        ctx.askForCheckpoint();
+    }
+
+    public String getName() {
+        return metadata.name();
+    }
+
+    public abstract void process(Record record);
 }

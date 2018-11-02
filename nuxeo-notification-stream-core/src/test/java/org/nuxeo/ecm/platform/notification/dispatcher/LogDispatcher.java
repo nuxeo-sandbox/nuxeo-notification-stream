@@ -19,12 +19,20 @@ package org.nuxeo.ecm.platform.notification.dispatcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nuxeo.lib.stream.computation.Record;
 
 public class LogDispatcher extends Dispatcher {
     private static final Log log = LogFactory.getLog(LogDispatcher.class);
 
+    public static int processed = 0;
+
+    public LogDispatcher(String name, int nbInputStreams, int nbOutputStreams) {
+        super(name, nbInputStreams, nbOutputStreams);
+    }
+
     @Override
-    public void dispatch() {
-        log.info("Dispatched");
+    public void process(Record record) {
+        processed++;
+        log.error(record.toString());
     }
 }

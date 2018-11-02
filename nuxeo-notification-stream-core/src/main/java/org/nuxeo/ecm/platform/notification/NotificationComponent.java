@@ -29,6 +29,7 @@ import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
+import org.nuxeo.runtime.kafka.KafkaConfigServiceImpl;
 import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.nuxeo.runtime.model.Descriptor;
@@ -46,15 +47,22 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     protected Map<String, Resolver> resolvers = new ConcurrentHashMap<>();
 
     @Override
-    public void unregisterContribution(Object contribution, String xp, ComponentInstance component) {
-        super.unregisterContribution(contribution, xp, component);
-        removeContributionInstance(contribution, xp);
+    public int getApplicationStartedOrder() {
+        // Topology is dependent of contributions, and we need to be sure this component is started before the
+        // StreamService component.
+        return KafkaConfigServiceImpl.APPLICATION_STARTED_ORDER + 5;
     }
 
     @Override
     public void registerContribution(Object contribution, String xp, ComponentInstance component) {
         super.registerContribution(contribution, xp, component);
         createContributionInstance(contribution, xp);
+    }
+
+    @Override
+    public void unregisterContribution(Object contribution, String xp, ComponentInstance component) {
+        super.unregisterContribution(contribution, xp, component);
+        removeContributionInstance(contribution, xp);
     }
 
     protected void removeContributionInstance(Object contribution, String xp) {
