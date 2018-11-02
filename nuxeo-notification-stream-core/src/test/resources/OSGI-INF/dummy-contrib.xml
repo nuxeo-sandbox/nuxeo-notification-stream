@@ -3,6 +3,7 @@
 
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="dispatcher">
     <dispatcher id="inApp" class="org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher" />
+    <dispatcher id="log" class="org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher" />
   </extension>
 
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="resolver">

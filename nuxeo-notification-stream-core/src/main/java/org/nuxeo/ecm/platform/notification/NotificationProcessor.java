@@ -18,6 +18,7 @@
 
 package org.nuxeo.ecm.platform.notification;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,8 +44,8 @@ public class NotificationProcessor implements StreamProcessorTopology {
     @Override
     public Topology getTopology(Map<String, String> options) {
         Topology.Builder builder = Topology.builder() //
-                                           .addComputation(EventToNotificationComputation::new,
-                                                   Arrays.asList("i1:" + INPUT, "o1:" + OUTPUT));
+                .addComputation(EventToNotificationComputation::new,
+                        Arrays.asList("i1:" + INPUT, "o1:" + OUTPUT));
 
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
         builder.addComputation(() -> new NotificationResolveDispatcher(dispatchers.size()),
@@ -54,7 +55,8 @@ public class NotificationProcessor implements StreamProcessorTopology {
     }
 
     protected List<String> computeDispatchersIO(Collection<Dispatcher> dispatchers) {
-        List<String> res = Arrays.asList("i1:" + OUTPUT);
+        List<String> res = new ArrayList<>();
+        res.add("i1:" + OUTPUT);
         // XXX Ahem...
         dispatchers.forEach(d -> res.add("o" + res.size() + ":" + d.getName()));
         return res;
@@ -66,8 +68,9 @@ public class NotificationProcessor implements StreamProcessorTopology {
         }
 
         @Override
-        public void processRecord(ComputationContext computationContext, String s, Record record) {
-            // XXX
+        public void processRecord(ComputationContext ctx, String s, Record record) {
+            ctx.produceRecord(OUTPUT, record);
+            ctx.askForCheckpoint();
         }
     }
 
@@ -78,8 +81,9 @@ public class NotificationProcessor implements StreamProcessorTopology {
         }
 
         @Override
-        public void processRecord(ComputationContext computationContext, String s, Record record) {
-            // XXX
+        public void processRecord(ComputationContext ctx, String s, Record record) {
+            metadata.outputStreams().forEach(os -> ctx.produceRecord(os, record));
+            ctx.askForCheckpoint();
         }
     }
 }

@@ -41,7 +41,7 @@ public class DispatcherDescriptor implements Descriptor {
 
     public Dispatcher newInstance() {
         try {
-            return dispatcherClass.getConstructor(String.class, Integer.class, Integer.class).newInstance(id, 1, 0);
+            return dispatcherClass.getConstructor(String.class, int.class, int.class).newInstance(id, 1, 0);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }

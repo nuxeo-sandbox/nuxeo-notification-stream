@@ -33,6 +33,6 @@ public class LogDispatcher extends Dispatcher {
     @Override
     public void process(Record record) {
         processed++;
-        log.error(record.toString());
+        log.error(getName() + ":" + record.toString());
     }
 }
