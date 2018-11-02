@@ -18,18 +18,27 @@
 
 package org.nuxeo.ecm.platform.notification;
 
-import java.util.Map;
-
-import org.nuxeo.lib.stream.computation.Topology;
+import org.nuxeo.lib.stream.computation.AbstractComputation;
+import org.nuxeo.lib.stream.computation.ComputationContext;
+import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.stream.StreamProcessorTopology;
 
 /**
  * @since XXX
  */
-public class NotificationProcessor implements StreamProcessorTopology {
+public class EventToNotificationComputation extends AbstractComputation {
+    public static final String ID = "eventToNotificationComputation";
+
+    public EventToNotificationComputation() {
+        super(EventToNotificationComputation.ID, 1, 1);
+    }
+
     @Override
-    public Topology getTopology(Map<String, String> options) {
-        return Framework.getService(NotificationService.class).buildTopology(options);
+    public void processRecord(ComputationContext ctx, String s, Record record) {
+        String outputStream = ((NotificationComponent) Framework.getService(
+                NotificationService.class)).getNotificationOutputStream();
+
+        ctx.produceRecord(outputStream, record);
+        ctx.askForCheckpoint();
     }
 }

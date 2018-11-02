@@ -1,13 +1,13 @@
 <component name="org.nuxeo.ecm.platform.notification.stream">
   <extension point="logConfig" target="org.nuxeo.runtime.stream.service">
-    <logConfig name="default">
+    <logConfig name="notification">
     </logConfig>
   </extension>
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="notification"
                      class="org.nuxeo.ecm.platform.notification.NotificationProcessor"
-                     logConfig="default">
+                     logConfig="notification">
     </streamProcessor>
   </extension>
 </component>

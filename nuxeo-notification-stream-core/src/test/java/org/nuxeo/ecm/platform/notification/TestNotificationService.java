@@ -53,7 +53,7 @@ public class TestNotificationService {
     public void testRegistration() {
         assertThat(notif.getDispatcher("dummy")).isNull();
         assertThat(notif.getDispatcher("inApp")).isNotNull();
-        assertThat(notif.getDispatchers()).hasSize(1);
+        assertThat(notif.getDispatchers()).hasSize(2);
 
         assertThat(notif.getResolver("dummy")).isNull();
         assertThat(notif.getResolver("fileCreated")) //

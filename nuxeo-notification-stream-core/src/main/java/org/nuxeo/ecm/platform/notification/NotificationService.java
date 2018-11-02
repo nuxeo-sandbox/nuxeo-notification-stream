@@ -19,10 +19,12 @@
 package org.nuxeo.ecm.platform.notification;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.lib.stream.computation.Topology;
 
 /**
  * @since XXX
@@ -65,4 +67,14 @@ public interface NotificationService {
      * @return list of resolver that handle the event, or an empty list otherwise.
      */
     Collection<Resolver> getResolvers(Event event);
+
+    /**
+     * Returns Notification's Stream computation topology.
+     */
+    Topology buildTopology(Map<String, String> options);
+
+    /**
+     * Returns stream name which is going to be consumed to create Notification object
+     */
+    String getEventInputStream();
 }

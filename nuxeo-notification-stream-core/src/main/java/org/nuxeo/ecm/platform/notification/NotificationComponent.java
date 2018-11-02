@@ -18,8 +18,12 @@
 
 package org.nuxeo.ecm.platform.notification;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -29,10 +33,14 @@ import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
+import org.nuxeo.lib.stream.computation.Topology;
+import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.kafka.KafkaConfigServiceImpl;
 import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.nuxeo.runtime.model.Descriptor;
+import org.nuxeo.runtime.stream.StreamService;
 
 /**
  * @since XXX
@@ -41,6 +49,18 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     public static final String XP_DISPATCHER = "dispatcher";
 
     public static final String XP_RESOLVER = "resolver";
+
+    public static final String STREAM_OUPUT_PROP = "nuxeo.stream.notification.output";
+
+    public static final String DEFAULT_STREAM_OUTPUT = "notificationOutput";
+
+    public static final String STREAM_INPUT_PROP = "nuxeo.stream.notification.input";
+
+    public static final String DEFAULT_STREAM_INPUT = "notificationInput";
+
+    public static final String LOG_CONFIG_PROP = "nuxeo.stream.notification.log.config";
+
+    public static final String DEFAULT_LOG_CONFIG = "notification";
 
     protected Map<String, Dispatcher> dispatchers = new ConcurrentHashMap<>();
 
@@ -92,6 +112,26 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
+    public Topology buildTopology(Map<String, String> options) {
+        Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
+                Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
+
+        Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
+        builder.addComputation(() -> new DispatcherResolverComputation(dispatchers.size()),
+                computeDispatchersIO(dispatchers));
+        dispatchers.forEach(d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + d.getName())));
+        return builder.build();
+    }
+
+    protected List<String> computeDispatchersIO(Collection<Dispatcher> dispatchers) {
+        List<String> res = new ArrayList<>();
+        res.add("i1:" + getNotificationOutputStream());
+        // XXX Ahem...
+        dispatchers.forEach(d -> res.add("o" + res.size() + ":" + d.getName()));
+        return res;
+    }
+
+    @Override
     public Dispatcher getDispatcher(String id) {
         return dispatchers.get(id);
     }
@@ -117,5 +157,22 @@ public class NotificationComponent extends DefaultComponent implements Notificat
                              .filter(r -> r.accept(event))
                              .sorted(Comparator.comparing(Resolver::getOrder))
                              .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getEventInputStream() {
+        return Framework.getProperty(STREAM_INPUT_PROP, DEFAULT_STREAM_INPUT);
+    }
+
+    protected String getNotificationOutputStream() {
+        return Framework.getProperty(STREAM_OUPUT_PROP, DEFAULT_STREAM_OUTPUT);
+    }
+
+    protected LogManager getLogManager() {
+        return Framework.getService(StreamService.class).getLogManager(getLogConfig());
+    }
+
+    protected String getLogConfig() {
+        return Framework.getProperty(LOG_CONFIG_PROP, DEFAULT_LOG_CONFIG);
     }
 }

@@ -18,18 +18,24 @@
 
 package org.nuxeo.ecm.platform.notification;
 
-import java.util.Map;
-
-import org.nuxeo.lib.stream.computation.Topology;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.stream.StreamProcessorTopology;
+import org.nuxeo.lib.stream.computation.AbstractComputation;
+import org.nuxeo.lib.stream.computation.ComputationContext;
+import org.nuxeo.lib.stream.computation.Record;
 
 /**
  * @since XXX
  */
-public class NotificationProcessor implements StreamProcessorTopology {
+class DispatcherResolverComputation extends AbstractComputation {
+
+    public static final String ID = "dispatcherResolverComputation";
+
+    public DispatcherResolverComputation(int nbOutputStreams) {
+        super(DispatcherResolverComputation.ID, 1, nbOutputStreams);
+    }
+
     @Override
-    public Topology getTopology(Map<String, String> options) {
-        return Framework.getService(NotificationService.class).buildTopology(options);
+    public void processRecord(ComputationContext ctx, String s, Record record) {
+        metadata.outputStreams().forEach(os -> ctx.produceRecord(os, record));
+        ctx.askForCheckpoint();
     }
 }

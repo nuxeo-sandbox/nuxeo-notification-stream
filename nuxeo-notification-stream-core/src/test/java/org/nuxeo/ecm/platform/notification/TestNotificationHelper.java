@@ -19,14 +19,16 @@ import org.nuxeo.lib.stream.log.LogManager;
 public class TestNotificationHelper {
 
     /**
-     * Await for the lag of all stream to be 0.
+     * Await for the lag of all streams to be 0.
      *
-     * @param duration
-     * @param unit
-     * @return
+     * @param logManager to use to resolve available logs
+     * @param duration of the deadline before interrupting the wait, in unit
+     * @param unit of the duration
+     * @return true if lag is empty, false if the deadline is reached
      * @throws InterruptedException
      */
-    public static boolean awaitCompletion(LogManager logManager, long duration, TimeUnit unit) throws InterruptedException {
+    public static boolean awaitCompletion(LogManager logManager, long duration, TimeUnit unit)
+            throws InterruptedException {
         if (logManager == null) {
             return false;
         }
@@ -35,9 +37,14 @@ public class TestNotificationHelper {
         long deadline = System.currentTimeMillis() + durationMs;
         while (System.currentTimeMillis() < deadline) {
             Thread.sleep(100);
-            long lagTotal = logManager.listAll().stream().mapToLong(l ->
-                    logManager.listConsumerGroups(l).stream().map(g -> logManager.getLag(l, g)).mapToLong(LogLag::lag).sum()
-            ).sum();
+            long lagTotal = logManager.listAll()
+                                      .stream()
+                                      .mapToLong(l -> logManager.listConsumerGroups(l)
+                                                                .stream()
+                                                                .map(g -> logManager.getLag(l, g))
+                                                                .mapToLong(LogLag::lag)
+                                                                .sum())
+                                      .sum();
 
             if (lagTotal == 0L) {
                 return true;
