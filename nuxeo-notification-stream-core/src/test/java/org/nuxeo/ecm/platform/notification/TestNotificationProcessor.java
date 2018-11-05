@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
+import org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -31,7 +32,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/empty-resolver-contrib.xml")
 public class TestNotificationProcessor {
 
     @Inject
@@ -55,10 +56,12 @@ public class TestNotificationProcessor {
         assertThat(logManager.getAppender(notifcationService.getEventInputStream())).isNotNull();
 
         LogAppender<Record> appender = logManager.getAppender(notifcationService.getEventInputStream());
-        appender.append("toto", Record.of("toto", "Test".getBytes()));
+        Record r = Record.of("toto", "".getBytes());
+        appender.append("toto", r);
 
         TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
-        assertThat(LogDispatcher.processed).isEqualTo(2);
+        // AcceptAllResolver is multipliing by X target users batch size, to ensure the list is correctly splitted.
+        assertThat(LogDispatcher.processed).isEqualTo(AcceptAllResolver.MULTIPLIER * 2);
     }
 
 }

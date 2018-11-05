@@ -47,10 +47,10 @@ public abstract class Resolver {
      * <p>
      * The method is executed on EVERY corresponding notification, his resolution MUST be as fast as possible.
      *
-     * @param doc from the context that contain resolution needs
+     * @param event from the context that contain resolution needed
      * @return list of target users, of an empty list otherwise.
      */
-    public abstract List<String> resolveTargetUsers(DocumentModel doc);
+    public abstract List<String> resolveTargetUsers(Event event);
 
     /**
      * Allow to order several resolvers when matching the same event

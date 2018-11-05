@@ -26,6 +26,10 @@ public class LogDispatcher extends Dispatcher {
 
     public static int processed = 0;
 
+    public static void reset() {
+        processed = 0;
+    }
+
     public LogDispatcher(String name, int nbInputStreams, int nbOutputStreams) {
         super(name, nbInputStreams, nbOutputStreams);
     }

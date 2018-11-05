@@ -18,6 +18,8 @@
 
 package org.nuxeo.ecm.platform.notification.resolver.impl;
 
+import java.util.List;
+
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
@@ -40,4 +42,12 @@ public abstract class DocumentEventResolver extends Resolver {
     }
 
     public abstract boolean accept(Event event, DocumentEventContext ctx, DocumentModel source);
+
+    @Override
+    public List<String> resolveTargetUsers(Event event) {
+        DocumentEventContext ctx = (DocumentEventContext) event.getContext();
+        return resolveTargetUsers(ctx.getSourceDocument());
+    }
+
+    public abstract List<String> resolveTargetUsers(DocumentModel doc);
 }
