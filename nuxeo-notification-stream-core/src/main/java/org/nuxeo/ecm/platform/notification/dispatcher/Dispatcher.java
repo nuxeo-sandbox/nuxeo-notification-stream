@@ -18,6 +18,8 @@
 
 package org.nuxeo.ecm.platform.notification.dispatcher;
 
+import java.util.Map;
+
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
@@ -27,8 +29,11 @@ import org.nuxeo.lib.stream.computation.Record;
  */
 public abstract class Dispatcher extends AbstractComputation {
 
-    public Dispatcher(String name, int nbInputStreams, int nbOutputStreams) {
-        super(name, nbInputStreams, nbOutputStreams);
+    protected Map<String, String> properties;
+
+    public Dispatcher(DispatcherDescriptor desc, int nbInputStreams, int nbOutputStreams) {
+        super(desc.id, nbInputStreams, nbOutputStreams);
+        properties = desc.getProperties();
     }
 
     @Override
@@ -42,4 +47,12 @@ public abstract class Dispatcher extends AbstractComputation {
     }
 
     public abstract void process(Record record);
+
+    public String getProperty(String key) {
+        return getProperty(key, null);
+    }
+
+    public String getProperty(String key, String defaultValue) {
+        return properties.getOrDefault(key, defaultValue);
+    }
 }

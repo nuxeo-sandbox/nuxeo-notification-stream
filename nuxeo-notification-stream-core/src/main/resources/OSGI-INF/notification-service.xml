@@ -26,7 +26,9 @@
       notification, and must distribute it.
       <code>
         <dispatcher id="inapp"
-                    class="org.nuxeo.ecm.platform.notification.dispatcher.DummyDispatcher" />
+                    class="org.nuxeo.ecm.platform.notification.dispatcher.DummyDispatcher">
+          <property name="myProp">myValue</property>
+        </dispatcher>
       </code>
     </documentation>
 

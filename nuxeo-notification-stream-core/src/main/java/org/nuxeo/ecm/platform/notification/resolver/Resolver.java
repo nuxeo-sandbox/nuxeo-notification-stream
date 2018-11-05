@@ -20,7 +20,6 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import java.util.List;
 
-import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
 
 /**
@@ -64,7 +63,7 @@ public abstract class Resolver {
     /**
      * Initialize Resolver
      * 
-     * @param desc tied to the Resolver
+     * @param desc tied to the Resolvere
      * @return the current instance.
      */
     protected Resolver init(ResolverDescriptor desc) {

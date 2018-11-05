@@ -32,6 +32,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.test.CoreFeature;
+import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -57,12 +58,20 @@ public class TestNotificationService {
 
         assertThat(notif.getResolver("dummy")).isNull();
         assertThat(notif.getResolver("fileCreated")) //
-                                                     .isNotNull()
-                                                     .hasFieldOrPropertyWithValue("order", 0);
+                                                    .isNotNull()
+                                                    .hasFieldOrPropertyWithValue("order", 0);
         assertThat(notif.getResolver("fileUpdated")) //
-                                                     .isNotNull()
-                                                     .hasFieldOrPropertyWithValue("order", 100);
+                                                    .isNotNull()
+                                                    .hasFieldOrPropertyWithValue("order", 100);
         assertThat(notif.getResolvers()).hasSize(2);
+    }
+
+    @Test
+    public void testDispatcherInit() {
+        Dispatcher log = notif.getDispatcher("log");
+        assertThat(log.getProperty("dummy", "john")).isEqualTo("john");
+        assertThat(log.getProperty("dummy")).isNull();
+        assertThat(log.getProperty("my-secret-key")).isEqualTo("my-secret-value");
     }
 
     @Test

@@ -26,12 +26,12 @@ public class LogDispatcher extends Dispatcher {
 
     public static int processed = 0;
 
-    public static void reset() {
-        processed = 0;
+    public LogDispatcher(DispatcherDescriptor desc, int nbInputStreams, int nbOutputStreams) {
+        super(desc, nbInputStreams, nbOutputStreams);
     }
 
-    public LogDispatcher(String name, int nbInputStreams, int nbOutputStreams) {
-        super(name, nbInputStreams, nbOutputStreams);
+    public static void reset() {
+        processed = 0;
     }
 
     @Override

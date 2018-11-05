@@ -44,7 +44,8 @@ public class ResolverDescriptor implements Descriptor {
 
     public Resolver newInstance() {
         try {
-            return resolverClass.newInstance().init(this);
+            return resolverClass.newInstance() //
+                                .init(this);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }
