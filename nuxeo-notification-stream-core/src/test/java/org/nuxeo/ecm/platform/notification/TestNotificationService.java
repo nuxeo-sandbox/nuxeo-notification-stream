@@ -58,11 +58,9 @@ public class TestNotificationService {
 
         assertThat(notif.getResolver("dummy")).isNull();
         assertThat(notif.getResolver("fileCreated")) //
-                                                    .isNotNull()
-                                                    .hasFieldOrPropertyWithValue("order", 0);
+                                                    .isNotNull();
         assertThat(notif.getResolver("fileUpdated")) //
-                                                    .isNotNull()
-                                                    .hasFieldOrPropertyWithValue("order", 100);
+                                                    .isNotNull();
         assertThat(notif.getResolvers()).hasSize(2);
     }
 

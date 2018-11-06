@@ -21,6 +21,7 @@ package org.nuxeo.ecm.platform.notification.resolver;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 import java.util.List;
+import java.util.Map;
 
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
@@ -37,5 +38,10 @@ public class FileUpdatedResolver extends DocumentEventResolver {
     @Override
     public boolean accept(Event event, DocumentEventContext ctx, DocumentModel source) {
         return source.getType().equals("File") && event.getName().equals(DOCUMENT_UPDATED);
+    }
+
+    @Override
+    public void subscribe(String username, Map<String, String> ctx) {
+        // Not required for the tests
     }
 }

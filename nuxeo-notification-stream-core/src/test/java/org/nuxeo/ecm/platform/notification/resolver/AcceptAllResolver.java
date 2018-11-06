@@ -22,6 +22,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.EventToNotificationComputation.DEFAULT_USERS_BATCH_SIZE;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,6 +45,11 @@ public class AcceptAllResolver extends Resolver {
                         .boxed()
                         .map(s -> RandomStringUtils.randomAlphabetic(10))
                         .collect(Collectors.toList());
+    }
+
+    @Override
+    public void subscribe(String username, Map<String, String> ctx) {
+        // Not required for the tests
     }
 
     @Test

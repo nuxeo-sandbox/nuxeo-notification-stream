@@ -117,9 +117,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
                 Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
 
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
-        builder.addComputation(() -> new DispatcherResolverComputation(dispatchers.size()),
-                computeDispatchersIO(dispatchers));
-        dispatchers.forEach(d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + d.getName())));
+        dispatchers.forEach(d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + getNotificationOutputStream())));
         return builder.build();
     }
 
@@ -155,7 +153,6 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     public Collection<Resolver> getResolvers(Event event) {
         return getResolvers().stream()
                              .filter(r -> r.accept(event))
-                             .sorted(Comparator.comparing(Resolver::getOrder))
                              .collect(Collectors.toList());
     }
 

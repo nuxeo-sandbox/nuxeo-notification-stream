@@ -34,9 +34,6 @@ public class ResolverDescriptor implements Descriptor {
     @XNode("@class")
     protected Class<? extends Resolver> resolverClass;
 
-    @XNode("@order")
-    protected int order = 100;
-
     @Override
     public String getId() {
         return id;
@@ -44,14 +41,9 @@ public class ResolverDescriptor implements Descriptor {
 
     public Resolver newInstance() {
         try {
-            return resolverClass.newInstance() //
-                                .init(this);
+            return resolverClass.newInstance();
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }
-    }
-
-    public int getOrder() {
-        return order;
     }
 }

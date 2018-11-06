@@ -19,6 +19,7 @@
 package org.nuxeo.ecm.platform.notification.resolver;
 
 import java.util.List;
+import java.util.Map;
 
 import org.nuxeo.ecm.core.event.Event;
 
@@ -29,13 +30,11 @@ import org.nuxeo.ecm.core.event.Event;
  */
 public abstract class Resolver {
 
-    protected int order;
-
     /**
      * Check if the resolver is able to compute the current Event in a Notification Object.
      * <p>
      * The method is executed on EVERY core event, his resolution MUST be as fast as possible.
-     * 
+     *
      * @param event that could be transformed.
      * @return true if it assignable, false otherwise.
      */
@@ -52,22 +51,10 @@ public abstract class Resolver {
     public abstract List<String> resolveTargetUsers(Event event);
 
     /**
-     * Allow to order several resolvers when matching the same event
-     * 
-     * @return order value
+     * Subscribe the given user to the resolver. This allows to resolve the target users whenever an event accepted by the resolver is triggered and need to be processed.
+     *
+     * @param username The username subscribing to the resolver.
+     * @param ctx      A map of String used to defined how to store the subscription of the user.
      */
-    public int getOrder() {
-        return order;
-    }
-
-    /**
-     * Initialize Resolver
-     * 
-     * @param desc tied to the Resolvere
-     * @return the current instance.
-     */
-    protected Resolver init(ResolverDescriptor desc) {
-        order = desc.getOrder();
-        return this;
-    }
+    public abstract void subscribe(String username, Map<String, String> ctx);
 }
