@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.stream.listener">
+
+  <extension target="org.nuxeo.ecm.core.event.EventServiceComponent" point="listener">
+
+    <documentation>
+      Asynchronous event listener to push the contributed events to a Stream in input of the Notification processor.
+    </documentation>
+
+    <listener name="eventsStreamListener" async="true" postCommit="true"
+              class="org.nuxeo.ecm.platform.notification.listener.EventsStreamListener">
+      <event>documentCreated</event>
+      <event>documentCreatedByCopy</event>
+      <event>documentModified</event>
+      <event>documentRemoved</event>
+    </listener>
+
+  </extension>
+
+</component>

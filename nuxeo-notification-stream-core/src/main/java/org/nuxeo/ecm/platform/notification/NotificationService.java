@@ -25,6 +25,7 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.lib.stream.computation.Topology;
+import org.nuxeo.lib.stream.log.LogManager;
 
 /**
  * @since XXX
@@ -77,4 +78,9 @@ public interface NotificationService {
      * Returns stream name which is going to be consumed to create Notification object
      */
     String getEventInputStream();
+
+    /**
+     * Returns the Log manager configured on the notification service.
+     */
+    LogManager getLogManager();
 }

@@ -10,10 +10,9 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +35,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 public class TestNotificationProcessor {
 
     @Inject
-    protected NotificationService notifcationService;
+    protected NotificationService notificationService;
 
     @Test
     public void testTopologyDefinition() {
@@ -52,10 +51,10 @@ public class TestNotificationProcessor {
     @Test
     public void testTopologyExecution() throws InterruptedException {
         // Create a record in the stream in input of the notification processor
-        LogManager logManager = ((NotificationComponent) notifcationService).getLogManager();
-        assertThat(logManager.getAppender(notifcationService.getEventInputStream())).isNotNull();
+        LogManager logManager = notificationService.getLogManager();
+        assertThat(logManager.getAppender(notificationService.getEventInputStream())).isNotNull();
 
-        LogAppender<Record> appender = logManager.getAppender(notifcationService.getEventInputStream());
+        LogAppender<Record> appender = logManager.getAppender(notificationService.getEventInputStream());
         Record r = Record.of("toto", "".getBytes());
         appender.append("toto", r);
 

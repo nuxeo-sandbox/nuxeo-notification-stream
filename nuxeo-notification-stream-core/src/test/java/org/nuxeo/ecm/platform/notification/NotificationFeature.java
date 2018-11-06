@@ -8,12 +8,7 @@
  */
 package org.nuxeo.ecm.platform.notification;
 
-import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
-
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.lib.stream.log.LogLag;
-import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.RunnerFeature;

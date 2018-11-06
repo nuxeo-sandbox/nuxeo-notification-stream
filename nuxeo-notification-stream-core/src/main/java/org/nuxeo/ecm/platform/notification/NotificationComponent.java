@@ -168,7 +168,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         return Framework.getProperty(STREAM_OUPUT_PROP, DEFAULT_STREAM_OUTPUT);
     }
 
-    protected LogManager getLogManager() {
+    @Override
+    public LogManager getLogManager() {
         return Framework.getService(StreamService.class).getLogManager(getLogConfig());
     }
 
