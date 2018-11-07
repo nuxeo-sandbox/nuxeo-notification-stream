@@ -12,4 +12,15 @@
     <resolver id="fileCreated" class="org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver" order="0" />
     <resolver id="fileUpdated" class="org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver" />
   </extension>
+
+  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="settings">
+    <settings id="fileCreated">
+      <dispatcher name="inApp" default="true" enable="true" />
+      <dispatcher name="log" default="false" enable="true" />
+    </settings>
+    <settings id="fileUpdated">
+      <dispatcher name="inApp" enable="false" />
+      <dispatcher name="log" enable="false" />
+    </settings>
+  </extension>
 </component>

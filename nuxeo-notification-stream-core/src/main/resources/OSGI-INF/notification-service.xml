@@ -5,6 +5,7 @@
 
   <service>
     <provide interface="org.nuxeo.ecm.platform.notification.NotificationService" />
+    <provide interface="org.nuxeo.ecm.platform.notification.NotificationSettingsService" />
   </service>
 
   <extension-point name="resolver">
@@ -35,5 +36,25 @@
     <object class="org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor" />
   </extension-point>
 
+  <extension-point name="settings">
+    <documentation>
+      Register notifications dispatcher. A dispatcher is a distribution channel, each dispatcher are the final step of a
+      notification, and must distribute it.
+      <code>
+        <settings id="resolverId">
+          <dispatcher name="dispatcherId1" default="true" enable="true" />
+          <dispatcher name="dispatcherId2" default="false" enable="true" />
+          ...
+        </settings>
+        <settings id="resolverId2">
+          <dispatcher name="dispatcherId1" enable="false" />
+          <dispatcher name="dispatcherId2" enable="false" />
+          ...
+        </settings>
+      </code>
+    </documentation>
+
+    <object class="org.nuxeo.ecm.platform.notification.SettingsDescriptor" />
+  </extension-point>
 
 </component>

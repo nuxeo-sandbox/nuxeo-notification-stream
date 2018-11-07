@@ -85,4 +85,19 @@ public class TestNotificationService {
         eventRecord.setEventName(DOCUMENT_CHECKEDIN);
         assertThat(notif.getResolvers(eventRecord)).hasSize(0);
     }
+
+    @Test
+    public void testNotificationSettings() {
+        NotificationComponent cmp = (NotificationComponent)notif;
+        SettingsDescriptor.DispatcherSetting setting = cmp.getSetting("fileCreated").getSetting("inApp");
+        assertThat(setting.isDefault()).isTrue();
+        assertThat(setting.isEnabled()).isTrue();
+
+        setting = cmp.getSetting("fileCreated").getSetting("unknown");
+        assertThat(setting.isDefault()).isFalse();
+        assertThat(setting.isEnabled()).isTrue();
+
+        setting = cmp.getSetting("fileUpdated").getSetting("log");
+        assertThat(setting.isEnabled()).isFalse();
+    }
 }
