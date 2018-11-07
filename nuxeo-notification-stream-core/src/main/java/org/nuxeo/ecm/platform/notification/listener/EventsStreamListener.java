@@ -71,7 +71,7 @@ public class EventsStreamListener implements PostCommitEventListener {
 
         if (event.getContext() instanceof DocumentEventContext) {
             String docId = ((DocumentEventContext) event.getContext()).getSourceDocument().getId();
-            record.setDocId(docId);
+            record.setDocumentSourceId(docId);
         }
 
         return Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class).encode(record);

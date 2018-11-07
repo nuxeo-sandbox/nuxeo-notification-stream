@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.reflect.Nullable;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class Notification {
 
@@ -60,11 +59,10 @@ public class Notification {
             notif = new Notification();
         }
 
-        public NotificationBuilder fromEvent(Event event) {
-            withId(event.getName());
-            if (event.getContext() instanceof DocumentEventContext) {
-                DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-                withSourceId(ctx.getSourceDocument().getSourceId());
+        public NotificationBuilder fromEvent(EventRecord eventRecord) {
+            withId(eventRecord.getEventName());
+            if (eventRecord.getDocumentSourceId() != null) {
+                withSourceId(eventRecord.getDocumentSourceId());
             }
 
             return this;

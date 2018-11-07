@@ -27,12 +27,10 @@ import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -58,9 +56,9 @@ public class TestNotificationService {
 
         assertThat(notif.getResolver("dummy")).isNull();
         assertThat(notif.getResolver("fileCreated")) //
-                                                    .isNotNull();
+                .isNotNull();
         assertThat(notif.getResolver("fileUpdated")) //
-                                                    .isNotNull();
+                .isNotNull();
         assertThat(notif.getResolvers()).hasSize(2);
     }
 
@@ -74,18 +72,17 @@ public class TestNotificationService {
 
     @Test
     public void testResolverResolution() {
-        DocumentModel source = Mockito.mock(DocumentModel.class);
-        Mockito.when(source.getType()).thenReturn("File");
+        EventRecord eventRecord = new EventRecord(DOCUMENT_UPDATED, "0000-0000-0000", "File", session.getPrincipal().getName());
+        assertThat(notif.getResolvers(eventRecord)).hasSize(1)
+                .first()
+                .isInstanceOf(FileUpdatedResolver.class);
 
-        DocumentEventContext ctx = new DocumentEventContext(session, session.getPrincipal(), source);
-        assertThat(notif.getResolvers(ctx.newEvent(DOCUMENT_UPDATED))).hasSize(1) //
-                                                                      .first()
-                                                                      .isInstanceOf(FileUpdatedResolver.class);
+        eventRecord.setEventName(DOCUMENT_CREATED);
+        assertThat(notif.getResolvers(eventRecord)).hasSize(1)
+                .first()
+                .isInstanceOf(FileCreatedResolver.class);
 
-        assertThat(notif.getResolvers(ctx.newEvent(DOCUMENT_CREATED))).hasSize(1) //
-                                                                      .first()
-                                                                      .isInstanceOf(FileCreatedResolver.class);
-
-        assertThat(notif.getResolvers(ctx.newEvent(DOCUMENT_CHECKEDIN))).hasSize(0);
+        eventRecord.setEventName(DOCUMENT_CHECKEDIN);
+        assertThat(notif.getResolvers(eventRecord)).hasSize(0);
     }
 }

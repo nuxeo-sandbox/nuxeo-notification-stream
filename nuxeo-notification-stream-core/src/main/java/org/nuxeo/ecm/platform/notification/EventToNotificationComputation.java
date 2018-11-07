@@ -23,8 +23,7 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.impl.EventImpl;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
@@ -50,17 +49,19 @@ public class EventToNotificationComputation extends AbstractComputation {
         String outputStream = ((NotificationComponent) Framework.getService(
                 NotificationService.class)).getNotificationOutputStream();
 
-        Event event = new EventImpl("myEvent", null); // XXX FIXME
-        Framework.getService(NotificationService.class).getResolvers(event).forEach(r -> {
-            List<String> targetUsers = r.resolveTargetUsers(event);
+        // Extract the EventRecord from the input Record
+        EventRecord eventRecord = Framework.getService(CodecService.class) //
+                .getCodec(DEFAULT_CODEC, EventRecord.class).decode(record.getData());
+        Framework.getService(NotificationService.class).getResolvers(eventRecord).forEach(r -> {
+            List<String> targetUsers = r.resolveTargetUsers(eventRecord);
 
             // Split target users in several batches in order to parallelize their preferences resolution
             int size = getBatchSize();
             IntStream.range(0, (targetUsers.size() + size - 1) / size)
-                     .mapToObj(i -> targetUsers.subList(i * size, Math.min(targetUsers.size(), (i + 1) * size)))
-                     .map(usersBatch -> Notification.builder().fromEvent(event).withUsernames(usersBatch).build())
-                     .map(this::encodeNotif)
-                     .forEach(notifRecord -> ctx.produceRecord(outputStream, notifRecord));
+                    .mapToObj(i -> targetUsers.subList(i * size, Math.min(targetUsers.size(), (i + 1) * size)))
+                    .map(usersBatch -> Notification.builder().fromEvent(eventRecord).withUsernames(usersBatch).build())
+                    .map(this::encodeNotif)
+                    .forEach(notifRecord -> ctx.produceRecord(outputStream, notifRecord));
         });
 
         ctx.askForCheckpoint();
@@ -68,8 +69,8 @@ public class EventToNotificationComputation extends AbstractComputation {
 
     protected Record encodeNotif(Notification notif) {
         return Record.of(notif.id, Framework.getService(CodecService.class) //
-                                            .getCodec(DEFAULT_CODEC, Notification.class)
-                                            .encode(notif));
+                .getCodec(DEFAULT_CODEC, Notification.class)
+                .encode(notif));
     }
 
     protected int getBatchSize() {

@@ -26,18 +26,19 @@ import java.util.Map;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.impl.DocumentEventResolver;
 
 public class FileCreatedResolver extends DocumentEventResolver {
 
     @Override
-    public List<String> resolveTargetUsers(DocumentModel doc) {
+    public List<String> resolveTargetUsers(EventRecord eventRecord) {
         return null;
     }
 
     @Override
-    public boolean accept(Event event, DocumentEventContext ctx, DocumentModel source) {
-        return source.getType().equals("File") && event.getName().equals(DOCUMENT_CREATED);
+    public boolean acceptEventRecord(EventRecord eventRecord) {
+        return eventRecord.getDocumentSourceType().equals("File") && eventRecord.getEventName().equals(DOCUMENT_CREATED);
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 /**
  * Resolver class aims to be able to transform a CoreEvent to a Notification object
@@ -35,20 +36,20 @@ public abstract class Resolver {
      * <p>
      * The method is executed on EVERY core event, his resolution MUST be as fast as possible.
      *
-     * @param event that could be transformed.
+     * @param eventRecord that could be transformed.
      * @return true if it assignable, false otherwise.
      */
-    public abstract boolean accept(Event event);
+    public abstract boolean accept(EventRecord eventRecord);
 
     /**
      * Resolve target users that have to be notified
      * <p>
      * The method is executed on EVERY corresponding notification, his resolution MUST be as fast as possible.
      *
-     * @param event from the context that contain resolution needed
+     * @param eventRecord from the context that contain resolution needed
      * @return list of target users, of an empty list otherwise.
      */
-    public abstract List<String> resolveTargetUsers(Event event);
+    public abstract List<String> resolveTargetUsers(EventRecord eventRecord);
 
     /**
      * Subscribe the given user to the resolver. This allows to resolve the target users whenever an event accepted by the resolver is triggered and need to be processed.

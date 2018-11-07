@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogManager;
@@ -64,10 +65,10 @@ public interface NotificationService {
     /**
      * List resolver that accept the event
      * 
-     * @param event that has to be tested
+     * @param eventRecord that has to be tested
      * @return list of resolver that handle the event, or an empty list otherwise.
      */
-    Collection<Resolver> getResolvers(Event event);
+    Collection<Resolver> getResolvers(EventRecord eventRecord);
 
     /**
      * Returns Notification's Stream computation topology.

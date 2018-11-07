@@ -18,11 +18,7 @@
 
 package org.nuxeo.ecm.platform.notification.resolver.impl;
 
-import java.util.List;
-
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 
 /**
@@ -31,23 +27,15 @@ import org.nuxeo.ecm.platform.notification.resolver.Resolver;
  * @since XXX
  */
 public abstract class DocumentEventResolver extends Resolver {
+
     @Override
-    public boolean accept(Event event) {
-        if (!(event.getContext() instanceof DocumentEventContext)) {
+    public boolean accept(EventRecord eventRecord) {
+        if (eventRecord.getDocumentSourceId() == null) {
             return false;
         }
 
-        DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-        return accept(event, ctx, ctx.getSourceDocument());
+        return acceptEventRecord(eventRecord);
     }
 
-    public abstract boolean accept(Event event, DocumentEventContext ctx, DocumentModel source);
-
-    @Override
-    public List<String> resolveTargetUsers(Event event) {
-        DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-        return resolveTargetUsers(ctx.getSourceDocument());
-    }
-
-    public abstract List<String> resolveTargetUsers(DocumentModel doc);
+    public abstract boolean acceptEventRecord(EventRecord eventRecord);
 }

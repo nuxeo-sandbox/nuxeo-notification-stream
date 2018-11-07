@@ -10,7 +10,6 @@ package org.nuxeo.ecm.platform.notification.message;
 
 import java.io.Serializable;
 
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import org.apache.avro.reflect.Nullable;
 
 /**
@@ -31,16 +30,20 @@ public class EventRecord implements Serializable {
         this.username = username;
     }
 
-    public EventRecord(String eventName, String docId, String username){
+    public EventRecord(String eventName, String documentSourceId, String documentSourceType, String username){
         this.eventName = eventName;
-        this.docId = docId;
+        this.documentSourceId = documentSourceId;
+        this.documentSourceType = documentSourceType;
         this.username = username;
     }
 
     protected String eventName;
 
     @Nullable
-    protected String docId;
+    protected String documentSourceId;
+
+    @Nullable
+    protected String documentSourceType;
     
     protected String username;
 
@@ -52,12 +55,20 @@ public class EventRecord implements Serializable {
         this.eventName = eventName;
     }
 
-    public String getDocId() {
-        return docId;
+    public String getDocumentSourceId() {
+        return documentSourceId;
     }
 
-    public void setDocId(String docId) {
-        this.docId = docId;
+    public void setDocumentSourceId(String documentSourceId) {
+        this.documentSourceId = documentSourceId;
+    }
+
+    public String getDocumentSourceType() {
+        return documentSourceType;
+    }
+
+    public void setDocumentSourceType(String documentSourceType) {
+        this.documentSourceType = documentSourceType;
     }
 
     public String getUsername() {

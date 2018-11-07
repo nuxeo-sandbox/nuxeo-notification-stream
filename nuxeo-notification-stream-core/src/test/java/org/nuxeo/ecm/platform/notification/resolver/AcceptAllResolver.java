@@ -29,18 +29,19 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class AcceptAllResolver extends Resolver {
 
     public static final int MULTIPLIER = 3;
 
     @Override
-    public boolean accept(Event event) {
+    public boolean accept(EventRecord eventRecord) {
         return true;
     }
 
     @Override
-    public List<String> resolveTargetUsers(Event event) {
+    public List<String> resolveTargetUsers(EventRecord eventRecord) {
         return IntStream.range(0, Integer.parseInt(DEFAULT_USERS_BATCH_SIZE) * MULTIPLIER) //
                         .boxed()
                         .map(s -> RandomStringUtils.randomAlphabetic(10))

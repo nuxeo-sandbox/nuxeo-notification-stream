@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
 import org.nuxeo.lib.stream.computation.Topology;
@@ -150,9 +151,9 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public Collection<Resolver> getResolvers(Event event) {
+    public Collection<Resolver> getResolvers(EventRecord eventRecord) {
         return getResolvers().stream()
-                             .filter(r -> r.accept(event))
+                             .filter(r -> r.accept(eventRecord))
                              .collect(Collectors.toList());
     }
 

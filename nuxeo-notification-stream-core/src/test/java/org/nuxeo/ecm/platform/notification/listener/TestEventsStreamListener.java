@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.event.DocumentEventCategories;
-import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.platform.notification.NotificationFeature;
 import org.nuxeo.ecm.platform.notification.NotificationService;
@@ -84,7 +82,7 @@ public class TestEventsStreamListener {
             Codec codecMessage = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class);
             EventRecord eventRecord = (EventRecord) codecMessage.decode(decodedEvent);
             assertThat(eventRecord.getEventName()).isEqualTo(DOCUMENT_CREATED);
-            assertThat(eventRecord.getDocId()).isEqualTo(doc.getId());
+            assertThat(eventRecord.getDocumentSourceId()).isEqualTo(doc.getId());
             assertThat(eventRecord.getUsername()).isEqualTo("Administrator");
         }
         // never close the manager this is done by the service

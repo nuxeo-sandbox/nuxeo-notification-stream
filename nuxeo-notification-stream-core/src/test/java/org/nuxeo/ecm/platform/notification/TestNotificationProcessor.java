@@ -9,6 +9,7 @@
 package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -17,11 +18,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -36,6 +39,9 @@ public class TestNotificationProcessor {
 
     @Inject
     protected NotificationService notificationService;
+
+    @Inject
+    protected CodecService codecService;
 
     @Test
     public void testTopologyDefinition() {
@@ -53,7 +59,8 @@ public class TestNotificationProcessor {
         assertThat(logManager.getAppender(notificationService.getEventInputStream())).isNotNull();
 
         LogAppender<Record> appender = logManager.getAppender(notificationService.getEventInputStream());
-        Record r = Record.of("toto", "".getBytes());
+        EventRecord eventRecord = new EventRecord("test", "Administrator");
+        Record r = Record.of("toto", codecService.getCodec(DEFAULT_CODEC, EventRecord.class).encode(eventRecord));
         appender.append("toto", r);
 
         TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
