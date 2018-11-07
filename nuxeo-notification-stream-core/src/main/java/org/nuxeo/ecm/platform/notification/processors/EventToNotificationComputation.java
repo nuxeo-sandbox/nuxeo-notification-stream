@@ -16,13 +16,15 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification;
+package org.nuxeo.ecm.platform.notification.processors;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.nuxeo.ecm.platform.notification.Notification;
+import org.nuxeo.ecm.platform.notification.NotificationService;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
@@ -46,8 +48,7 @@ public class EventToNotificationComputation extends AbstractComputation {
 
     @Override
     public void processRecord(ComputationContext ctx, String s, Record record) {
-        String outputStream = ((NotificationComponent) Framework.getService(
-                NotificationService.class)).getNotificationOutputStream();
+        String outputStream = Framework.getService(NotificationService.class).getNotificationOutputStream();
 
         // Extract the EventRecord from the input Record
         EventRecord eventRecord = Framework.getService(CodecService.class) //
@@ -68,7 +69,7 @@ public class EventToNotificationComputation extends AbstractComputation {
     }
 
     protected Record encodeNotif(Notification notif) {
-        return Record.of(notif.id, Framework.getService(CodecService.class) //
+        return Record.of(notif.getId(), Framework.getService(CodecService.class) //
                 .getCodec(DEFAULT_CODEC, Notification.class)
                 .encode(notif));
     }

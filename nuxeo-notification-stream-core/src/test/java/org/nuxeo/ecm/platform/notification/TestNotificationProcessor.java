@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation;
+import org.nuxeo.ecm.platform.notification.processors.NotificationProcessor;
 import org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;

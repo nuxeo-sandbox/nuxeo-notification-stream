@@ -16,10 +16,11 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification;
+package org.nuxeo.ecm.platform.notification.processors;
 
 import java.util.Map;
 
+import org.nuxeo.ecm.platform.notification.NotificationService;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamProcessorTopology;

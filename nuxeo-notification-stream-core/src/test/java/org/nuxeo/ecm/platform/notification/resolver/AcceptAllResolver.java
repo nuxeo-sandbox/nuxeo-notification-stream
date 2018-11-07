@@ -19,7 +19,7 @@
 package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.nuxeo.ecm.platform.notification.EventToNotificationComputation.DEFAULT_USERS_BATCH_SIZE;
+import static org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation.DEFAULT_USERS_BATCH_SIZE;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,6 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
-import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class AcceptAllResolver extends Resolver {
