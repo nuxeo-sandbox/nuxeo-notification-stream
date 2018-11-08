@@ -25,6 +25,8 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 import javax.inject.Inject;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -88,7 +90,7 @@ public class TestNotificationService {
 
     @Test
     public void testNotificationSettings() {
-        NotificationComponent cmp = (NotificationComponent)notif;
+        NotificationComponent cmp = (NotificationComponent) notif;
         SettingsDescriptor.DispatcherSetting setting = cmp.getSetting("fileCreated").getSetting("inApp");
         assertThat(setting.isDefault()).isTrue();
         assertThat(setting.isEnabled()).isTrue();

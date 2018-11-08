@@ -81,6 +81,11 @@ public interface NotificationService {
     String getEventInputStream();
 
     /**
+     * @return The name of the output stream of the notification processor.
+     */
+    String getNotificationOutputStream();
+
+    /**
      * Returns the Log manager configured on the notification service.
      */
     LogManager getLogManager();

@@ -48,6 +48,22 @@ public class Notification {
         //
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public List<String> getUsernames() {
+        return usernames;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public Map<String, Serializable> getContext() {
+        return context;
+    }
+
     public static NotificationBuilder builder() {
         return new NotificationBuilder();
     }
