@@ -24,5 +24,5 @@ public interface NotificationSettingsService {
 
     boolean hasSpecificSettings(String username, String resolverId);
 
-    List<Dispatcher> getDispatchersForResolver(String username, String resolverId);
+    List<Dispatcher> getDispatchers(String username, String resolverId);
 }

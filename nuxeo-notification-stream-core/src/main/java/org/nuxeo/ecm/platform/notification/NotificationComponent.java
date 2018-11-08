@@ -20,7 +20,6 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +52,8 @@ import org.nuxeo.runtime.stream.StreamService;
 /**
  * @since XXX
  */
-public class NotificationComponent extends DefaultComponent implements NotificationService, NotificationSettingsService {
+public class NotificationComponent extends DefaultComponent
+        implements NotificationService, NotificationSettingsService {
     public static final String XP_DISPATCHER = "dispatcher";
 
     public static final String XP_RESOLVER = "resolver";
@@ -125,20 +125,15 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public Topology buildTopology(Map<String, String> options) {
-        Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
-                Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
+        Topology.Builder builder = Topology.builder()
+                                           .addComputation(EventToNotificationComputation::new,
+                                                   Arrays.asList("i1:" + getEventInputStream(),
+                                                           "o1:" + getNotificationOutputStream()));
 
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
-        dispatchers.forEach(d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + getNotificationOutputStream())));
+        dispatchers.forEach(
+                d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + getNotificationOutputStream())));
         return builder.build();
-    }
-
-    protected List<String> computeDispatchersIO(Collection<Dispatcher> dispatchers) {
-        List<String> res = new ArrayList<>();
-        res.add("i1:" + getNotificationOutputStream());
-        // XXX Ahem...
-        dispatchers.forEach(d -> res.add("o" + res.size() + ":" + d.getName()));
-        return res;
     }
 
     @Override
@@ -163,9 +158,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public Collection<Resolver> getResolvers(EventRecord eventRecord) {
-        return getResolvers().stream()
-                .filter(r -> r.accept(eventRecord))
-                .collect(Collectors.toList());
+        return getResolvers().stream().filter(r -> r.accept(eventRecord)).collect(Collectors.toList());
     }
 
     @Override
@@ -207,22 +200,36 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public List<Dispatcher> getDispatchersForResolver(String username, String resolverId) {
+    public List<Dispatcher> getDispatchers(String username, String resolverId) {
         // Get the settings for the given user and the given resolver
-        KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
-        Codec avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, HashMap.class);
-        byte[] settingsUser = settingsKVS.get(username + ":" + resolverId);
+        KeyValueStore store = getKeyValueStore(KVS_SETTINGS);
+        byte[] userSettingsBytes = store.get(username + ":" + resolverId);
 
-        List<String> activeDispatchersId;
+        List<String> defaults = getDefaults(resolverId);
         // If there is not settings defined for the user and the resolver, the default settings are returned
-        if (settingsUser == null) {
-            activeDispatchersId = getDefaults(resolverId);
-        } else {
-            // Get the settings from the KVS store
-            activeDispatchersId = new ArrayList<>();
+        if (userSettingsBytes == null) {
+            return getDispatchers(defaults);
         }
 
-        return getDispatchers().stream().filter(d -> activeDispatchersId.contains(d.getName())).collect(Collectors.toList());
+        Codec avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, UserResolverSettings.class);
+        UserResolverSettings userResolverSettings = (UserResolverSettings) avroCodec.decode(userSettingsBytes);
+
+        // Add missing settings for default enabled dispatchers
+        defaults.stream() //
+                .filter(d -> !userResolverSettings.containsKey(d))
+                .forEach(d -> userResolverSettings.put(d, true));
+
+        return getDispatchers(userResolverSettings.getEnabledDispatchers());
+    }
+
+    protected List<Dispatcher> getDispatchers(List<String> dispatchers) {
+        if (dispatchers == null || dispatchers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return getDispatchers().stream() //
+                               .filter(d -> dispatchers.contains(d.getName()))
+                               .collect(Collectors.toList());
     }
 
     protected List<String> getDefaults(String resolverId) {

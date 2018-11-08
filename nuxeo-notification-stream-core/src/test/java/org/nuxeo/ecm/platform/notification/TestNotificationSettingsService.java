@@ -10,11 +10,15 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.test.CoreFeature;
+import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -43,6 +47,13 @@ public class TestNotificationSettingsService {
 
     @Test
     public void serviceReturnsDefaultSettingsIfUserHasNoneDefined() {
+        NotificationComponent cmp = (NotificationComponent) notif;
+        List<String> dispatchers = notif.getDispatchers("toto", "fileCreated") //
+                                        .stream()
+                                        .map(Dispatcher::getName)
+                                        .collect(Collectors.toList());
 
+        assertThat(dispatchers).isNotEmpty() //
+                               .containsExactlyElementsOf(cmp.getDefaults("fileCreated"));
     }
 }
