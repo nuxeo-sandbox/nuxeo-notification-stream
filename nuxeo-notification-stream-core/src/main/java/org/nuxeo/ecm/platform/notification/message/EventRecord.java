@@ -9,8 +9,12 @@
 package org.nuxeo.ecm.platform.notification.message;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.apache.avro.reflect.Nullable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * A message representing an Event.
@@ -25,17 +29,19 @@ public class EventRecord implements Serializable {
         // Empty constructor for Avro decoder
     }
 
-    public EventRecord(String eventName, String username){
-        this.eventName = eventName;
-        this.username = username;
+    public EventRecord(String eventName, String username) {
+        this(eventName, null, null, username);
     }
 
-    public EventRecord(String eventName, String documentSourceId, String documentSourceType, String username){
+    public EventRecord(String eventName, String documentSourceId, String documentSourceType, String username) {
+        this.id = UUID.randomUUID().toString();
         this.eventName = eventName;
         this.documentSourceId = documentSourceId;
         this.documentSourceType = documentSourceType;
         this.username = username;
     }
+
+    protected String id;
 
     protected String eventName;
 
@@ -44,7 +50,7 @@ public class EventRecord implements Serializable {
 
     @Nullable
     protected String documentSourceType;
-    
+
     protected String username;
 
     public String getEventName() {
@@ -77,5 +83,20 @@ public class EventRecord implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

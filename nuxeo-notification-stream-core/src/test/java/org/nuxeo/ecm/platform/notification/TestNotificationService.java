@@ -23,12 +23,14 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDIN;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SUBSCRIPTIONS;
 
 import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -40,6 +42,7 @@ import org.nuxeo.ecm.platform.notification.resolver.ComplexSubsKeyResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -53,7 +56,16 @@ public class TestNotificationService {
     NotificationService notif;
 
     @Inject
+    NotificationStreamCallback scb;
+
+    @Inject
     CoreSession session;
+
+    @Before
+    public void before() {
+        NotificationComponent nc = (NotificationComponent) this.notif;
+        ((KeyValueStoreProvider) nc.getKeyValueStore(KVS_SUBSCRIPTIONS)).clear();
+    }
 
     @Test
     public void testRegistration() {
@@ -100,20 +112,20 @@ public class TestNotificationService {
 
         Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
 
-        assertThat(subs).isNull();
+        assertThat(subs).isNotNull();
 
-        notif.subscribe(firstUser, resolverId, ctx);
+        scb.doSubscribe(firstUser, resolverId, ctx);
         subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs).isNotNull();
         assertThat(subs.getUsernames()).containsExactly(firstUser);
 
-        notif.subscribe(secondUser, resolverId, ctx);
+        scb.doSubscribe(secondUser, resolverId, ctx);
         subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(firstUser, secondUser);
 
         ctx = Collections.singletonMap(ComplexSubsKeyResolver.NAME_FIELD, "newName");
-        notif.subscribe(thirdUser, resolverId, ctx);
+        scb.doSubscribe(thirdUser, resolverId, ctx);
         subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(thirdUser);
     }
@@ -128,7 +140,7 @@ public class TestNotificationService {
         assertThat(resolver.resolveTargetUsers(emptyRecord)).isEmpty();
 
         String username = "toto";
-        notif.subscribe(username, resolverId, ctx);
+        scb.doSubscribe(username, resolverId, ctx);
         assertThat(resolver.resolveTargetUsers(emptyRecord)).isNotEmpty().containsExactly(username);
     }
 
@@ -138,12 +150,12 @@ public class TestNotificationService {
         Map<String, String> ctx = Collections.emptyMap();
         String firstUser = "dummy";
 
-        notif.subscribe(firstUser, resolverId, ctx);
+        scb.doSubscribe(firstUser, resolverId, ctx);
         Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs.getUsernames()).hasSize(1);
 
-        notif.unsubscribe(firstUser, resolverId, ctx);
+        scb.doUnsubscribe(firstUser, resolverId, ctx);
         subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).isEmpty();
     }

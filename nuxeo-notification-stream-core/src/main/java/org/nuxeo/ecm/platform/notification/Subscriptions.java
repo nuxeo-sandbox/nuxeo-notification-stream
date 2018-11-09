@@ -43,6 +43,10 @@ public class Subscriptions {
         return this;
     }
 
+    public static Subscriptions empty() {
+        return new Subscriptions();
+    }
+
     public static Subscriptions withUser(String username) {
         Subscriptions subs = new Subscriptions();
         subs.addUsername(username);

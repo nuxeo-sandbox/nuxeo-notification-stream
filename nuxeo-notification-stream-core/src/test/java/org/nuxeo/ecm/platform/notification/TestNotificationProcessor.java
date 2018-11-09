@@ -41,9 +41,6 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 public class TestNotificationProcessor {
 
     @Inject
-    protected NotificationService notificationService;
-
-    @Inject
     protected NotificationStreamConfig notificationStreamConfig;
 
     @Inject

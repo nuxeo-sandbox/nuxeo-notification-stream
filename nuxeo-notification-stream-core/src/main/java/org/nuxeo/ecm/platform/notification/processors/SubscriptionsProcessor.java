@@ -8,18 +8,21 @@
  */
 package org.nuxeo.ecm.platform.notification.processors;
 
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
+
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.platform.notification.NotificationService;
-import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.ecm.platform.notification.NotificationStreamCallback;
+import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
+import org.nuxeo.ecm.platform.notification.message.SubscriptionActionRecord;
+import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.stream.StreamProcessorTopology;
 
 /**
@@ -29,12 +32,14 @@ import org.nuxeo.runtime.stream.StreamProcessorTopology;
  */
 public class SubscriptionsProcessor implements StreamProcessorTopology {
 
-    public static final String INPUT_SUBSCRIPTIONS_STREAM = "toto";
-
     @Override
     public Topology getTopology(Map<String, String> map) {
-        return Topology.builder().addComputation(SubscriptionsComputation::new, Collections.singletonList("i1:" + INPUT_SUBSCRIPTIONS_STREAM))
-                .build();
+        String notificationSubscriptionsStream = Framework.getService(NotificationStreamConfig.class)
+                                                          .getNotificationSubscriptionsStream();
+        return Topology.builder()
+                       .addComputation(SubscriptionsComputation::new,
+                               Collections.singletonList("i1:" + notificationSubscriptionsStream))
+                       .build();
     }
 
     protected class SubscriptionsComputation extends AbstractComputation {
@@ -46,18 +51,20 @@ public class SubscriptionsProcessor implements StreamProcessorTopology {
         }
 
         @Override
-        public void processRecord(ComputationContext computationContext, String s, Record record) {
+        public void processRecord(ComputationContext computationContext, String key, Record record) {
+            Codec<SubscriptionActionRecord> codec = Framework.getService(CodecService.class)
+                                                             .getCodec(DEFAULT_CODEC, SubscriptionActionRecord.class);
+            SubscriptionActionRecord sub = codec.decode(record.getData());
+            NotificationStreamCallback scb = Framework.getService(NotificationStreamCallback.class);
 
-            // Get the resolver for the notification
-            String resolverId = "";
-
-            if (!StringUtils.isEmpty(resolverId)) {
-                String username = "";
-                Map<String, String> ctx = new HashMap<>();
-
-                Resolver resolver = Framework.getService(NotificationService.class).getResolver(resolverId);
+            switch (sub.getAction()) {
+            case SUBSCRIBE:
+                scb.doSubscribe(sub.getUsername(), sub.getResolverId(), sub.getCtx());
+                break;
+            case UNSUBSCRIBE:
+                scb.doUnsubscribe(sub.getUsername(), sub.getResolverId(), sub.getCtx());
+                break;
             }
-
             // End the computation
             computationContext.askForCheckpoint();
         }

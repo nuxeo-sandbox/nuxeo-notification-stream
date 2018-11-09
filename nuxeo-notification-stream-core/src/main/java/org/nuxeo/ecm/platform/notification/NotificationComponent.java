@@ -34,11 +34,14 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.message.SubscriptionActionRecord;
 import org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
 import org.nuxeo.lib.stream.codec.Codec;
+import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
+import org.nuxeo.lib.stream.log.LogAppender;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
@@ -53,8 +56,8 @@ import org.nuxeo.runtime.stream.StreamService;
 /**
  * @since XXX
  */
-public class NotificationComponent extends DefaultComponent
-        implements NotificationService, NotificationSettingsService, NotificationStreamConfig {
+public class NotificationComponent extends DefaultComponent implements NotificationService, NotificationSettingsService,
+        NotificationStreamConfig, NotificationStreamCallback {
     public static final String XP_DISPATCHER = "dispatcher";
 
     public static final String XP_RESOLVER = "resolver";
@@ -64,6 +67,10 @@ public class NotificationComponent extends DefaultComponent
     public static final String STREAM_OUPUT_PROP = "nuxeo.stream.notification.output";
 
     public static final String DEFAULT_STREAM_OUTPUT = "notificationOutput";
+
+    public static final String STREAM_SUBSCRIPTIONS_PROP = "nuxeo.stream.notification.subscriptions";
+
+    public static final String DEFAULT_STREAM_SUBSCRIPTIONS = "subscriptions";
 
     public static final String STREAM_INPUT_PROP = "nuxeo.stream.notification.input";
 
@@ -141,6 +148,21 @@ public class NotificationComponent extends DefaultComponent
 
     @Override
     public void subscribe(String username, String resolverId, Map<String, String> ctx) {
+        appendSubscriptionActionRecord(SubscriptionActionRecord.subscribe(username, resolverId, ctx));
+    }
+
+    @Override
+    public void unsubscribe(String username, String resolverId, Map<String, String> ctx) {
+        appendSubscriptionActionRecord(SubscriptionActionRecord.unsubscribe(username, resolverId, ctx));
+    }
+
+    public void appendSubscriptionActionRecord(SubscriptionActionRecord record) {
+        LogAppender<Record> appender = getLogManager().getAppender(getNotificationSubscriptionsStream());
+        appender.append(record.getId(), Record.of(record.getId(), record.encode()));
+    }
+
+    @Override
+    public void doSubscribe(String username, String resolverId, Map<String, String> ctx) {
         resolveSubscriptions(resolverId, ctx, (s) -> {
             if (s == null) {
                 return Subscriptions.withUser(username);
@@ -151,13 +173,15 @@ public class NotificationComponent extends DefaultComponent
     }
 
     @Override
-    public void unsubscribe(String username, String resolverId, Map<String, String> ctx) {
+    public void doUnsubscribe(String username, String resolverId, Map<String, String> ctx) {
         resolveSubscriptions(resolverId, ctx, (s) -> s.remove(username), true);
     }
 
     @Override
     public Subscriptions getSubscriptions(String resolverId, Map<String, String> ctx) {
-        return resolveSubscriptions(resolverId, ctx, null, false);
+        return resolveSubscriptions(resolverId, ctx, (s) -> {
+            return s == null ? Subscriptions.empty() : s;
+        }, false);
     }
 
     protected Subscriptions resolveSubscriptions(String resolverId, Map<String, String> ctx,
@@ -167,7 +191,7 @@ public class NotificationComponent extends DefaultComponent
             throw new NuxeoException("Unknown resolver with id " + resolverId);
         }
 
-        KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
+        KeyValueStore kvs = getKeyValueStore(KVS_SUBSCRIPTIONS);
         Codec<Subscriptions> codec = Framework.getService(CodecService.class)
                                               .getCodec(DEFAULT_CODEC, Subscriptions.class);
         String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
@@ -217,6 +241,11 @@ public class NotificationComponent extends DefaultComponent
     @Override
     public String getNotificationOutputStream() {
         return Framework.getProperty(STREAM_OUPUT_PROP, DEFAULT_STREAM_OUTPUT);
+    }
+
+    @Override
+    public String getNotificationSubscriptionsStream() {
+        return Framework.getProperty(STREAM_SUBSCRIPTIONS_PROP, DEFAULT_STREAM_SUBSCRIPTIONS);
     }
 
     @Override
