@@ -132,6 +132,22 @@ public class TestNotificationService {
         assertThat(resolver.resolveTargetUsers(emptyRecord)).isNotEmpty().containsExactly(username);
     }
 
+    @Test
+    public void testResolverUnsubscribe() {
+        String resolverId = "complexKey";
+        Map<String, String> ctx = Collections.emptyMap();
+        String firstUser = "dummy";
+
+        notif.subscribe(firstUser, resolverId, ctx);
+        Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
+
+        assertThat(subs.getUsernames()).hasSize(1);
+
+        notif.unsubscribe(firstUser, resolverId, ctx);
+        subs = notif.getSubscriptions(resolverId, ctx);
+        assertThat(subs.getUsernames()).isEmpty();
+    }
+
     @Test(expected = NuxeoException.class)
     public void testSubscriptionForMissingResolver() {
         notif.getSubscriptions("somethiiiing", null);

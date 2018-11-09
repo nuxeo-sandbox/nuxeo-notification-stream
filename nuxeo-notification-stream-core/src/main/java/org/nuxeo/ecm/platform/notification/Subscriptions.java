@@ -33,6 +33,11 @@ public class Subscriptions {
         return usernames.stream();
     }
 
+    public Subscriptions remove(String username) {
+        usernames.remove(username);
+        return this;
+    }
+
     public Subscriptions addUsername(String username) {
         usernames.add(username);
         return this;

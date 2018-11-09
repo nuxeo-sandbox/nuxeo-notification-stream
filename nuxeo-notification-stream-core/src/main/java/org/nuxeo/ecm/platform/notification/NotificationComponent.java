@@ -151,6 +151,11 @@ public class NotificationComponent extends DefaultComponent
     }
 
     @Override
+    public void unsubscribe(String username, String resolverId, Map<String, String> ctx) {
+        resolveSubscriptions(resolverId, ctx, (s) -> s.remove(username), true);
+    }
+
+    @Override
     public Subscriptions getSubscriptions(String resolverId, Map<String, String> ctx) {
         return resolveSubscriptions(resolverId, ctx, null, false);
     }
