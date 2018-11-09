@@ -74,6 +74,8 @@ public class NotificationComponent extends DefaultComponent
 
     public static final String KVS_SETTINGS = "notificationSettings";
 
+    public static final String KVS_SUBSCRIPTIONS = "notificationSubscriptions";
+
     protected Map<String, Dispatcher> dispatchers = new ConcurrentHashMap<>();
 
     protected Map<String, Resolver> resolvers = new ConcurrentHashMap<>();
@@ -134,6 +136,49 @@ public class NotificationComponent extends DefaultComponent
         dispatchers.forEach(
                 d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + getNotificationOutputStream())));
         return builder.build();
+    }
+
+    @Override
+    public void subscribe(String username, String resolverId, Map<String, String> ctx) {
+        Resolver resolver = getResolver(resolverId);
+        if (resolver == null) {
+            throw new NuxeoException("Unknown resolver with id " + resolverId);
+        }
+
+        KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
+        Codec<NotificationSubscriptions> codec = Framework.getService(CodecService.class)
+                                                          .getCodec(DEFAULT_CODEC, NotificationSubscriptions.class);
+        String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
+        byte[] bytes = kvs.get(subscriptionsKey);
+
+        NotificationSubscriptions subs;
+        if (bytes != null) {
+            subs = codec.decode(bytes).addUsername(username);
+        } else {
+            subs = NotificationSubscriptions.withUser(username);
+        }
+        kvs.put(subscriptionsKey, codec.encode(subs));
+    }
+
+    @Override
+    public NotificationSubscriptions getSubscribtions(String resolverId, Map<String, String> ctx) {
+        Resolver resolver = getResolver(resolverId);
+        if (resolver == null) {
+            throw new NuxeoException("Unknown resolver with id " + resolverId);
+        }
+
+        KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
+        Codec<NotificationSubscriptions> codec = Framework.getService(CodecService.class)
+                                                          .getCodec(DEFAULT_CODEC, NotificationSubscriptions.class);
+
+        String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
+        byte[] bytes = kvs.get(subscriptionsKey);
+
+        if (bytes != null) {
+            return codec.decode(bytes);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -211,8 +256,9 @@ public class NotificationComponent extends DefaultComponent
             return getDispatchers(defaults);
         }
 
-        Codec avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, UserResolverSettings.class);
-        UserResolverSettings userResolverSettings = (UserResolverSettings) avroCodec.decode(userSettingsBytes);
+        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class)
+                                                         .getCodec(DEFAULT_CODEC, UserResolverSettings.class);
+        UserResolverSettings userResolverSettings = avroCodec.decode(userSettingsBytes);
 
         // Add missing settings for default enabled dispatchers
         defaults.stream() //

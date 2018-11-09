@@ -19,10 +19,7 @@
 package org.nuxeo.ecm.platform.notification;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.reflect.Nullable;
@@ -33,15 +30,15 @@ public class Notification {
     @Nullable
     protected String id;
 
-    protected List<String> usernames = new ArrayList<>();
+    protected String username;
 
     @Nullable
     protected String sourceId;
 
     protected Map<String, Serializable> context = new HashMap<>();
 
-    public void addTargetUsernames(Collection<String> usernames) {
-        this.usernames.addAll(usernames);
+    public void addTargetUsername(String username) {
+        this.username = username;
     }
 
     public Notification() {
@@ -52,8 +49,8 @@ public class Notification {
         return id;
     }
 
-    public List<String> getUsernames() {
-        return usernames;
+    public String getUsername() {
+        return username;
     }
 
     public String getSourceId() {
@@ -94,8 +91,8 @@ public class Notification {
             return this;
         }
 
-        public NotificationBuilder withUsernames(List<String> usernames) {
-            notif.addTargetUsernames(usernames);
+        public NotificationBuilder withUsername(String username) {
+            notif.addTargetUsername(username);
             return this;
         }
 

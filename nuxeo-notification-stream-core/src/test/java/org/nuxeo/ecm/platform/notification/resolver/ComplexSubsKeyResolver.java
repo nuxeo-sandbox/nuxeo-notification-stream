@@ -18,32 +18,23 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
-import org.nuxeo.common.xmap.annotation.XNode;
-import org.nuxeo.common.xmap.annotation.XObject;
-import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.runtime.model.Descriptor;
+import java.util.Map;
 
-/**
- * @since XXX
- */
-@XObject("resolver")
-public class ResolverDescriptor implements Descriptor {
-    @XNode("@id")
-    protected String id;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
-    @XNode("@class")
-    protected Class<? extends Resolver> resolverClass;
+public class ComplexSubsKeyResolver extends Resolver {
+
+    public static final String NAME_FIELD = "name";
+
+    public static final String SUFFIX_FIELD = "name";
 
     @Override
-    public String getId() {
-        return id;
+    public boolean accept(EventRecord eventRecord) {
+        return false;
     }
 
-    public Resolver newInstance() {
-        try {
-            return resolverClass.newInstance().withId(id);
-        } catch (ReflectiveOperationException e) {
-            throw new NuxeoException(e);
-        }
+    @Override
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return String.format("%s:%s", ctx.getOrDefault(NAME_FIELD, "name"), ctx.getOrDefault(SUFFIX_FIELD, "suffix"));
     }
 }

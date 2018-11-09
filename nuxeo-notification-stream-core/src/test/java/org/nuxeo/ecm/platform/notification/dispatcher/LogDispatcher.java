@@ -30,13 +30,9 @@ public class LogDispatcher extends Dispatcher {
         super(desc, nbInputStreams, nbOutputStreams);
     }
 
-    public static void reset() {
-        processed = 0;
-    }
-
     @Override
     public void process(Record record) {
         processed++;
-        log.error(getName() + ":" + record.toString());
+        log.warn(getName() + ":" + record.toString());
     }
 }

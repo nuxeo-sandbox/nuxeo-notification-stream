@@ -56,7 +56,6 @@ public class SubscriptionsProcessor implements StreamProcessorTopology {
                 Map<String, String> ctx = new HashMap<>();
 
                 Resolver resolver = Framework.getService(NotificationService.class).getResolver(resolverId);
-                resolver.subscribe(username, ctx);
             }
 
             // End the computation

@@ -18,11 +18,14 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.platform.notification.NotificationService;
+import org.nuxeo.ecm.platform.notification.NotificationSubscriptions;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Resolver class aims to be able to transform a CoreEvent to a Notification object
@@ -30,6 +33,17 @@ import org.nuxeo.ecm.platform.notification.message.EventRecord;
  * @since XXX
  */
 public abstract class Resolver {
+
+    protected String id;
+
+    public String getId() {
+        return id == null ? this.getClass().getSimpleName() : id;
+    }
+
+    protected Resolver withId(String id) {
+        this.id = id;
+        return this;
+    }
 
     /**
      * Check if the resolver is able to compute the current Event in a Notification Object.
@@ -49,13 +63,31 @@ public abstract class Resolver {
      * @param eventRecord from the context that contain resolution needed
      * @return list of target users, of an empty list otherwise.
      */
-    public abstract List<String> resolveTargetUsers(EventRecord eventRecord);
+    public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
+        NotificationSubscriptions subscribtions = Framework.getService(NotificationService.class)
+                                                           .getSubscribtions(getId(),
+                                                                   computeContextFromEvent(eventRecord));
+        return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
+    }
 
     /**
-     * Subscribe the given user to the resolver. This allows to resolve the target users whenever an event accepted by the resolver is triggered and need to be processed.
-     *
-     * @param username The username subscribing to the resolver.
-     * @param ctx      A map of String used to defined how to store the subscription of the user.
+     * Compute Storage key context based on the given EventRecord
+     * 
+     * @param eventRecord contains informations needed to compute the key, in case we want to store subscriptions
+     *            dependent of a context.
+     * @return Context map, or an emptyMap in case the method hasn't been override.
      */
-    public abstract void subscribe(String username, Map<String, String> ctx);
+    protected Map<String, String> computeContextFromEvent(EventRecord eventRecord) {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Compute storage key depending of a context. For instance, to make a difference between subscribers of different
+     * events, or a docId
+     *
+     * @param ctx A map of String used to defined what store to use.
+     */
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return getId();
+    }
 }

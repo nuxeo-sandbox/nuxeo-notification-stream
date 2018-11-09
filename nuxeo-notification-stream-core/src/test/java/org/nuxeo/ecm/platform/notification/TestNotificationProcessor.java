@@ -9,6 +9,7 @@
 package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver.TARGET_USERS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import java.util.Collections;
@@ -22,7 +23,6 @@ import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.processors.NotificationProcessor;
-import org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -70,8 +70,7 @@ public class TestNotificationProcessor {
         appender.append("toto", r);
 
         TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
-        // AcceptAllResolver is multipliing by X target users batch size, to ensure the list is correctly splitted.
-        assertThat(LogDispatcher.processed).isEqualTo(AcceptAllResolver.MULTIPLIER * 2);
+        // We have 2 dispatchers (using the same class) and 1 resolver that has AcceptAllResolver.TARGET_USERS users.
+        assertThat(LogDispatcher.processed).isEqualTo(TARGET_USERS * 2);
     }
-
 }

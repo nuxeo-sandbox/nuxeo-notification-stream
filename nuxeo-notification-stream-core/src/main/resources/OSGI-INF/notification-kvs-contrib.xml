@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.platform.notification.stream.kvs">
   <extension target="org.nuxeo.runtime.kv.KeyValueService" point="configuration">
-    <store name="subscriptions" class="org.nuxeo.runtime.kv.MemKeyValueStore" />
+    <store name="notificationSubscriptions" class="org.nuxeo.runtime.kv.MemKeyValueStore" />
     <store name="notificationSettings" class="org.nuxeo.runtime.kv.MemKeyValueStore" />
   </extension>
 </component>

@@ -19,12 +19,11 @@
 package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation.DEFAULT_USERS_BATCH_SIZE;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -32,7 +31,7 @@ import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class AcceptAllResolver extends Resolver {
 
-    public static final int MULTIPLIER = 3;
+    public static final int TARGET_USERS = 10;
 
     @Override
     public boolean accept(EventRecord eventRecord) {
@@ -40,20 +39,15 @@ public class AcceptAllResolver extends Resolver {
     }
 
     @Override
-    public List<String> resolveTargetUsers(EventRecord eventRecord) {
-        return IntStream.range(0, Integer.parseInt(DEFAULT_USERS_BATCH_SIZE) * MULTIPLIER) //
+    public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
+        return IntStream.range(0, TARGET_USERS) //
                         .boxed()
-                        .map(s -> RandomStringUtils.randomAlphabetic(10))
-                        .collect(Collectors.toList());
-    }
-
-    @Override
-    public void subscribe(String username, Map<String, String> ctx) {
-        // Not required for the tests
+                        .map(s -> RandomStringUtils.randomAlphabetic(10));
     }
 
     @Test
     public void testResult() {
-        assertThat(this.resolveTargetUsers(null)).hasSize(Integer.parseInt(DEFAULT_USERS_BATCH_SIZE) * MULTIPLIER);
+        List<String> list = this.resolveTargetUsers(null).collect(Collectors.toList());
+        assertThat(list).hasSize(TARGET_USERS);
     }
 }

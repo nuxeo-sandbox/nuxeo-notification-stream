@@ -18,6 +18,7 @@
 
 package org.nuxeo.ecm.platform.notification;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -69,4 +70,8 @@ public interface NotificationService {
      * @return list of resolver that handle the event, or an empty list otherwise.
      */
     Collection<Resolver> getResolvers(EventRecord eventRecord);
+
+    void subscribe(String username, String resolverId, Map<String, String> ctx);
+
+    NotificationSubscriptions getSubscribtions(String resolverId, Map<String, String> ctx);
 }
