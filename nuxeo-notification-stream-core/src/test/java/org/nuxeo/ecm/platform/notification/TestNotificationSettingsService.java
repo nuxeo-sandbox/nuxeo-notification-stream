@@ -10,7 +10,9 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -55,5 +57,34 @@ public class TestNotificationSettingsService {
 
         assertThat(dispatchers).isNotEmpty() //
                                .containsExactlyElementsOf(cmp.getDefaults("fileCreated"));
+    }
+
+    @Test
+    public void serviceSavesUserPreferences() {
+        Map<String, Boolean> settingsDispatcher = new HashMap<>();
+        settingsDispatcher.put("inApp", false);
+        settingsDispatcher.put("log", true);
+        notif.updateSettings("user1", "fileCreated", settingsDispatcher);
+
+        // Fetch the settings for the user
+        List<String> dispatchers = notif.getDispatchers("user1", "fileCreated") //
+                                        .stream()
+                                        .map(Dispatcher::getName)
+                                        .collect(Collectors.toList());
+        assertThat(dispatchers).containsExactlyInAnyOrder("log");
+    }
+
+    @Test
+    public void serviceAddsDefaultDispatcher() {
+        Map<String, Boolean> settingsDispatcher = new HashMap<>();
+        settingsDispatcher.put("log", true);
+        notif.updateSettings("user1", "fileCreated", settingsDispatcher);
+
+        // Fetch the settings for the user
+        List<String> dispatchers = notif.getDispatchers("user1", "fileCreated") //
+                .stream()
+                .map(Dispatcher::getName)
+                .collect(Collectors.toList());
+        assertThat(dispatchers).containsExactlyInAnyOrder("inApp", "log");
     }
 }

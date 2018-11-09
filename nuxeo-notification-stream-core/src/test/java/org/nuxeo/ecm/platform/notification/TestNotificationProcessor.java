@@ -58,7 +58,7 @@ public class TestNotificationProcessor {
     @Test
     public void testTopologyExecution() throws InterruptedException {
         // Create a record in the stream in input of the notification processor
-        LogManager logManager = notificationStreamConfig.getLogManager();
+        LogManager logManager = notificationStreamConfig.getLogManager(notificationStreamConfig.getLogConfigNotification());
         assertThat(logManager.getAppender(notificationStreamConfig.getEventInputStream())).isNotNull();
 
         LogAppender<Record> appender = logManager.getAppender(notificationStreamConfig.getEventInputStream());

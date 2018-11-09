@@ -23,7 +23,6 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +34,7 @@ import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.dispatcher.DispatcherDescriptor;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.message.SubscriptionActionRecord;
+import org.nuxeo.ecm.platform.notification.message.UserResolverSettings;
 import org.nuxeo.ecm.platform.notification.processors.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
@@ -79,6 +79,18 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     public static final String LOG_CONFIG_PROP = "nuxeo.stream.notification.log.config";
 
     public static final String DEFAULT_LOG_CONFIG = "notification";
+
+    public static final String STREAM_SETTINGS_PROP = "nuxeo.stream.notification.settings.input";
+
+    public static final String DEFAULT_STREAM_SETTINGS = "notificationSettings";
+
+    public static final String LOG_CONFIG_SETTINGS_PROP = "nuxeo.stream.notification.settings.log.config";
+
+    public static final String DEFAULT_LOG_CONFIG_SETTINGS = "notificationSettings";
+
+    public static final String LOG_CONFIG_SUBSCRIPTIONS_PROP = "nuxeo.stream.notification.subscriptions.log.config";
+
+    public static final String DEFAULT_LOG_CONFIG_SUBSCRIPTIONS = "subscriptions";
 
     public static final String KVS_SETTINGS = "notificationSettings";
 
@@ -135,10 +147,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public Topology buildTopology(Map<String, String> options) {
-        Topology.Builder builder = Topology.builder()
-                                           .addComputation(EventToNotificationComputation::new,
-                                                   Arrays.asList("i1:" + getEventInputStream(),
-                                                           "o1:" + getNotificationOutputStream()));
+        Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
+                Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
 
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
         dispatchers.forEach(
@@ -157,7 +167,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     public void appendSubscriptionActionRecord(SubscriptionActionRecord record) {
-        LogAppender<Record> appender = getLogManager().getAppender(getNotificationSubscriptionsStream());
+        LogAppender<Record> appender = getLogManager(getLogConfigSubscriptions()).getAppender(getNotificationSubscriptionsStream());
         appender.append(record.getId(), Record.of(record.getId(), record.encode()));
     }
 
@@ -192,8 +202,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         KeyValueStore kvs = getKeyValueStore(KVS_SUBSCRIPTIONS);
-        Codec<Subscriptions> codec = Framework.getService(CodecService.class)
-                                              .getCodec(DEFAULT_CODEC, Subscriptions.class);
+        Codec<Subscriptions> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
+                Subscriptions.class);
         String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
         byte[] bytes = kvs.get(subscriptionsKey);
 
@@ -249,12 +259,28 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public LogManager getLogManager() {
-        return Framework.getService(StreamService.class).getLogManager(getLogConfig());
+    public String getNotificationSettingsInputStream() {
+        return Framework.getProperty(STREAM_SETTINGS_PROP, DEFAULT_STREAM_SETTINGS);
     }
 
-    protected String getLogConfig() {
+    @Override
+    public LogManager getLogManager(String logConfigName) {
+        return Framework.getService(StreamService.class).getLogManager(logConfigName);
+    }
+
+    @Override
+    public String getLogConfigNotification() {
         return Framework.getProperty(LOG_CONFIG_PROP, DEFAULT_LOG_CONFIG);
+    }
+
+    @Override
+    public String getLogConfigSettings() {
+        return Framework.getProperty(LOG_CONFIG_SETTINGS_PROP, DEFAULT_LOG_CONFIG_SETTINGS);
+    }
+
+    @Override
+    public String getLogConfigSubscriptions() {
+        return Framework.getProperty(LOG_CONFIG_SUBSCRIPTIONS_PROP, DEFAULT_LOG_CONFIG_SUBSCRIPTIONS);
     }
 
     @Override
@@ -266,9 +292,12 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         // Update the settings
+        UserResolverSettings newSettings = new UserResolverSettings();
+        newSettings.setSettings(dispatchersSettings);
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
-        Codec avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, HashMap.class);
-        settingsKVS.put(username + ":" + resolverId, avroCodec.encode(dispatchersSettings));
+        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
+                UserResolverSettings.class);
+        settingsKVS.put(username + ":" + resolverId, avroCodec.encode(newSettings));
     }
 
     @Override
@@ -288,14 +317,14 @@ public class NotificationComponent extends DefaultComponent implements Notificat
             return getDispatchers(defaults);
         }
 
-        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class)
-                                                         .getCodec(DEFAULT_CODEC, UserResolverSettings.class);
+        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
+                UserResolverSettings.class);
         UserResolverSettings userResolverSettings = avroCodec.decode(userSettingsBytes);
 
         // Add missing settings for default enabled dispatchers
         defaults.stream() //
-                .filter(d -> !userResolverSettings.containsKey(d))
-                .forEach(d -> userResolverSettings.put(d, true));
+                .filter(d -> !userResolverSettings.getSettings().containsKey(d))
+                .forEach(d -> userResolverSettings.getSettings().put(d, true));
 
         return getDispatchers(userResolverSettings.getEnabledDispatchers());
     }

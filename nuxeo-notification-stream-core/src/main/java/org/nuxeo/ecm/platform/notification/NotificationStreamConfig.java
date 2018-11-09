@@ -45,7 +45,27 @@ public interface NotificationStreamConfig {
     String getNotificationSubscriptionsStream();
 
     /**
-     * Returns the Log manager configured on the notification service.
+     * @return The name of the input stream of the notification settings processor.
      */
-    LogManager getLogManager();
+    String getNotificationSettingsInputStream();
+
+    /**
+     * @return the Log manager configured on the given log config name.
+     */
+    LogManager getLogManager(String logConfigName);
+
+    /**
+     * @return the log config name for the notification processor.
+     */
+    String getLogConfigNotification();
+
+    /**
+     * @return the log config name for the notification settings processor.
+     */
+    String getLogConfigSettings();
+
+    /**
+     * @return the log config name for the notification subscriptions processor.
+     */
+    String getLogConfigSubscriptions();
 }

@@ -68,7 +68,7 @@ public class TestEventsStreamListener {
         eventService.waitForAsyncCompletion();
 
         // Check the record in the stream
-        LogManager logManager = streamConfig.getLogManager();
+        LogManager logManager = streamConfig.getLogManager(streamConfig.getLogConfigNotification());
         Codec<Record> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
         try (LogTailer<Record> tailer = logManager.createTailer(streamConfig.getEventInputStream(),
                 streamConfig.getEventInputStream(), codec)) {

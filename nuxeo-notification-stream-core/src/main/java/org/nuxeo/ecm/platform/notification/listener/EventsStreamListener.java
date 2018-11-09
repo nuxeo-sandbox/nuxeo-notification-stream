@@ -51,7 +51,7 @@ public class EventsStreamListener implements PostCommitEventListener {
         }
 
         // Create a record in the stream in input of the notification processor
-        LogManager logManager = notificationService.getLogManager();
+        LogManager logManager = notificationService.getLogManager(notificationService.getLogConfigNotification());
         LogAppender<Record> appender = logManager.getAppender(notificationService.getEventInputStream());
         byte[] encodedEvent = encodeEvent(event);
 

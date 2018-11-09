@@ -16,14 +16,40 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification;
+package org.nuxeo.ecm.platform.notification.message;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class UserResolverSettings extends HashMap<String, Boolean> {
+/**
+ * @since XXX
+ */
+public class UserResolverSettings implements Serializable {
+
+    private static final long serialVersionUID = 0L;
+
+    protected Map<String, Boolean> settings;
+
+    public UserResolverSettings() {
+        // Empty constructor for Avro
+    }
+
+    public Map<String, Boolean> getSettings() {
+        if (settings == null) {
+            settings = new HashMap<>();
+        }
+        return settings;
+    }
+
+    public void setSettings(Map<String, Boolean> settings) {
+        this.settings = settings;
+    }
+
     public List<String> getEnabledDispatchers() {
-        return entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
+        return settings.entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
     }
 }
