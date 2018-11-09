@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -140,28 +141,22 @@ public class NotificationComponent extends DefaultComponent
 
     @Override
     public void subscribe(String username, String resolverId, Map<String, String> ctx) {
-        Resolver resolver = getResolver(resolverId);
-        if (resolver == null) {
-            throw new NuxeoException("Unknown resolver with id " + resolverId);
-        }
-
-        KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
-        Codec<Subscriptions> codec = Framework.getService(CodecService.class)
-                                                          .getCodec(DEFAULT_CODEC, Subscriptions.class);
-        String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
-        byte[] bytes = kvs.get(subscriptionsKey);
-
-        Subscriptions subs;
-        if (bytes != null) {
-            subs = codec.decode(bytes).addUsername(username);
-        } else {
-            subs = Subscriptions.withUser(username);
-        }
-        kvs.put(subscriptionsKey, codec.encode(subs));
+        resolveSubscriptions(resolverId, ctx, (s) -> {
+            if (s == null) {
+                return Subscriptions.withUser(username);
+            } else {
+                return s.addUsername(username);
+            }
+        }, true);
     }
 
     @Override
-    public Subscriptions getSubscribtions(String resolverId, Map<String, String> ctx) {
+    public Subscriptions getSubscriptions(String resolverId, Map<String, String> ctx) {
+        return resolveSubscriptions(resolverId, ctx, null, false);
+    }
+
+    protected Subscriptions resolveSubscriptions(String resolverId, Map<String, String> ctx,
+            Function<Subscriptions, Subscriptions> func, Boolean updateStorage) {
         Resolver resolver = getResolver(resolverId);
         if (resolver == null) {
             throw new NuxeoException("Unknown resolver with id " + resolverId);
@@ -169,16 +164,19 @@ public class NotificationComponent extends DefaultComponent
 
         KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
         Codec<Subscriptions> codec = Framework.getService(CodecService.class)
-                                                          .getCodec(DEFAULT_CODEC, Subscriptions.class);
-
+                                              .getCodec(DEFAULT_CODEC, Subscriptions.class);
         String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
         byte[] bytes = kvs.get(subscriptionsKey);
 
-        if (bytes != null) {
-            return codec.decode(bytes);
-        } else {
-            return null;
+        Subscriptions subs = bytes == null ? null : codec.decode(bytes);
+        if (func != null) {
+            subs = func.apply(subs);
         }
+
+        if (updateStorage) {
+            kvs.put(subscriptionsKey, codec.encode(subs));
+        }
+        return subs;
     }
 
     @Override

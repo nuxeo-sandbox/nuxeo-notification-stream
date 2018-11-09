@@ -98,23 +98,23 @@ public class TestNotificationService {
         String secondUser = "Johnny";
         String thirdUser = "Arthur";
 
-        Subscriptions subs = notif.getSubscribtions(resolverId, ctx);
+        Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs).isNull();
 
         notif.subscribe(firstUser, resolverId, ctx);
-        subs = notif.getSubscribtions(resolverId, ctx);
+        subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs).isNotNull();
         assertThat(subs.getUsernames()).containsExactly(firstUser);
 
         notif.subscribe(secondUser, resolverId, ctx);
-        subs = notif.getSubscribtions(resolverId, ctx);
+        subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(firstUser, secondUser);
 
         ctx = Collections.singletonMap(ComplexSubsKeyResolver.NAME_FIELD, "newName");
         notif.subscribe(thirdUser, resolverId, ctx);
-        subs = notif.getSubscribtions(resolverId, ctx);
+        subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(thirdUser);
     }
 
@@ -134,7 +134,7 @@ public class TestNotificationService {
 
     @Test(expected = NuxeoException.class)
     public void testSubscriptionForMissingResolver() {
-        notif.getSubscribtions("somethiiiing", null);
+        notif.getSubscriptions("somethiiiing", null);
         failBecauseExceptionWasNotThrown(NuxeoException.class);
     }
 

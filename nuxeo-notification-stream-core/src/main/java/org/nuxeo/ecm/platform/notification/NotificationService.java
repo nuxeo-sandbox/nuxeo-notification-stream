@@ -69,5 +69,5 @@ public interface NotificationService {
 
     void subscribe(String username, String resolverId, Map<String, String> ctx);
 
-    Subscriptions getSubscribtions(String resolverId, Map<String, String> ctx);
+    Subscriptions getSubscriptions(String resolverId, Map<String, String> ctx);
 }

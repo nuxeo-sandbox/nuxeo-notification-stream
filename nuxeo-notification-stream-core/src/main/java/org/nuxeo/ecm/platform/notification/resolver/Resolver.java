@@ -65,7 +65,7 @@ public abstract class Resolver {
      */
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
         Subscriptions subscribtions = Framework.getService(NotificationService.class)
-                                                           .getSubscribtions(getId(),
+                                                           .getSubscriptions(getId(),
                                                                    computeContextFromEvent(eventRecord));
         return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
     }
