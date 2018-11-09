@@ -16,7 +16,7 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
 import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.platform.notification.NotificationService;
+import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -43,7 +43,7 @@ public class EventsStreamListener implements PostCommitEventListener {
      */
     protected void processEvent(Event event) {
         // Get the stream where to publish the event
-        NotificationService notificationService = Framework.getService(NotificationService.class);
+        NotificationStreamConfig notificationService = Framework.getService(NotificationStreamConfig.class);
         String eventStream = notificationService.getEventInputStream();
 
         if (StringUtils.isEmpty(eventStream)) {

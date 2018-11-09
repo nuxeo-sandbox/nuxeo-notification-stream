@@ -12,8 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import javax.inject.Inject;
 import java.time.Duration;
+
+import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.platform.notification.NotificationFeature;
-import org.nuxeo.ecm.platform.notification.NotificationService;
+import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
@@ -47,7 +48,7 @@ public class TestEventsStreamListener {
     protected CoreSession session;
 
     @Inject
-    protected NotificationService service;
+    protected NotificationStreamConfig streamConfig;
 
     @Inject
     protected EventService eventService;
@@ -67,9 +68,10 @@ public class TestEventsStreamListener {
         eventService.waitForAsyncCompletion();
 
         // Check the record in the stream
-        LogManager logManager = service.getLogManager();
-        Codec codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
-        try (LogTailer<Record> tailer = logManager.createTailer(service.getEventInputStream(), service.getEventInputStream(), codec)) {
+        LogManager logManager = streamConfig.getLogManager();
+        Codec<Record> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
+        try (LogTailer<Record> tailer = logManager.createTailer(streamConfig.getEventInputStream(),
+                streamConfig.getEventInputStream(), codec)) {
             LogRecord<Record> logRecord = tailer.read(Duration.ofSeconds(5));
             assertThat(logRecord).isNotNull();
 

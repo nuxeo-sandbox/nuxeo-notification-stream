@@ -16,21 +16,31 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification;
 
 import java.util.Map;
 
-import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.lib.stream.computation.Topology;
-import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.stream.StreamProcessorTopology;
+import org.nuxeo.lib.stream.log.LogManager;
 
-/**
- * @since XXX
- */
-public class NotificationProcessor implements StreamProcessorTopology {
-    @Override
-    public Topology getTopology(Map<String, String> options) {
-        return Framework.getService(NotificationStreamConfig.class).buildTopology(options);
-    }
+public interface NotificationStreamConfig {
+    /**
+     * Returns Notification's Stream computation topology.
+     */
+    Topology buildTopology(Map<String, String> options);
+
+    /**
+     * Returns stream name which is going to be consumed to create Notification object
+     */
+    String getEventInputStream();
+
+    /**
+     * @return The name of the output stream of the notification processor.
+     */
+    String getNotificationOutputStream();
+
+    /**
+     * Returns the Log manager configured on the notification service.
+     */
+    LogManager getLogManager();
 }

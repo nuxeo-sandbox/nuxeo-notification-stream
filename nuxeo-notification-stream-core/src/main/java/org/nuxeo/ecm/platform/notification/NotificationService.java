@@ -69,24 +69,4 @@ public interface NotificationService {
      * @return list of resolver that handle the event, or an empty list otherwise.
      */
     Collection<Resolver> getResolvers(EventRecord eventRecord);
-
-    /**
-     * Returns Notification's Stream computation topology.
-     */
-    Topology buildTopology(Map<String, String> options);
-
-    /**
-     * Returns stream name which is going to be consumed to create Notification object
-     */
-    String getEventInputStream();
-
-    /**
-     * @return The name of the output stream of the notification processor.
-     */
-    String getNotificationOutputStream();
-
-    /**
-     * Returns the Log manager configured on the notification service.
-     */
-    LogManager getLogManager();
 }

@@ -6,6 +6,7 @@
   <service>
     <provide interface="org.nuxeo.ecm.platform.notification.NotificationService" />
     <provide interface="org.nuxeo.ecm.platform.notification.NotificationSettingsService" />
+    <provide interface="org.nuxeo.ecm.platform.notification.NotificationStreamConfig" />
   </service>
 
   <extension-point name="resolver">

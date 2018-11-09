@@ -53,7 +53,7 @@ import org.nuxeo.runtime.stream.StreamService;
  * @since XXX
  */
 public class NotificationComponent extends DefaultComponent
-        implements NotificationService, NotificationSettingsService {
+        implements NotificationService, NotificationSettingsService, NotificationStreamConfig {
     public static final String XP_DISPATCHER = "dispatcher";
 
     public static final String XP_RESOLVER = "resolver";
