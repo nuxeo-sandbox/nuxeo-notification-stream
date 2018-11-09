@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-public class NotificationSubscriptions {
+public class Subscriptions {
     protected HashSet<String> usernames = new HashSet<>();
 
-    protected NotificationSubscriptions() {
+    protected Subscriptions() {
 
     }
 
@@ -33,19 +33,19 @@ public class NotificationSubscriptions {
         return usernames.stream();
     }
 
-    public NotificationSubscriptions addUsername(String username) {
+    public Subscriptions addUsername(String username) {
         usernames.add(username);
         return this;
     }
 
-    public static NotificationSubscriptions withUser(String username) {
-        NotificationSubscriptions subs = new NotificationSubscriptions();
+    public static Subscriptions withUser(String username) {
+        Subscriptions subs = new Subscriptions();
         subs.addUsername(username);
         return subs;
     }
 
-    public static NotificationSubscriptions withUsers(Collection<String> usernames) {
-        NotificationSubscriptions subs = new NotificationSubscriptions();
+    public static Subscriptions withUsers(Collection<String> usernames) {
+        Subscriptions subs = new Subscriptions();
         usernames.forEach(subs::addUsername);
         return subs;
     }

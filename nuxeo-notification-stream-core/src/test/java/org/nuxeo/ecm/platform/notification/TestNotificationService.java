@@ -98,7 +98,7 @@ public class TestNotificationService {
         String secondUser = "Johnny";
         String thirdUser = "Arthur";
 
-        NotificationSubscriptions subs = notif.getSubscribtions(resolverId, ctx);
+        Subscriptions subs = notif.getSubscribtions(resolverId, ctx);
 
         assertThat(subs).isNull();
 

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.nuxeo.ecm.platform.notification.NotificationService;
-import org.nuxeo.ecm.platform.notification.NotificationSubscriptions;
+import org.nuxeo.ecm.platform.notification.Subscriptions;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.runtime.api.Framework;
 
@@ -64,7 +64,7 @@ public abstract class Resolver {
      * @return list of target users, of an empty list otherwise.
      */
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
-        NotificationSubscriptions subscribtions = Framework.getService(NotificationService.class)
+        Subscriptions subscribtions = Framework.getService(NotificationService.class)
                                                            .getSubscribtions(getId(),
                                                                    computeContextFromEvent(eventRecord));
         return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();

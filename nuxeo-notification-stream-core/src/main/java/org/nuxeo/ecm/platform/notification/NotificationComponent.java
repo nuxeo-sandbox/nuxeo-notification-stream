@@ -146,30 +146,30 @@ public class NotificationComponent extends DefaultComponent
         }
 
         KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
-        Codec<NotificationSubscriptions> codec = Framework.getService(CodecService.class)
-                                                          .getCodec(DEFAULT_CODEC, NotificationSubscriptions.class);
+        Codec<Subscriptions> codec = Framework.getService(CodecService.class)
+                                                          .getCodec(DEFAULT_CODEC, Subscriptions.class);
         String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
         byte[] bytes = kvs.get(subscriptionsKey);
 
-        NotificationSubscriptions subs;
+        Subscriptions subs;
         if (bytes != null) {
             subs = codec.decode(bytes).addUsername(username);
         } else {
-            subs = NotificationSubscriptions.withUser(username);
+            subs = Subscriptions.withUser(username);
         }
         kvs.put(subscriptionsKey, codec.encode(subs));
     }
 
     @Override
-    public NotificationSubscriptions getSubscribtions(String resolverId, Map<String, String> ctx) {
+    public Subscriptions getSubscribtions(String resolverId, Map<String, String> ctx) {
         Resolver resolver = getResolver(resolverId);
         if (resolver == null) {
             throw new NuxeoException("Unknown resolver with id " + resolverId);
         }
 
         KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
-        Codec<NotificationSubscriptions> codec = Framework.getService(CodecService.class)
-                                                          .getCodec(DEFAULT_CODEC, NotificationSubscriptions.class);
+        Codec<Subscriptions> codec = Framework.getService(CodecService.class)
+                                                          .getCodec(DEFAULT_CODEC, Subscriptions.class);
 
         String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
         byte[] bytes = kvs.get(subscriptionsKey);

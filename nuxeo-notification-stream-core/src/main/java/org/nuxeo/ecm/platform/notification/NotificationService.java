@@ -18,16 +18,12 @@
 
 package org.nuxeo.ecm.platform.notification;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
-import org.nuxeo.lib.stream.computation.Topology;
-import org.nuxeo.lib.stream.log.LogManager;
 
 /**
  * @since XXX
@@ -73,5 +69,5 @@ public interface NotificationService {
 
     void subscribe(String username, String resolverId, Map<String, String> ctx);
 
-    NotificationSubscriptions getSubscribtions(String resolverId, Map<String, String> ctx);
+    Subscriptions getSubscribtions(String resolverId, Map<String, String> ctx);
 }
