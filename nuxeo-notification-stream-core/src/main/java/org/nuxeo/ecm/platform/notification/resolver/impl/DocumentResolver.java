@@ -16,17 +16,28 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.resolver;
+package org.nuxeo.ecm.platform.notification.resolver.impl;
 
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 
-public class FileUpdatedResolver extends Resolver {
+/**
+ * Resolver aims to ease DocumentEvent resolution
+ * 
+ * @since XXX
+ */
+public abstract class DocumentResolver extends Resolver {
 
     @Override
     public boolean accept(EventRecord eventRecord) {
-        return eventRecord.getDocumentSourceType().equals("File")
-                && eventRecord.getEventName().equals(DOCUMENT_UPDATED);
+        if (eventRecord.getDocumentSourceId() == null) {
+            return false;
+        }
+
+        return withDocument(eventRecord, (d) -> acceptEventRecord(eventRecord, d));
+
     }
+
+    public abstract boolean acceptEventRecord(EventRecord eventRecord, DocumentModel doc);
 }

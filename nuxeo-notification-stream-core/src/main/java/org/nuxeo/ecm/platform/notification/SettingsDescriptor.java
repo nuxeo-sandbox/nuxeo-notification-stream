@@ -54,7 +54,7 @@ public class SettingsDescriptor implements Descriptor {
 
     @XObject("dispatcher")
     public static class DispatcherSetting {
-        @XNode("@enable")
+        @XNode("@enabled")
         protected boolean isEnabled = true;
 
         @XNode("@default")

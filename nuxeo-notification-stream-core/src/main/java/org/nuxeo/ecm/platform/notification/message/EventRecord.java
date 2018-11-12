@@ -12,9 +12,12 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import org.apache.avro.reflect.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.nuxeo.ecm.core.api.repository.RepositoryManager;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * A message representing an Event.
@@ -51,6 +54,9 @@ public class EventRecord implements Serializable {
     @Nullable
     protected String documentSourceType;
 
+    @Nullable
+    protected String documentSourceRepository;
+
     protected String username;
 
     public String getEventName() {
@@ -79,6 +85,12 @@ public class EventRecord implements Serializable {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getRepository() {
+        return StringUtils.isBlank(documentSourceRepository)
+                ? Framework.getService(RepositoryManager.class).getDefaultRepositoryName()
+                : documentSourceRepository;
     }
 
     public void setUsername(String username) {

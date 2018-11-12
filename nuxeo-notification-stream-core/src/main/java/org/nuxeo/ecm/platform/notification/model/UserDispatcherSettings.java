@@ -35,13 +35,13 @@ import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 /**
  * @since XXX
  */
-public class UserResolverSettings implements Serializable {
+public class UserDispatcherSettings implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
     protected Map<String, Boolean> settings;
 
-    public UserResolverSettings() {
+    public UserDispatcherSettings() {
         // Empty constructor for Avro
     }
 
@@ -60,8 +60,16 @@ public class UserResolverSettings implements Serializable {
         return settings.entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
     }
 
-    public static UserResolverSettings defaultFromDescriptor(SettingsDescriptor desc) {
-        UserResolverSettings urs = new UserResolverSettings();
+    public void enable(String dispatcherId) {
+        getSettings().put(dispatcherId, true);
+    }
+
+    public void disable(String dispatcherId) {
+        getSettings().put(dispatcherId, false);
+    }
+
+    public static UserDispatcherSettings defaultFromDescriptor(SettingsDescriptor desc) {
+        UserDispatcherSettings urs = new UserDispatcherSettings();
         urs.settings = new HashMap<>();
         desc.getSettings()
             .entrySet()
@@ -71,8 +79,8 @@ public class UserResolverSettings implements Serializable {
         return urs;
     }
 
-    public static UserResolverSettings defaultFromDispatchers(Collection<Dispatcher> dispatchers) {
-        UserResolverSettings urs = new UserResolverSettings();
+    public static UserDispatcherSettings defaultFromDispatchers(Collection<Dispatcher> dispatchers) {
+        UserDispatcherSettings urs = new UserDispatcherSettings();
         urs.settings = new HashMap<>();
         dispatchers.forEach(d -> urs.settings.put(d.getName(), false));
         return urs;

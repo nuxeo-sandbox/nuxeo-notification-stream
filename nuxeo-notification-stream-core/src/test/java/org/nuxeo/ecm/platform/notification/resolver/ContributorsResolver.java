@@ -1,4 +1,3 @@
-package org.nuxeo.ecm.platform.notification.dispatcher;
 /*
  * (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,22 +16,23 @@ package org.nuxeo.ecm.platform.notification.dispatcher;
  *      Nuxeo
  */
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.nuxeo.ecm.platform.notification.message.Notification;
+package org.nuxeo.ecm.platform.notification.resolver;
 
-public class LogDispatcher extends Dispatcher {
-    private static final Log log = LogFactory.getLog(LogDispatcher.class);
+import java.util.List;
+import java.util.stream.Stream;
 
-    public static int processed = 0;
+import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
-    public LogDispatcher(DispatcherDescriptor desc, int nbInputStreams, int nbOutputStreams) {
-        super(desc, nbInputStreams, nbOutputStreams);
+public class ContributorsResolver extends Resolver {
+
+    @Override
+    public boolean accept(EventRecord eventRecord) {
+        return eventRecord.getEventName().equals(DocumentEventTypes.DOCUMENT_UPDATED);
     }
 
     @Override
-    public void process(Notification notification) {
-        processed++;
-        log.warn(getName() + ":" + notification.toString());
+    public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
+        return withDocument(eventRecord, (d) -> ((List<String>) d.getPropertyValue("dc:contributors")).stream());
     }
 }

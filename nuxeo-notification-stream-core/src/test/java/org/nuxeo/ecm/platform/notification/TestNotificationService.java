@@ -43,7 +43,6 @@ import org.nuxeo.ecm.platform.notification.resolver.ComplexSubsKeyResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
-import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -51,7 +50,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @RunWith(FeaturesRunner.class)
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationService {
     @Inject
     NotificationService notif;
@@ -64,8 +63,7 @@ public class TestNotificationService {
 
     @Before
     public void before() {
-        NotificationComponent nc = (NotificationComponent) this.notif;
-        ((KeyValueStoreProvider) nc.getKeyValueStore(KVS_SUBSCRIPTIONS)).clear();
+        TestNotificationHelper.clearKVS(KVS_SUBSCRIPTIONS);
     }
 
     @Test

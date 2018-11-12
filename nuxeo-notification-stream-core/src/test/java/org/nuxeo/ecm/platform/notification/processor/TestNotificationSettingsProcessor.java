@@ -24,7 +24,7 @@ import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.TestNotificationHelper;
 import org.nuxeo.ecm.platform.notification.message.UserSettings;
-import org.nuxeo.ecm.platform.notification.model.UserResolverSettings;
+import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -42,7 +42,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationSettingsProcessor {
 
     @Inject
@@ -68,12 +68,12 @@ public class TestNotificationSettingsProcessor {
                 Record.of("settings", codecService.getCodec(DEFAULT_CODEC, UserSettings.class).encode(record)));
 
         // Wait for the completion and check the result stored in the KVS
-        TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(logManager, 5, TimeUnit.SECONDS);
         KeyValueStore store = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SETTINGS);
 
-        Codec<UserResolverSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserResolverSettings.class);
+        Codec<UserDispatcherSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
         byte[] userSettingsBytes = store.get("user1:fileCreated");
-        UserResolverSettings userSettings = codec.decode(userSettingsBytes);
+        UserDispatcherSettings userSettings = codec.decode(userSettingsBytes);
         assertThat(userSettings.getSettings().get("log")).isTrue();
         assertThat(userSettings.getSettings().get("inApp")).isFalse();
         userSettingsBytes = store.get("user1:fileUpdated");
@@ -87,9 +87,9 @@ public class TestNotificationSettingsProcessor {
         UserSettings record = buildUserSettings();
         nss.updateSettings(record.getUsername(), record.getSettingsMap());
 
-        TestNotificationHelper.awaitCompletion(getUserSettingsLogManager(), 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(getUserSettingsLogManager(), 5, TimeUnit.SECONDS);
 
-        Map<String, UserResolverSettings> settings = nss.getSettings(record.getUsername());
+        Map<String, UserDispatcherSettings> settings = nss.getResolverSettings(record.getUsername());
         assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();
         assertThat(settings.get("fileCreated").getSettings().get("inApp")).isFalse();
     }
@@ -101,7 +101,7 @@ public class TestNotificationSettingsProcessor {
     protected UserSettings buildUserSettings() {
         UserSettings.UserSettingsBuilder builder = UserSettings.builder().withUsername("user1");
 
-        UserResolverSettings settings = new UserResolverSettings();
+        UserDispatcherSettings settings = new UserDispatcherSettings();
         settings.getSettings().put("log", true);
         settings.getSettings().put("inApp", false);
 

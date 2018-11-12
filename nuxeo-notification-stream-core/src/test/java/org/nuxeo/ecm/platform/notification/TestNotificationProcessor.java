@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
+import org.nuxeo.ecm.platform.notification.dispatcher.CounterDispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.processor.NotificationProcessor;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
@@ -37,11 +37,11 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/empty-resolver-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/count-executions-contrib.xml")
 public class TestNotificationProcessor {
 
     @Inject
-    protected NotificationStreamConfig notificationStreamConfig;
+    protected NotificationStreamConfig nsc;
 
     @Inject
     protected CodecService codecService;
@@ -58,19 +58,18 @@ public class TestNotificationProcessor {
     @Test
     public void testTopologyExecution() throws InterruptedException {
         // Create a record in the stream in input of the notification processor
-        LogManager logManager = notificationStreamConfig.getLogManager(
-                notificationStreamConfig.getLogConfigNotification());
-        assertThat(logManager.getAppender(notificationStreamConfig.getEventInputStream())).isNotNull();
+        LogManager logManager = nsc.getLogManager(nsc.getLogConfigNotification());
+        assertThat(logManager.getAppender(nsc.getEventInputStream())).isNotNull();
 
-        LogAppender<Record> appender = logManager.getAppender(notificationStreamConfig.getEventInputStream());
+        LogAppender<Record> appender = logManager.getAppender(nsc.getEventInputStream());
         EventRecord eventRecord = new EventRecord("test", "Administrator");
         Record r = Record.of("toto", codecService.getCodec(DEFAULT_CODEC, EventRecord.class).encode(eventRecord));
         appender.append("toto", r);
 
-        TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(logManager, 5, TimeUnit.SECONDS);
         // We have 2 dispatchers enabled and 1 disabled all using the same class, and 1 resolver that has
         // AcceptAllResolver.TARGET_USERS users.
         // So, we expect to have nb_enabled_dispatchers * nb_TARGET_USERS executions
-        assertThat(LogDispatcher.processed).isEqualTo(TARGET_USERS * 2);
+        assertThat(CounterDispatcher.processed).isEqualTo(TARGET_USERS * 2);
     }
 }

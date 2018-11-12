@@ -1,3 +1,4 @@
+package org.nuxeo.ecm.platform.notification.dispatcher;
 /*
  * (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +17,26 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.resolver;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.nuxeo.ecm.platform.notification.message.Notification;
 
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+public class CounterDispatcher extends Dispatcher {
+    private static final Log log = LogFactory.getLog(CounterDispatcher.class);
 
-import org.nuxeo.ecm.platform.notification.message.EventRecord;
+    public static int processed = 0;
 
-public class FileUpdatedResolver extends Resolver {
+    public CounterDispatcher(DispatcherDescriptor desc) {
+        super(desc);
+    }
 
     @Override
-    public boolean accept(EventRecord eventRecord) {
-        return eventRecord.getDocumentSourceType().equals("File")
-                && eventRecord.getEventName().equals(DOCUMENT_UPDATED);
+    public void process(Notification notification) {
+        processed++;
+        log.warn(getName() + ":" + notification.toString());
+    }
+
+    public static void reset() {
+        processed = 0;
     }
 }

@@ -37,7 +37,7 @@ import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.message.SubscriptionAction;
 import org.nuxeo.ecm.platform.notification.message.UserSettings;
 import org.nuxeo.ecm.platform.notification.model.Subscribers;
-import org.nuxeo.ecm.platform.notification.model.UserResolverSettings;
+import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
@@ -283,7 +283,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public void updateSettings(String username, Map<String, UserResolverSettings> userSettings) {
+    public void updateSettings(String username, Map<String, UserDispatcherSettings> userSettings) {
         LogAppender<Record> appender = getLogManager(getLogConfigSettings()).getAppender(
                 getNotificationSettingsInputStream());
         UserSettings us = UserSettings.builder().withUsername(username).withSettings(userSettings).build();
@@ -291,11 +291,11 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public Map<String, UserResolverSettings> getSettings(String username) {
-        Map<String, UserResolverSettings> settings = new HashMap<>();
+    public Map<String, UserDispatcherSettings> getResolverSettings(String username) {
+        Map<String, UserDispatcherSettings> settings = new HashMap<>();
 
         getResolvers().forEach(r -> {
-            UserResolverSettings urs = getUserResolverSettings(username, r.getId());
+            UserDispatcherSettings urs = getUserResolverSettings(username, r.getId());
             settings.put(r.getId(), urs);
         });
 
@@ -311,11 +311,11 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         // Update the settings
-        UserResolverSettings newSettings = new UserResolverSettings();
+        UserDispatcherSettings newSettings = new UserDispatcherSettings();
         newSettings.setSettings(dispatchersSettings);
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
-        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class)
-                                                         .getCodec(DEFAULT_CODEC, UserResolverSettings.class);
+        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class)
+                                                         .getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
         settingsKVS.put(username + ":" + resolverId, avroCodec.encode(newSettings));
     }
 
@@ -329,29 +329,29 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         return getDispatchers(getUserResolverSettings(username, resolverId).getSelectedDispatchers());
     }
 
-    protected UserResolverSettings getUserResolverSettings(String username, String resolverId) {
+    protected UserDispatcherSettings getUserResolverSettings(String username, String resolverId) {
         // Get the settings for the given user and the given resolver
         KeyValueStore store = getKeyValueStore(KVS_SETTINGS);
         byte[] userSettingsBytes = store.get(username + ":" + resolverId);
 
-        UserResolverSettings defaults = getDefaults(resolverId);
+        UserDispatcherSettings defaults = getDefaults(resolverId);
         // If there is not settings defined for the user and the resolver, the default settings are returned
         if (userSettingsBytes == null) {
             return defaults;
         }
 
-        Codec<UserResolverSettings> avroCodec = Framework.getService(CodecService.class)
-                                                         .getCodec(DEFAULT_CODEC, UserResolverSettings.class);
-        UserResolverSettings userResolverSettings = avroCodec.decode(userSettingsBytes);
+        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class)
+                                                         .getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
+        UserDispatcherSettings userDispatcherSettings = avroCodec.decode(userSettingsBytes);
 
         // Add missing settings for default enabled dispatchers
         defaults.getSettings()
                 .entrySet()
                 .stream() //
-                .filter(d -> !userResolverSettings.getSettings().containsKey(d.getKey()))
-                .forEach(d -> userResolverSettings.getSettings().put(d.getKey(), d.getValue()));
+                .filter(d -> !userDispatcherSettings.getSettings().containsKey(d.getKey()))
+                .forEach(d -> userDispatcherSettings.getSettings().put(d.getKey(), d.getValue()));
 
-        return userResolverSettings;
+        return userDispatcherSettings;
     }
 
     protected List<Dispatcher> getDispatchers(List<String> dispatchers) {
@@ -364,15 +364,15 @@ public class NotificationComponent extends DefaultComponent implements Notificat
                                .collect(Collectors.toList());
     }
 
-    protected UserResolverSettings getDefaults(String resolverId) {
+    protected UserDispatcherSettings getDefaults(String resolverId) {
         SettingsDescriptor descriptor = getSetting(resolverId);
         if (descriptor == null) {
             boolean exists = resolvers.containsKey(resolverId);
             // The descriptor for the resolver does not exist, null is returned
-            return exists ? UserResolverSettings.defaultFromDispatchers(getDispatchers()) : null;
+            return exists ? UserDispatcherSettings.defaultFromDispatchers(getDispatchers()) : null;
         }
 
-        return UserResolverSettings.defaultFromDescriptor(descriptor);
+        return UserDispatcherSettings.defaultFromDescriptor(descriptor);
     }
 
     protected SettingsDescriptor getSetting(String resolverId) {

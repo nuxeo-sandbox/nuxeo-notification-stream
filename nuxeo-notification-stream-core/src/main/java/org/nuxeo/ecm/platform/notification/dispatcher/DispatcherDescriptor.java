@@ -48,8 +48,8 @@ public class DispatcherDescriptor implements Descriptor {
 
     public Dispatcher newInstance() {
         try {
-            return dispatcherClass.getConstructor(DispatcherDescriptor.class, int.class, int.class) //
-                                  .newInstance(this, 1, 0);
+            return dispatcherClass.getConstructor(DispatcherDescriptor.class) //
+                                  .newInstance(this);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }

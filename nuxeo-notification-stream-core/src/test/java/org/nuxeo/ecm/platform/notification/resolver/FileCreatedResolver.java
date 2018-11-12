@@ -21,12 +21,11 @@ package org.nuxeo.ecm.platform.notification.resolver;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.resolver.impl.DocumentEventResolver;
 
-public class FileCreatedResolver extends DocumentEventResolver {
+public class FileCreatedResolver extends Resolver {
 
     @Override
-    public boolean acceptEventRecord(EventRecord eventRecord) {
+    public boolean accept(EventRecord eventRecord) {
         return eventRecord.getDocumentSourceType().equals("File")
                 && eventRecord.getEventName().equals(DOCUMENT_CREATED);
     }

@@ -34,7 +34,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationSubscribersProcessor {
 
     @Inject
@@ -55,13 +55,13 @@ public class TestNotificationSubscribersProcessor {
 
         notif.subscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.awaitCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
+        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
                 TimeUnit.SECONDS);
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).containsExactly(username);
 
         notif.unsubscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.awaitCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
+        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
                 TimeUnit.SECONDS);
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).isEmpty();
     }

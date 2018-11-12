@@ -11,6 +11,7 @@ package org.nuxeo.ecm.platform.notification.listener;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
@@ -70,8 +71,11 @@ public class EventsStreamListener implements PostCommitEventListener {
         EventRecord record = new EventRecord(event.getName(), event.getContext().getPrincipal().getName());
 
         if (event.getContext() instanceof DocumentEventContext) {
-            String docId = ((DocumentEventContext) event.getContext()).getSourceDocument().getId();
-            record.setDocumentSourceId(docId);
+            DocumentEventContext ctx = (DocumentEventContext) event.getContext();
+
+            DocumentModel doc = ctx.getSourceDocument();
+            record.setDocumentSourceId(doc.getId());
+            record.setDocumentSourceType(doc.getType());
         }
 
         return Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class).encode(record);

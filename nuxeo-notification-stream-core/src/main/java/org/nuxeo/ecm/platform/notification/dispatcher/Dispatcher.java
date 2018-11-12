@@ -36,8 +36,8 @@ public abstract class Dispatcher extends AbstractComputation {
 
     protected Map<String, String> properties;
 
-    public Dispatcher(DispatcherDescriptor desc, int nbInputStreams, int nbOutputStreams) {
-        super(desc.id, nbInputStreams, nbOutputStreams);
+    public Dispatcher(DispatcherDescriptor desc) {
+        super(desc.id, 1, 0);
         properties = desc.getProperties();
     }
 

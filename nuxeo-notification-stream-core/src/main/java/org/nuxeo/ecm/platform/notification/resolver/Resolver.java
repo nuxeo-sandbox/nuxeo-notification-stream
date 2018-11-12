@@ -20,12 +20,25 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
+import org.nuxeo.ecm.core.api.CloseableCoreSession;
+import org.nuxeo.ecm.core.api.CoreInstance;
+import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.platform.notification.NotificationService;
-import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * Resolver class aims to be able to transform a CoreEvent to a Notification object
@@ -65,8 +78,7 @@ public abstract class Resolver {
      */
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
         Subscribers subscribtions = Framework.getService(NotificationService.class)
-                                                           .getSubscriptions(getId(),
-                                                                   computeContextFromEvent(eventRecord));
+                                             .getSubscriptions(getId(), computeContextFromEvent(eventRecord));
         return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
     }
 
@@ -89,5 +101,28 @@ public abstract class Resolver {
      */
     public String computeSubscriptionsKey(Map<String, String> ctx) {
         return getId();
+    }
+
+    protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
+        AtomicReference<T> ret = new AtomicReference<>();
+        TransactionHelper.runInTransaction(() -> {
+            try {
+                LoginContext loginContext = Framework.loginAsUser(eventRecord.getUsername());
+                String repository = eventRecord.getRepository();
+                try (CloseableCoreSession session = CoreInstance.openCoreSession(repository)) {
+                    ret.set(func.apply(session.getDocument(getRef(eventRecord.getDocumentSourceId()))));
+                } finally {
+                    loginContext.logout();
+                }
+            } catch (LoginException e) {
+                throw new NuxeoException(e);
+            }
+        });
+
+        return ret.get();
+    }
+
+    protected static DocumentRef getRef(String id) {
+        return id.startsWith("/") ? new PathRef(id) : new IdRef(id);
     }
 }

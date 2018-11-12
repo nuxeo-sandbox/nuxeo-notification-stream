@@ -16,26 +16,14 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.resolver.impl;
+package org.nuxeo.ecm.platform.notification.resolver;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 
-/**
- * Resolver aims to ease DocumentEvent resolution
- * 
- * @since XXX
- */
-public abstract class DocumentEventResolver extends Resolver {
-
+public class DynDocumentResolver extends Resolver {
     @Override
     public boolean accept(EventRecord eventRecord) {
-        if (eventRecord.getDocumentSourceId() == null) {
-            return false;
-        }
-
-        return acceptEventRecord(eventRecord);
+        return StringUtils.isNotEmpty(eventRecord.getDocumentSourceId());
     }
-
-    public abstract boolean acceptEventRecord(EventRecord eventRecord);
 }

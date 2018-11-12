@@ -14,9 +14,12 @@ import org.mockito.Mockito;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.lib.stream.log.LogLag;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 
 /**
  * @since XXX
@@ -32,7 +35,7 @@ public class TestNotificationHelper {
      * @return true if lag is empty, false if the deadline is reached
      * @throws InterruptedException
      */
-    public static boolean awaitCompletion(LogManager logManager, long duration, TimeUnit unit)
+    public static boolean waitProcessorsCompletion(LogManager logManager, long duration, TimeUnit unit)
             throws InterruptedException {
         if (logManager == null) {
             return false;
@@ -41,7 +44,6 @@ public class TestNotificationHelper {
         long durationMs = unit.toMillis(duration);
         long deadline = System.currentTimeMillis() + durationMs;
         while (System.currentTimeMillis() < deadline) {
-            Thread.sleep(200);
             long lagTotal = logManager.listAll()
                                       .stream()
                                       .mapToLong(l -> logManager.listConsumerGroups(l)
@@ -54,6 +56,8 @@ public class TestNotificationHelper {
             if (lagTotal == 0L) {
                 return true;
             }
+
+            Thread.sleep(200);
         }
 
         return false;
@@ -65,5 +69,14 @@ public class TestNotificationHelper {
         Mockito.when(source.getId()).thenReturn(docId);
 
         return new DocumentEventContext(session, session.getPrincipal(), source).newEvent(event);
+    }
+
+    public static void waitForEvents() {
+        Framework.getService(EventService.class).waitForAsyncCompletion();
+    }
+
+    public static void clearKVS(String name) {
+        NotificationComponent nc = (NotificationComponent) Framework.getService(NotificationService.class);
+        ((KeyValueStoreProvider) nc.getKeyValueStore(name)).clear();
     }
 }

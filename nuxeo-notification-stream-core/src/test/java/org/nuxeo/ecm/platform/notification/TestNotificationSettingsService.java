@@ -33,18 +33,18 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @RunWith(FeaturesRunner.class)
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
+@Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationSettingsService {
 
     @Inject
-    NotificationSettingsService notif;
+    protected NotificationSettingsService nss;
 
     @Inject
-    NotificationStreamCallback scb;
+    protected NotificationStreamCallback scb;
 
     @Test
     public void testDefaultNotificationSettings() {
-        NotificationComponent cmp = (NotificationComponent) notif;
+        NotificationComponent cmp = (NotificationComponent) nss;
         assertThat(cmp.getDefaults("fileCreated").getSelectedDispatchers()).containsExactly("inApp");
         assertThat(cmp.getDefaults("fileUpdated").getSelectedDispatchers()).isEmpty();
 
@@ -57,11 +57,11 @@ public class TestNotificationSettingsService {
 
     @Test
     public void serviceReturnsDefaultSettingsIfUserHasNoneDefined() {
-        NotificationComponent cmp = (NotificationComponent) notif;
-        List<String> dispatchers = notif.getSelectedDispatchers("toto", "fileCreated") //
-                                        .stream()
-                                        .map(Dispatcher::getName)
-                                        .collect(Collectors.toList());
+        NotificationComponent cmp = (NotificationComponent) nss;
+        List<String> dispatchers = nss.getSelectedDispatchers("toto", "fileCreated") //
+                                      .stream()
+                                      .map(Dispatcher::getName)
+                                      .collect(Collectors.toList());
 
         assertThat(dispatchers).isNotEmpty() //
                                .containsExactlyElementsOf(cmp.getDefaults("fileCreated").getSelectedDispatchers());
@@ -75,10 +75,10 @@ public class TestNotificationSettingsService {
         scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
 
         // Fetch the settings for the user
-        List<String> dispatchers = notif.getSelectedDispatchers("user1", "fileCreated") //
-                                        .stream()
-                                        .map(Dispatcher::getName)
-                                        .collect(Collectors.toList());
+        List<String> dispatchers = nss.getSelectedDispatchers("user1", "fileCreated") //
+                                      .stream()
+                                      .map(Dispatcher::getName)
+                                      .collect(Collectors.toList());
         assertThat(dispatchers).containsExactlyInAnyOrder("log");
     }
 
@@ -89,11 +89,10 @@ public class TestNotificationSettingsService {
         scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
 
         // Fetch the settings for the user
-        List<String> dispatchers = notif.getSelectedDispatchers("user1", "fileCreated") //
-                                        .stream()
-                                        .map(Dispatcher::getName)
-                                        .collect(Collectors.toList());
+        List<String> dispatchers = nss.getSelectedDispatchers("user1", "fileCreated") //
+                                      .stream()
+                                      .map(Dispatcher::getName)
+                                      .collect(Collectors.toList());
         assertThat(dispatchers).containsExactlyInAnyOrder("inApp", "log");
     }
-
 }
