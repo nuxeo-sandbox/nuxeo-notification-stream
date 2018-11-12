@@ -18,7 +18,9 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.nuxeo.ecm.core.api.event.DocumentEventTypes;
@@ -33,6 +35,6 @@ public class ContributorsResolver extends Resolver {
 
     @Override
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
-        return withDocument(eventRecord, (d) -> ((List<String>) d.getPropertyValue("dc:contributors")).stream());
+        return withDocument(eventRecord, (d) -> Arrays.stream((String[]) d.getPropertyValue("dc:contributors")));
     }
 }

@@ -62,7 +62,7 @@ public class TestNotificationProcessor {
         assertThat(logManager.getAppender(nsc.getEventInputStream())).isNotNull();
 
         LogAppender<Record> appender = logManager.getAppender(nsc.getEventInputStream());
-        EventRecord eventRecord = new EventRecord("test", "Administrator");
+        EventRecord eventRecord = EventRecord.builder().withEventName("test").withUsername("Administrator").build();
         Record r = Record.of("toto", codecService.getCodec(DEFAULT_CODEC, EventRecord.class).encode(eventRecord));
         appender.append("toto", r);
 

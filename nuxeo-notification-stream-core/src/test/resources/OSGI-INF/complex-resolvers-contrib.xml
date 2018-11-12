@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.platform.notification.test.count.executions.config">
+
+  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="resolver">
+    <resolver id="contributorsResolver" class="org.nuxeo.ecm.platform.notification.resolver.ContributorsResolver" />
+    <resolver id="documentResolver" class="org.nuxeo.ecm.platform.notification.resolver.DynDocumentResolver" />
+  </extension>
+
+</component>

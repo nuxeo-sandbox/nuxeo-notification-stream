@@ -11,7 +11,6 @@ package org.nuxeo.ecm.platform.notification.listener;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventBundle;
@@ -19,6 +18,7 @@ import org.nuxeo.ecm.core.event.PostCommitEventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
 import org.nuxeo.lib.stream.log.LogManager;
@@ -68,16 +68,17 @@ public class EventsStreamListener implements PostCommitEventListener {
      * @return
      */
     protected byte[] encodeEvent(Event event) {
-        EventRecord record = new EventRecord(event.getName(), event.getContext().getPrincipal().getName());
+        EventRecordBuilder builder = EventRecord.builder()
+                                                .withEventName(event.getName())
+                                                .withUsername(event.getContext().getPrincipal().getName());
 
         if (event.getContext() instanceof DocumentEventContext) {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-
-            DocumentModel doc = ctx.getSourceDocument();
-            record.setDocumentSourceId(doc.getId());
-            record.setDocumentSourceType(doc.getType());
+            builder.withDocument(ctx.getSourceDocument());
         }
 
-        return Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class).encode(record);
+        return Framework.getService(CodecService.class)
+                        .getCodec(DEFAULT_CODEC, EventRecord.class)
+                        .encode(builder.build());
     }
 }

@@ -38,6 +38,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.resolver.ComplexSubsKeyResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
@@ -90,15 +91,19 @@ public class TestNotificationService {
 
     @Test
     public void testResolverResolution() {
-        EventRecord eventRecord = new EventRecord(DOCUMENT_UPDATED, "0000-0000-0000", "File",
-                session.getPrincipal().getName());
-        assertThat(notif.getResolvers(eventRecord)).hasSize(1).first().isInstanceOf(FileUpdatedResolver.class);
+        EventRecordBuilder builder = EventRecord.builder()
+                                                .withEventName(DOCUMENT_UPDATED)
+                                                .withUsername(session.getPrincipal().getName())
+                                                .withDocumentId("0000-0000-0000")
+                                                .withDocumentType("File");
 
-        eventRecord.setEventName(DOCUMENT_CREATED);
-        assertThat(notif.getResolvers(eventRecord)).hasSize(1).first().isInstanceOf(FileCreatedResolver.class);
+        assertThat(notif.getResolvers(builder.build())).hasSize(1).first().isInstanceOf(FileUpdatedResolver.class);
 
-        eventRecord.setEventName(DOCUMENT_CHECKEDIN);
-        assertThat(notif.getResolvers(eventRecord)).hasSize(0);
+        builder.withEventName(DOCUMENT_CREATED);
+        assertThat(notif.getResolvers(builder.build())).hasSize(1).first().isInstanceOf(FileCreatedResolver.class);
+
+        builder.withEventName(DOCUMENT_CHECKEDIN);
+        assertThat(notif.getResolvers(builder.build())).hasSize(0);
     }
 
     @Test
@@ -133,7 +138,7 @@ public class TestNotificationService {
     public void testResolverSubscriptions() {
         String resolverId = "fileCreated";
         Map<String, String> ctx = Collections.emptyMap();
-        EventRecord emptyRecord = new EventRecord();
+        EventRecord emptyRecord = EventRecord.builder().build();
 
         Resolver resolver = notif.getResolver(resolverId);
         assertThat(resolver.resolveTargetUsers(emptyRecord)).isEmpty();

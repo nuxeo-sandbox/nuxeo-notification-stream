@@ -27,7 +27,7 @@ import org.nuxeo.ecm.platform.notification.resolver.Resolver;
  * 
  * @since XXX
  */
-public abstract class DocumentResolver extends Resolver {
+public abstract class AbstractDocumentResolver extends Resolver {
 
     @Override
     public boolean accept(EventRecord eventRecord) {

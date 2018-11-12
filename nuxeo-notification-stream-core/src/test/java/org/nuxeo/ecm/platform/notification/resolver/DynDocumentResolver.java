@@ -18,12 +18,32 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class DynDocumentResolver extends Resolver {
+    public static final String DOC_ID_KEY = "docId";
+
+    public static final String EVENT_KEY = "event";
+
     @Override
     public boolean accept(EventRecord eventRecord) {
         return StringUtils.isNotEmpty(eventRecord.getDocumentSourceId());
+    }
+
+    @Override
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return String.format("%s:%s:%s", getId(), ctx.get(DOC_ID_KEY), ctx.get(EVENT_KEY));
+    }
+
+    @Override
+    protected Map<String, String> computeContextFromEvent(EventRecord eventRecord) {
+        Map<String, String> ctx = new HashMap<>();
+        ctx.put(DOC_ID_KEY, eventRecord.getDocumentSourceId());
+        ctx.put(EVENT_KEY, eventRecord.getEventName());
+        return ctx;
     }
 }

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.runtime.api.Framework;
 
@@ -28,20 +29,8 @@ public class EventRecord implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
-    public EventRecord() {
+    protected EventRecord() {
         // Empty constructor for Avro decoder
-    }
-
-    public EventRecord(String eventName, String username) {
-        this(eventName, null, null, username);
-    }
-
-    public EventRecord(String eventName, String documentSourceId, String documentSourceType, String username) {
-        this.id = UUID.randomUUID().toString();
-        this.eventName = eventName;
-        this.documentSourceId = documentSourceId;
-        this.documentSourceType = documentSourceType;
-        this.username = username;
     }
 
     protected String id;
@@ -63,24 +52,12 @@ public class EventRecord implements Serializable {
         return eventName;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
-
     public String getDocumentSourceId() {
         return documentSourceId;
     }
 
-    public void setDocumentSourceId(String documentSourceId) {
-        this.documentSourceId = documentSourceId;
-    }
-
     public String getDocumentSourceType() {
         return documentSourceType;
-    }
-
-    public void setDocumentSourceType(String documentSourceType) {
-        this.documentSourceType = documentSourceType;
     }
 
     public String getUsername() {
@@ -91,10 +68,6 @@ public class EventRecord implements Serializable {
         return StringUtils.isBlank(documentSourceRepository)
                 ? Framework.getService(RepositoryManager.class).getDefaultRepositoryName()
                 : documentSourceRepository;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     @Override
@@ -110,5 +83,52 @@ public class EventRecord implements Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    public static EventRecordBuilder builder() {
+        return new EventRecordBuilder();
+    }
+
+    public static class EventRecordBuilder {
+        EventRecord record;
+
+        protected EventRecordBuilder() {
+            record = new EventRecord();
+        }
+
+        public EventRecordBuilder withDocument(DocumentModel doc) {
+            return withDocumentId(doc.getId()).withDocumentRepository(doc.getRepositoryName())
+                                              .withDocumentType(doc.getType());
+        }
+
+        public EventRecordBuilder withDocumentId(String docId) {
+            record.documentSourceId = docId;
+            return this;
+        }
+
+        public EventRecordBuilder withDocumentType(String docType) {
+            record.documentSourceType = docType;
+            return this;
+        }
+
+        public EventRecordBuilder withDocumentRepository(String repository) {
+            record.documentSourceRepository = repository;
+            return this;
+        }
+
+        public EventRecordBuilder withEventName(String eventName) {
+            record.eventName = eventName;
+            return this;
+        }
+
+        public EventRecordBuilder withUsername(String username) {
+            record.username = username;
+            return this;
+        }
+
+        public EventRecord build() {
+            record.id = UUID.randomUUID().toString();
+            return record;
+        }
     }
 }
