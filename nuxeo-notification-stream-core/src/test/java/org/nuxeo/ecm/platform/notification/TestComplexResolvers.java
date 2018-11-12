@@ -38,6 +38,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -86,19 +87,23 @@ public class TestComplexResolvers {
         Resolver resolver = ns.getResolver("documentResolver");
         assertThat(resolver).isNotNull();
 
-        EventRecord record = EventRecord.builder()
-                                        .withDocument(file)
-                                        .withEventName(DOCUMENT_CREATED)
-                                        .withUsername("someone")
-                                        .build();
+        EventRecordBuilder builder = EventRecord.builder()
+                                                .withDocument(file)
+                                                .withEventName(DOCUMENT_CREATED)
+                                                .withUsername("someone");
 
-        assertThat(resolver.resolveTargetUsers(record)).hasSize(0);
+        assertThat(resolver.resolveTargetUsers(builder.build())).hasSize(0);
 
         Map<String, String> ctx = new HashMap<>();
         ctx.put(DOC_ID_KEY, file.getId());
         ctx.put(EVENT_KEY, DOCUMENT_CREATED);
         nsc.doSubscribe("Administrator", resolver.getId(), ctx);
 
-        assertThat(resolver.resolveTargetUsers(record)).containsExactly("Administrator");
+        builder.withEventName(DOCUMENT_UPDATED);
+        assertThat(resolver.resolveTargetUsers(builder.build())).isEmpty();
+
+        builder.withEventName(DOCUMENT_CREATED);
+        builder.withDocumentId("000-000-000");
+        assertThat(resolver.resolveTargetUsers(builder.build())).isEmpty();
     }
 }
