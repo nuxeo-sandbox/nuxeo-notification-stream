@@ -20,10 +20,10 @@ package org.nuxeo.ecm.platform.notification.processor.computation;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import org.nuxeo.ecm.platform.notification.Notification;
 import org.nuxeo.ecm.platform.notification.NotificationService;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.message.Notification;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
@@ -51,7 +51,12 @@ public class EventToNotificationComputation extends AbstractComputation {
         Framework.getService(NotificationService.class)
                  .getResolvers(eventRecord)
                  .forEach(r -> r.resolveTargetUsers(eventRecord)
-                                .map(user -> Notification.builder().fromEvent(eventRecord).withUsername(user).build())
+                                .map(user -> Notification.builder()
+                                                         .fromEvent(eventRecord)
+                                                         .withUsername(user)
+                                                         .withResolver(r)
+                                                         .build())
+                                .filter(Notification::hasDispatchers)
                                 .map(this::encodeNotif)
                                 .forEach(notifRecord -> ctx.produceRecord(outputStream, notifRecord)));
 

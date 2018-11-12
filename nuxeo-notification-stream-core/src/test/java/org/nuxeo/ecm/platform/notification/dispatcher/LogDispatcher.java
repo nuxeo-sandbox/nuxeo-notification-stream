@@ -19,7 +19,7 @@ package org.nuxeo.ecm.platform.notification.dispatcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nuxeo.lib.stream.computation.Record;
+import org.nuxeo.ecm.platform.notification.message.Notification;
 
 public class LogDispatcher extends Dispatcher {
     private static final Log log = LogFactory.getLog(LogDispatcher.class);
@@ -31,8 +31,8 @@ public class LogDispatcher extends Dispatcher {
     }
 
     @Override
-    public void process(Record record) {
+    public void process(Notification notification) {
         processed++;
-        log.warn(getName() + ":" + record.toString());
+        log.warn(getName() + ":" + notification.toString());
     }
 }

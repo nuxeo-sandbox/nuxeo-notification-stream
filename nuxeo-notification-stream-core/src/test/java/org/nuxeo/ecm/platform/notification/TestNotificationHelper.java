@@ -41,7 +41,7 @@ public class TestNotificationHelper {
         long durationMs = unit.toMillis(duration);
         long deadline = System.currentTimeMillis() + durationMs;
         while (System.currentTimeMillis() < deadline) {
-            Thread.sleep(100);
+            Thread.sleep(200);
             long lagTotal = logManager.listAll()
                                       .stream()
                                       .mapToLong(l -> logManager.listConsumerGroups(l)

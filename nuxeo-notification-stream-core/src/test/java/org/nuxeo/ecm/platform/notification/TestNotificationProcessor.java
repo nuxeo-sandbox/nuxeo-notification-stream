@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.processor.NotificationProcessor;
+import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -52,13 +52,14 @@ public class TestNotificationProcessor {
         assertThat(topology.streamsSet()).hasSize(2);
         assertThat(topology.getAncestorComputationNames(EventToNotificationComputation.ID)).isEmpty();
         assertThat(topology.getDescendantComputationNames(EventToNotificationComputation.ID)).containsOnly("inApp",
-                "log");
+                "log", "notEnabled");
     }
 
     @Test
     public void testTopologyExecution() throws InterruptedException {
         // Create a record in the stream in input of the notification processor
-        LogManager logManager = notificationStreamConfig.getLogManager(notificationStreamConfig.getLogConfigNotification());
+        LogManager logManager = notificationStreamConfig.getLogManager(
+                notificationStreamConfig.getLogConfigNotification());
         assertThat(logManager.getAppender(notificationStreamConfig.getEventInputStream())).isNotNull();
 
         LogAppender<Record> appender = logManager.getAppender(notificationStreamConfig.getEventInputStream());
@@ -67,7 +68,9 @@ public class TestNotificationProcessor {
         appender.append("toto", r);
 
         TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
-        // We have 2 dispatchers (using the same class) and 1 resolver that has AcceptAllResolver.TARGET_USERS users.
+        // We have 2 dispatchers enabled and 1 disabled all using the same class, and 1 resolver that has
+        // AcceptAllResolver.TARGET_USERS users.
+        // So, we expect to have nb_enabled_dispatchers * nb_TARGET_USERS executions
         assertThat(LogDispatcher.processed).isEqualTo(TARGET_USERS * 2);
     }
 }

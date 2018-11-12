@@ -16,26 +16,36 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification;
+package org.nuxeo.ecm.platform.notification.message;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.avro.reflect.Nullable;
-import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
+import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.runtime.api.Framework;
 
 public class Notification {
 
-    @Nullable
     protected String id;
 
     protected String username;
+
+    protected String resolverId;
 
     @Nullable
     protected String sourceId;
 
     protected Map<String, Serializable> context = new HashMap<>();
+
+    protected List<String> dispatchers = new ArrayList<>();
 
     public void addTargetUsername(String username) {
         this.username = username;
@@ -57,6 +67,18 @@ public class Notification {
         return sourceId;
     }
 
+    public String getResolverId() {
+        return resolverId;
+    }
+
+    public List<String> getDispatchers() {
+        return dispatchers;
+    }
+
+    public boolean hasDispatchers() {
+        return !getDispatchers().isEmpty();
+    }
+
     public Map<String, Serializable> getContext() {
         return context;
     }
@@ -73,7 +95,6 @@ public class Notification {
         }
 
         public NotificationBuilder fromEvent(EventRecord eventRecord) {
-            withId(eventRecord.getEventName());
             if (eventRecord.getDocumentSourceId() != null) {
                 withSourceId(eventRecord.getDocumentSourceId());
             }
@@ -81,13 +102,13 @@ public class Notification {
             return this;
         }
 
-        public NotificationBuilder withId(String id) {
-            notif.id = id;
+        public NotificationBuilder withSourceId(String sourceId) {
+            notif.sourceId = sourceId;
             return this;
         }
 
-        public NotificationBuilder withSourceId(String sourceId) {
-            notif.sourceId = sourceId;
+        public NotificationBuilder withResolver(Resolver resolver) {
+            notif.resolverId = resolver.getId();
             return this;
         }
 
@@ -107,6 +128,13 @@ public class Notification {
         }
 
         public Notification build() {
+            notif.id = UUID.randomUUID().toString();
+            notif.dispatchers = Framework.getService(NotificationSettingsService.class)
+                                         .getSelectedDispatchers(notif.username, notif.resolverId)
+                                         .stream()
+                                         .map(Dispatcher::getName)
+                                         .collect(Collectors.toList());
+
             return notif;
         }
     }

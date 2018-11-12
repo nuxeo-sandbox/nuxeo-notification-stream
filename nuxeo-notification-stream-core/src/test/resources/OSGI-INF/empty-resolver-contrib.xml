@@ -5,9 +5,18 @@
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="dispatcher">
     <dispatcher id="inApp" class="org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher" />
     <dispatcher id="log" class="org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher" />
+    <dispatcher id="notEnabled" class="org.nuxeo.ecm.platform.notification.dispatcher.LogDispatcher" />
   </extension>
 
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="resolver">
     <resolver id="fileCreated" class="org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="settings">
+    <settings id="fileCreated">
+      <dispatcher name="inApp" default="true" enable="true" />
+      <dispatcher name="log" default="true" enable="true" />
+      <dispatcher name="notEnabled" default="true" enable="false" />
+    </settings>
   </extension>
 </component>

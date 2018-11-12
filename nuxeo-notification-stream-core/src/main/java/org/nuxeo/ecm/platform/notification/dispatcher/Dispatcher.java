@@ -18,11 +18,16 @@
 
 package org.nuxeo.ecm.platform.notification.dispatcher;
 
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
+
 import java.util.Map;
 
+import org.nuxeo.ecm.platform.notification.message.Notification;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
+import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.codec.CodecService;
 
 /**
  * @since XXX
@@ -38,7 +43,15 @@ public abstract class Dispatcher extends AbstractComputation {
 
     @Override
     public void processRecord(ComputationContext ctx, String inputStreamName, Record record) {
-        process(record);
+
+        Notification notification = Framework.getService(CodecService.class)
+                                             .getCodec(DEFAULT_CODEC, Notification.class)
+                                             .decode(record.getData());
+
+        if (notification.getDispatchers().contains(getName())) {
+            process(notification);
+        }
+
         ctx.askForCheckpoint();
     }
 
@@ -46,7 +59,7 @@ public abstract class Dispatcher extends AbstractComputation {
         return metadata.name();
     }
 
-    public abstract void process(Record record);
+    public abstract void process(Notification notification);
 
     public String getProperty(String key) {
         return getProperty(key, null);
