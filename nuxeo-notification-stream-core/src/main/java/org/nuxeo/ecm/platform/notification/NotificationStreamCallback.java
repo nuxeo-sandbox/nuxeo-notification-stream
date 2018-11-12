@@ -27,4 +27,6 @@ public interface NotificationStreamCallback {
     void doSubscribe(String username, String resolverId, Map<String, String> ctx);
 
     void doUnsubscribe(String username, String resolverId, Map<String, String> ctx);
+
+    void doUpdateSettings(String username, String resolverId, Map<String, Boolean> dispatchersSettings);
 }

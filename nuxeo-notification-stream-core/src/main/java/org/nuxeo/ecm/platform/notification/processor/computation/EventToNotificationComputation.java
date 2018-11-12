@@ -16,7 +16,7 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification.processor.computation;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 

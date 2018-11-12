@@ -16,16 +16,24 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification;
+package org.nuxeo.ecm.platform.notification.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
-public class Subscriptions {
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+/**
+ * @since XXX
+ */
+public class Subscribers implements Serializable {
     protected HashSet<String> usernames = new HashSet<>();
 
-    protected Subscriptions() {
+    protected Subscribers() {
 
     }
 
@@ -33,29 +41,44 @@ public class Subscriptions {
         return usernames.stream();
     }
 
-    public Subscriptions remove(String username) {
+    public Subscribers remove(String username) {
         usernames.remove(username);
         return this;
     }
 
-    public Subscriptions addUsername(String username) {
+    public Subscribers addUsername(String username) {
         usernames.add(username);
         return this;
     }
 
-    public static Subscriptions empty() {
-        return new Subscriptions();
+    public static Subscribers empty() {
+        return new Subscribers();
     }
 
-    public static Subscriptions withUser(String username) {
-        Subscriptions subs = new Subscriptions();
+    public static Subscribers withUser(String username) {
+        Subscribers subs = new Subscribers();
         subs.addUsername(username);
         return subs;
     }
 
-    public static Subscriptions withUsers(Collection<String> usernames) {
-        Subscriptions subs = new Subscriptions();
+    public static Subscribers withUsers(Collection<String> usernames) {
+        Subscribers subs = new Subscribers();
         usernames.forEach(subs::addUsername);
         return subs;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

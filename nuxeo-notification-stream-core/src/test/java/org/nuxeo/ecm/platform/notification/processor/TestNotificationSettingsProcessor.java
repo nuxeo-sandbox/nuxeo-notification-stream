@@ -6,12 +6,13 @@
  * Contributors:
  *     Gildas Lefevre
  */
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification.processor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -19,10 +20,11 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.NotificationFeature;
+import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.TestNotificationHelper;
-import org.nuxeo.ecm.platform.notification.message.UserResolverSettings;
-import org.nuxeo.ecm.platform.notification.message.UserSettingsRecord;
+import org.nuxeo.ecm.platform.notification.message.UserSettings;
+import org.nuxeo.ecm.platform.notification.model.UserResolverSettings;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -44,7 +46,10 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 public class TestNotificationSettingsProcessor {
 
     @Inject
-    protected NotificationStreamConfig notificationStreamConfig;
+    protected NotificationStreamConfig nsc;
+
+    @Inject
+    protected NotificationSettingsService nss;
 
     @Inject
     protected CodecService codecService;
@@ -52,22 +57,15 @@ public class TestNotificationSettingsProcessor {
     @Test
     public void testTopologyExecution() throws InterruptedException {
         // Create a record in the stream in input of the notification settings processor
-        LogManager logManager = notificationStreamConfig.getLogManager(notificationStreamConfig.getLogConfigSettings());
-        assertThat(logManager.getAppender(notificationStreamConfig.getNotificationSettingsInputStream())).isNotNull();
+        LogManager logManager = getUserSettingsLogManager();
+        assertThat(logManager.getAppender(nsc.getNotificationSettingsInputStream())).isNotNull();
 
-        LogAppender<Record> appender = logManager.getAppender(
-                notificationStreamConfig.getNotificationSettingsInputStream());
-        UserSettingsRecord record = new UserSettingsRecord();
-        record.setUsername("user1");
-        UserResolverSettings settings = new UserResolverSettings();
-        settings.getSettings().put("log", true);
-        settings.getSettings().put("inApp", false);
-        record.getSettingsMap().put("fileCreated", settings);
-        record.getSettingsMap().put("fileUpdated", settings);
+        LogAppender<Record> appender = logManager.getAppender(nsc.getNotificationSettingsInputStream());
+        UserSettings record = buildUserSettings();
 
         // Write the record in the log
         appender.append("settings",
-                Record.of("settings", codecService.getCodec(DEFAULT_CODEC, UserSettingsRecord.class).encode(record)));
+                Record.of("settings", codecService.getCodec(DEFAULT_CODEC, UserSettings.class).encode(record)));
 
         // Wait for the completion and check the result stored in the KVS
         TestNotificationHelper.awaitCompletion(logManager, 5, TimeUnit.SECONDS);
@@ -82,5 +80,34 @@ public class TestNotificationSettingsProcessor {
         userSettings = codec.decode(userSettingsBytes);
         assertThat(userSettings.getSettings().get("log")).isTrue();
         assertThat(userSettings.getSettings().get("inApp")).isFalse();
+    }
+
+    @Test
+    public void testUserSettingsSave() throws InterruptedException {
+        UserSettings record = buildUserSettings();
+        nss.updateSettings(record.getUsername(), record.getSettingsMap());
+
+        TestNotificationHelper.awaitCompletion(getUserSettingsLogManager(), 5, TimeUnit.SECONDS);
+
+        Map<String, UserResolverSettings> settings = nss.getSettings(record.getUsername());
+        assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();
+        assertThat(settings.get("fileCreated").getSettings().get("inApp")).isFalse();
+    }
+
+    protected LogManager getUserSettingsLogManager() {
+        return nsc.getLogManager(nsc.getLogConfigSettings());
+    }
+
+    protected UserSettings buildUserSettings() {
+        UserSettings.UserSettingsBuilder builder = UserSettings.builder().withUsername("user1");
+
+        UserResolverSettings settings = new UserResolverSettings();
+        settings.getSettings().put("log", true);
+        settings.getSettings().put("inApp", false);
+
+        builder.withSetting("fileCreated", settings);
+        builder.withSetting("fileUpdated", settings);
+
+        return builder.build();
     }
 }

@@ -6,12 +6,13 @@
  * Contributors:
  *     Gildas Lefevre
  */
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification.processor;
 
 import java.util.Collections;
 import java.util.Map;
 
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
+import org.nuxeo.ecm.platform.notification.processor.computation.SaveNotificationSettingsComputation;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamProcessorTopology;

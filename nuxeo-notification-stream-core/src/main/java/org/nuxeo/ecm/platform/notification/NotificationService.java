@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 
 /**
@@ -71,5 +72,5 @@ public interface NotificationService {
 
     void unsubscribe(String username, String resolverId, Map<String, String> ctx);
 
-    Subscriptions getSubscriptions(String resolverId, Map<String, String> ctx);
+    Subscribers getSubscriptions(String resolverId, Map<String, String> ctx);
 }

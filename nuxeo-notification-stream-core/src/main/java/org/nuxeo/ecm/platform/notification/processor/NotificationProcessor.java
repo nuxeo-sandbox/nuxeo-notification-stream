@@ -16,7 +16,7 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification.processor;
 
 import java.util.Map;
 

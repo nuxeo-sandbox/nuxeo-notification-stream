@@ -38,6 +38,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.resolver.ComplexSubsKeyResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileUpdatedResolver;
@@ -110,7 +111,7 @@ public class TestNotificationService {
         String secondUser = "Johnny";
         String thirdUser = "Arthur";
 
-        Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
+        Subscribers subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs).isNotNull();
 
@@ -151,7 +152,7 @@ public class TestNotificationService {
         String firstUser = "dummy";
 
         scb.doSubscribe(firstUser, resolverId, ctx);
-        Subscriptions subs = notif.getSubscriptions(resolverId, ctx);
+        Subscribers subs = notif.getSubscriptions(resolverId, ctx);
 
         assertThat(subs.getUsernames()).hasSize(1);
 

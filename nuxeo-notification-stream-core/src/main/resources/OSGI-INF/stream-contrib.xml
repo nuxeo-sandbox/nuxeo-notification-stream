@@ -8,15 +8,15 @@
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="notification"
-                     class="org.nuxeo.ecm.platform.notification.processors.NotificationProcessor"
+                     class="org.nuxeo.ecm.platform.notification.processor.NotificationProcessor"
                      logConfig="notification">
     </streamProcessor>
     <streamProcessor name="subscriptions"
-                     class="org.nuxeo.ecm.platform.notification.processors.SubscriptionsProcessor"
+                     class="org.nuxeo.ecm.platform.notification.processor.SubscriptionsProcessor"
                      logConfig="notification">
     </streamProcessor>
     <streamProcessor name="notificationSettings"
-                     class="org.nuxeo.ecm.platform.notification.processors.NotificationSettingsProcessor"
+                     class="org.nuxeo.ecm.platform.notification.processor.NotificationSettingsProcessor"
                      logConfig="notificationSettings">
     </streamProcessor>
   </extension>

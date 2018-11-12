@@ -35,7 +35,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/dummy-contrib.xml")
-public class TestNotificationSubscriptionsProcessor {
+public class TestNotificationSubscribersProcessor {
 
     @Inject
     protected NotificationService notif;

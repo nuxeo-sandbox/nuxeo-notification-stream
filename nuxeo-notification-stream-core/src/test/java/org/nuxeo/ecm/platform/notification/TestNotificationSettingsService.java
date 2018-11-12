@@ -39,24 +39,32 @@ public class TestNotificationSettingsService {
     @Inject
     NotificationSettingsService notif;
 
+    @Inject
+    NotificationStreamCallback scb;
+
     @Test
     public void testDefaultNotificationSettings() {
         NotificationComponent cmp = (NotificationComponent) notif;
-        assertThat(cmp.getDefaults("fileCreated")).containsExactly("inApp");
-        assertThat(cmp.getDefaults("fileUpdated")).isEmpty();
+        assertThat(cmp.getDefaults("fileCreated").getSelectedDispatchers()).containsExactly("inApp");
+        assertThat(cmp.getDefaults("fileUpdated").getSelectedDispatchers()).isEmpty();
+
+        // Not *configured* Resolver must return a default settings
+        assertThat(cmp.getDefaults("complexKey").getSettings().keySet()).containsExactlyInAnyOrder("inApp", "log");
+
+        // Not *registered* Resolver must return null
         assertThat(cmp.getDefaults("unknown")).isNull();
     }
 
     @Test
     public void serviceReturnsDefaultSettingsIfUserHasNoneDefined() {
         NotificationComponent cmp = (NotificationComponent) notif;
-        List<String> dispatchers = notif.getDispatchers("toto", "fileCreated") //
+        List<String> dispatchers = notif.getSelectedDispatchers("toto", "fileCreated") //
                                         .stream()
                                         .map(Dispatcher::getName)
                                         .collect(Collectors.toList());
 
         assertThat(dispatchers).isNotEmpty() //
-                               .containsExactlyElementsOf(cmp.getDefaults("fileCreated"));
+                               .containsExactlyElementsOf(cmp.getDefaults("fileCreated").getSelectedDispatchers());
     }
 
     @Test
@@ -64,10 +72,10 @@ public class TestNotificationSettingsService {
         Map<String, Boolean> settingsDispatcher = new HashMap<>();
         settingsDispatcher.put("inApp", false);
         settingsDispatcher.put("log", true);
-        notif.updateSettings("user1", "fileCreated", settingsDispatcher);
+        scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
 
         // Fetch the settings for the user
-        List<String> dispatchers = notif.getDispatchers("user1", "fileCreated") //
+        List<String> dispatchers = notif.getSelectedDispatchers("user1", "fileCreated") //
                                         .stream()
                                         .map(Dispatcher::getName)
                                         .collect(Collectors.toList());
@@ -78,13 +86,14 @@ public class TestNotificationSettingsService {
     public void serviceAddsDefaultDispatcher() {
         Map<String, Boolean> settingsDispatcher = new HashMap<>();
         settingsDispatcher.put("log", true);
-        notif.updateSettings("user1", "fileCreated", settingsDispatcher);
+        scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
 
         // Fetch the settings for the user
-        List<String> dispatchers = notif.getDispatchers("user1", "fileCreated") //
-                .stream()
-                .map(Dispatcher::getName)
-                .collect(Collectors.toList());
+        List<String> dispatchers = notif.getSelectedDispatchers("user1", "fileCreated") //
+                                        .stream()
+                                        .map(Dispatcher::getName)
+                                        .collect(Collectors.toList());
         assertThat(dispatchers).containsExactlyInAnyOrder("inApp", "log");
     }
+
 }

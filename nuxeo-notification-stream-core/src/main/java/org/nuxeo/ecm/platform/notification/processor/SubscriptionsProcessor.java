@@ -6,7 +6,7 @@
  * Contributors:
  *     Gildas Lefevre
  */
-package org.nuxeo.ecm.platform.notification.processors;
+package org.nuxeo.ecm.platform.notification.processor;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.platform.notification.NotificationStreamCallback;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
-import org.nuxeo.ecm.platform.notification.message.SubscriptionActionRecord;
+import org.nuxeo.ecm.platform.notification.message.SubscriptionAction;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
@@ -52,9 +52,9 @@ public class SubscriptionsProcessor implements StreamProcessorTopology {
 
         @Override
         public void processRecord(ComputationContext computationContext, String key, Record record) {
-            Codec<SubscriptionActionRecord> codec = Framework.getService(CodecService.class)
-                                                             .getCodec(DEFAULT_CODEC, SubscriptionActionRecord.class);
-            SubscriptionActionRecord sub = codec.decode(record.getData());
+            Codec<SubscriptionAction> codec = Framework.getService(CodecService.class)
+                                                             .getCodec(DEFAULT_CODEC, SubscriptionAction.class);
+            SubscriptionAction sub = codec.decode(record.getData());
             NotificationStreamCallback scb = Framework.getService(NotificationStreamCallback.class);
 
             switch (sub.getAction()) {

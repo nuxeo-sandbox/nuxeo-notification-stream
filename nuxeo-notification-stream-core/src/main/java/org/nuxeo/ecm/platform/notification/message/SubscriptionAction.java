@@ -32,7 +32,7 @@ import org.nuxeo.runtime.codec.CodecService;
 /**
  * @since XXX
  */
-public class SubscriptionActionRecord {
+public class SubscriptionAction {
     public enum Action {
         SUBSCRIBE, UNSUBSCRIBE
     }
@@ -47,7 +47,7 @@ public class SubscriptionActionRecord {
 
     protected Map<String, String> ctx;
 
-    protected SubscriptionActionRecord() {
+    protected SubscriptionAction() {
         // Empty constructor for Avro
     }
 
@@ -73,7 +73,7 @@ public class SubscriptionActionRecord {
 
     public byte[] encode() {
         return Framework.getService(CodecService.class)
-                        .getCodec(DEFAULT_CODEC, SubscriptionActionRecord.class)
+                        .getCodec(DEFAULT_CODEC, SubscriptionAction.class)
                         .encode(this);
     }
 
@@ -92,17 +92,17 @@ public class SubscriptionActionRecord {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public static SubscriptionActionRecord subscribe(String username, String resolverId, Map<String, String> ctx) {
+    public static SubscriptionAction subscribe(String username, String resolverId, Map<String, String> ctx) {
         return with(username, resolverId, Action.SUBSCRIBE, ctx);
     }
 
-    public static SubscriptionActionRecord unsubscribe(String username, String resolverId, Map<String, String> ctx) {
+    public static SubscriptionAction unsubscribe(String username, String resolverId, Map<String, String> ctx) {
         return with(username, resolverId, Action.UNSUBSCRIBE, ctx);
     }
 
-    protected static SubscriptionActionRecord with(String username, String resolverId, Action action,
-            Map<String, String> ctx) {
-        SubscriptionActionRecord record = new SubscriptionActionRecord();
+    protected static SubscriptionAction with(String username, String resolverId, Action action,
+                                             Map<String, String> ctx) {
+        SubscriptionAction record = new SubscriptionAction();
         record.id = UUID.randomUUID().toString();
         record.username = username;
         record.resolverId = resolverId;
