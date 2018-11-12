@@ -2,8 +2,6 @@
   <extension point="logConfig" target="org.nuxeo.runtime.stream.service">
     <logConfig name="notification">
     </logConfig>
-    <logConfig name="subscriptions">
-    </logConfig>
     <logConfig name="notificationSettings">
     </logConfig>
   </extension>

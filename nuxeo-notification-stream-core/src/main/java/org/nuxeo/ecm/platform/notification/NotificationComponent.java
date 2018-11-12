@@ -88,10 +88,6 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     public static final String DEFAULT_LOG_CONFIG_SETTINGS = "notificationSettings";
 
-    public static final String LOG_CONFIG_SUBSCRIPTIONS_PROP = "nuxeo.stream.notification.subscriptions.log.config";
-
-    public static final String DEFAULT_LOG_CONFIG_SUBSCRIPTIONS = "subscriptions";
-
     public static final String KVS_SETTINGS = "notificationSettings";
 
     public static final String KVS_SUBSCRIPTIONS = "notificationSubscriptions";
@@ -280,7 +276,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public String getLogConfigSubscriptions() {
-        return Framework.getProperty(LOG_CONFIG_SUBSCRIPTIONS_PROP, DEFAULT_LOG_CONFIG_SUBSCRIPTIONS);
+        return Framework.getProperty(LOG_CONFIG_PROP, DEFAULT_LOG_CONFIG);
     }
 
     @Override

@@ -55,12 +55,14 @@ public class TestNotificationSubscriptionsProcessor {
 
         notif.subscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.awaitCompletion(config.getLogManager(), 5, TimeUnit.SECONDS);
+        TestNotificationHelper.awaitCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
+                TimeUnit.SECONDS);
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).containsExactly(username);
 
         notif.unsubscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.awaitCompletion(config.getLogManager(), 5, TimeUnit.SECONDS);
+        TestNotificationHelper.awaitCompletion(config.getLogManager(config.getLogConfigSubscriptions()), 5,
+                TimeUnit.SECONDS);
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).isEmpty();
     }
 }
