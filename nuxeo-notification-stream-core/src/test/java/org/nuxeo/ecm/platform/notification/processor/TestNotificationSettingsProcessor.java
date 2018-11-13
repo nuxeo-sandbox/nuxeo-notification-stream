@@ -95,7 +95,7 @@ public class TestNotificationSettingsProcessor {
     }
 
     protected LogManager getUserSettingsLogManager() {
-        return nsc.getLogManager(nsc.getLogConfigSettings());
+        return nsc.getLogManager(nsc.getLogConfigNotification());
     }
 
     protected UserSettings buildUserSettings() {

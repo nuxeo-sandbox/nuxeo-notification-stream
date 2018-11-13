@@ -120,10 +120,10 @@ public class TestNotificationsFlow {
         LogManager lm = nsc.getLogManager(nsc.getLogConfigNotification());
         TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
 
-        lm = nsc.getLogManager(nsc.getLogConfigSettings());
+        lm = nsc.getLogManager(nsc.getLogConfigNotification());
         TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
 
-        lm = nsc.getLogManager(nsc.getLogConfigSubscriptions());
+        lm = nsc.getLogManager(nsc.getLogConfigNotification());
         TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
     }
 }

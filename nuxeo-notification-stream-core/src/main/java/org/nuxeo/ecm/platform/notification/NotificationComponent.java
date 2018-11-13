@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -39,6 +38,8 @@ import org.nuxeo.ecm.platform.notification.message.UserSettings;
 import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
+import org.nuxeo.ecm.platform.notification.processor.computation.SaveNotificationSettingsComputation;
+import org.nuxeo.ecm.platform.notification.processor.computation.SubscriptionsComputation;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
 import org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver;
@@ -87,10 +88,6 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     public static final String STREAM_SETTINGS_PROP = "nuxeo.stream.notification.settings.input";
 
     public static final String DEFAULT_STREAM_SETTINGS = "notificationSettings";
-
-    public static final String LOG_CONFIG_SETTINGS_PROP = "nuxeo.stream.notification.settings.log.config";
-
-    public static final String DEFAULT_LOG_CONFIG_SETTINGS = "notificationSettings";
 
     public static final String KVS_SETTINGS = "notificationSettings";
 
@@ -151,6 +148,12 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
         dispatchers.forEach(
                 d -> builder.addComputation(() -> d, Collections.singletonList("i1:" + getNotificationOutputStream())));
+        // Add the computation for the Notification Settings
+        builder.addComputation(SaveNotificationSettingsComputation::new,
+                Collections.singletonList("i1:" + getNotificationSettingsInputStream()));
+        // Add the computation for the subscriptions
+        builder.addComputation(SubscriptionsComputation::new,
+                Collections.singletonList("i1:" + getNotificationSubscriptionsStream()));
         return builder.build();
     }
 
@@ -165,7 +168,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     public void appendSubscriptionActionRecord(SubscriptionAction record) {
-        LogAppender<Record> appender = getLogManager(getLogConfigSubscriptions()).getAppender(
+        LogAppender<Record> appender = getLogManager(getLogConfigNotification()).getAppender(
                 getNotificationSubscriptionsStream());
         appender.append(record.getId(), Record.of(record.getId(), record.encode()));
     }
@@ -254,18 +257,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public String getLogConfigSettings() {
-        return Framework.getProperty(LOG_CONFIG_SETTINGS_PROP, DEFAULT_LOG_CONFIG_SETTINGS);
-    }
-
-    @Override
-    public String getLogConfigSubscriptions() {
-        return Framework.getProperty(LOG_CONFIG_PROP, DEFAULT_LOG_CONFIG);
-    }
-
-    @Override
     public void updateSettings(String username, Map<String, UserDispatcherSettings> userSettings) {
-        LogAppender<Record> appender = getLogManager(getLogConfigSettings()).getAppender(
+        LogAppender<Record> appender = getLogManager(getLogConfigNotification()).getAppender(
                 getNotificationSettingsInputStream());
         UserSettings us = UserSettings.builder().withUsername(username).withSettings(userSettings).build();
         appender.append(us.getId(), Record.of(us.getId(), us.encode()));

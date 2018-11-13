@@ -58,14 +58,4 @@ public interface NotificationStreamConfig {
      * @return the log config name for the notification processor.
      */
     String getLogConfigNotification();
-
-    /**
-     * @return the log config name for the notification settings processor.
-     */
-    String getLogConfigSettings();
-
-    /**
-     * @return the log config name for the notification subscriptions processor.
-     */
-    String getLogConfigSubscriptions();
 }

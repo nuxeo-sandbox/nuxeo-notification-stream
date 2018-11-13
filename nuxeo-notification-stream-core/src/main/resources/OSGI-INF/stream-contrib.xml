@@ -2,22 +2,12 @@
   <extension point="logConfig" target="org.nuxeo.runtime.stream.service">
     <logConfig name="notification">
     </logConfig>
-    <logConfig name="notificationSettings">
-    </logConfig>
   </extension>
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="notification"
                      class="org.nuxeo.ecm.platform.notification.processor.NotificationProcessor"
                      logConfig="notification">
-    </streamProcessor>
-    <streamProcessor name="subscriptions"
-                     class="org.nuxeo.ecm.platform.notification.processor.SubscriptionsProcessor"
-                     logConfig="notification">
-    </streamProcessor>
-    <streamProcessor name="notificationSettings"
-                     class="org.nuxeo.ecm.platform.notification.processor.NotificationSettingsProcessor"
-                     logConfig="notificationSettings">
     </streamProcessor>
   </extension>
 </component>

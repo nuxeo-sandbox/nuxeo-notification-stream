@@ -49,7 +49,7 @@ public class TestNotificationProcessor {
     @Test
     public void testTopologyDefinition() {
         Topology topology = new NotificationProcessor().getTopology(Collections.emptyMap());
-        assertThat(topology.streamsSet()).hasSize(2);
+        assertThat(topology.streamsSet()).hasSize(4);
         assertThat(topology.getAncestorComputationNames(EventToNotificationComputation.ID)).isEmpty();
         assertThat(topology.getDescendantComputationNames(EventToNotificationComputation.ID)).containsOnly("inApp",
                 "log", "notEnabled");
