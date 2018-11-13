@@ -19,7 +19,7 @@
 package org.nuxeo.ecm.platform.notification.resolver;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -36,5 +36,10 @@ public class ContributorsResolver extends Resolver {
     @Override
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
         return withDocument(eventRecord, (d) -> Arrays.stream((String[]) d.getPropertyValue("dc:contributors")));
+    }
+
+    @Override
+    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+        return Collections.emptyMap();
     }
 }

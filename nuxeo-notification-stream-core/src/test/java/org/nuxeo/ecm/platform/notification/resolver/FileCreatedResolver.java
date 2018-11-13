@@ -20,7 +20,8 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.Map;
 
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.impl.SimpleSubscribableResolver;
@@ -31,5 +32,10 @@ public class FileCreatedResolver extends SimpleSubscribableResolver {
     public boolean accept(EventRecord eventRecord) {
         return eventRecord.getDocumentSourceType().equals("File")
                 && eventRecord.getEventName().equals(DOCUMENT_CREATED);
+    }
+
+    @Override
+    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+        return Collections.emptyMap();
     }
 }

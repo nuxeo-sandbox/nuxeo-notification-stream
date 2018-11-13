@@ -18,9 +18,9 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
@@ -47,5 +47,10 @@ public class DynDocumentResolver extends SimpleSubscribableResolver {
         ctx.put(DOC_ID_KEY, eventRecord.getDocumentSourceId());
         ctx.put(EVENT_KEY, eventRecord.getEventName());
         return ctx;
+    }
+
+    @Override
+    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+        return Collections.emptyMap();
     }
 }

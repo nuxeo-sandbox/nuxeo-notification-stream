@@ -20,7 +20,8 @@
       <dispatcher name="log" default="false" />
     </settings>
     <settings id="fileUpdated">
-      <dispatcher name="inApp" enabled="false" />
+      <!-- notifier -->
+      <dispatcher name="inApp" enabled="false" default="true" />
       <dispatcher name="log" enabled="false" />
     </settings>
   </extension>

@@ -17,6 +17,9 @@ package org.nuxeo.ecm.platform.notification.dispatcher;
  *      Nuxeo
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.platform.notification.message.Notification;
@@ -26,6 +29,8 @@ public class CounterDispatcher extends Dispatcher {
 
     public static int processed = 0;
 
+    public static Map<String, String> fullCtx = new HashMap<>();
+
     public CounterDispatcher(DispatcherDescriptor desc) {
         super(desc);
     }
@@ -33,10 +38,13 @@ public class CounterDispatcher extends Dispatcher {
     @Override
     public void process(Notification notification) {
         processed++;
+        fullCtx.putAll(notification.getContext());
+
         log.warn(getName() + ":" + notification.toString());
     }
 
     public static void reset() {
         processed = 0;
+        fullCtx.clear();
     }
 }

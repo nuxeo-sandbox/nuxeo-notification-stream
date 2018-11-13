@@ -18,8 +18,8 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
+import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.impl.SimpleSubscribableResolver;
@@ -35,9 +35,13 @@ public class ComplexSubsKeyResolver extends SimpleSubscribableResolver {
         return false;
     }
 
-
     @Override
     public String computeSubscriptionsKey(Map<String, String> ctx) {
         return String.format("%s:%s", ctx.getOrDefault(NAME_FIELD, "name"), ctx.getOrDefault(SUFFIX_FIELD, "suffix"));
+    }
+
+    @Override
+    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+        return Collections.emptyMap();
     }
 }

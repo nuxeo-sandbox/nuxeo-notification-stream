@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -68,7 +68,7 @@ public class TestNotificationSettingsProcessor {
                 Record.of("settings", codecService.getCodec(DEFAULT_CODEC, UserSettings.class).encode(record)));
 
         // Wait for the completion and check the result stored in the KVS
-        TestNotificationHelper.waitProcessorsCompletion(logManager, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
         KeyValueStore store = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SETTINGS);
 
         Codec<UserDispatcherSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
@@ -87,7 +87,7 @@ public class TestNotificationSettingsProcessor {
         UserSettings record = buildUserSettings();
         nss.updateSettings(record.getUsername(), record.getSettingsMap());
 
-        TestNotificationHelper.waitProcessorsCompletion(getUserSettingsLogManager(), 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(getUserSettingsLogManager(), Duration.ofSeconds(5));
 
         Map<String, UserDispatcherSettings> settings = nss.getResolverSettings(record.getUsername());
         assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();

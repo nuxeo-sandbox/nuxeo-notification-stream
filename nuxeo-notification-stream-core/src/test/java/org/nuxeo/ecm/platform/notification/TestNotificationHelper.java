@@ -8,6 +8,7 @@
  */
 package org.nuxeo.ecm.platform.notification;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.mockito.Mockito;
@@ -31,17 +32,16 @@ public class TestNotificationHelper {
      *
      * @param logManager to use to resolve available logs
      * @param duration of the deadline before interrupting the wait, in unit
-     * @param unit of the duration
      * @return true if lag is empty, false if the deadline is reached
      * @throws InterruptedException
      */
-    public static boolean waitProcessorsCompletion(LogManager logManager, long duration, TimeUnit unit)
+    public static boolean waitProcessorsCompletion(LogManager logManager, Duration duration)
             throws InterruptedException {
         if (logManager == null) {
             return false;
         }
 
-        long durationMs = unit.toMillis(duration);
+        long durationMs = duration.toMillis();
         long deadline = System.currentTimeMillis() + durationMs;
         while (System.currentTimeMillis() < deadline) {
             long lagTotal = logManager.listAll()

@@ -18,7 +18,6 @@
 
 package org.nuxeo.ecm.platform.notification.resolver;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -34,9 +33,7 @@ import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.platform.notification.NotificationService;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
@@ -78,6 +75,13 @@ public abstract class Resolver {
      */
     public abstract Stream<String> resolveTargetUsers(EventRecord eventRecord);
 
+    /**
+     * Return some contextual informations needed to passed to the Dispatcher
+     * 
+     * @param eventRecord that generates the notification
+     * @return a map with contextual informations like document title, document path, document url, ...
+     */
+    public abstract Map<String, String> buildDispatcherContext(EventRecord eventRecord);
 
     protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
         AtomicReference<T> ret = new AtomicReference<>();

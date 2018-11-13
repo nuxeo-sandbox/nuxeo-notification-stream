@@ -20,9 +20,9 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -55,14 +55,14 @@ public class TestNotificationSubscribersProcessor {
 
         notif.subscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()), 5,
-                TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()),
+                Duration.ofSeconds(5));
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).containsExactly(username);
 
         notif.unsubscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()), 5,
-                TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()),
+                Duration.ofSeconds(5));
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).isEmpty();
     }
 }

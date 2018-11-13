@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
 import static org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver.KVS_SUBSCRIPTIONS;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -118,12 +118,12 @@ public class TestNotificationsFlow {
         TestNotificationHelper.waitForEvents();
 
         LogManager lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
 
         lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
 
         lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
     }
 }

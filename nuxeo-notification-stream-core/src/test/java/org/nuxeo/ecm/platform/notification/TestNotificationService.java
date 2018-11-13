@@ -20,9 +20,13 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDIN;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static org.nuxeo.ecm.platform.notification.message.Notification.ORIGINATING_EVENT;
+import static org.nuxeo.ecm.platform.notification.message.Notification.ORIGINATING_USER;
 import static org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver.KVS_SUBSCRIPTIONS;
 
 import java.util.Collections;
@@ -34,11 +38,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
+import org.nuxeo.ecm.platform.notification.message.Notification;
 import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.resolver.ComplexSubsKeyResolver;
 import org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver;
@@ -183,5 +189,36 @@ public class TestNotificationService {
 
         setting = cmp.getSetting("fileUpdated").getSetting("log");
         assertThat(setting.isEnabled()).isFalse();
+    }
+
+    @Test
+    public void testContextInDispatcher() {
+        DocumentModel doc = mock(DocumentModel.class);
+        when(doc.getId()).thenReturn("0000-0000-0000");
+        when(doc.getRepositoryName()).thenReturn("repo-test");
+        when(doc.getType()).thenReturn("File");
+
+        Resolver resolver = mock(Resolver.class);
+        when(resolver.getId()).thenReturn("klaxon");
+
+        EventRecord eventRecord = EventRecord.builder()
+                                             .withEventName("test")
+                                             .withUsername("Administrator")
+                                             .withDocument(doc)
+                                             .build();
+
+        assertThat(eventRecord.getDocumentSourceId()).isEqualTo("0000-0000-0000");
+
+        Notification notif = Notification.builder()
+                                         .fromEvent(eventRecord)
+                                         .withUsername("bobby")
+                                         .withResolver(resolver)
+                                         .build();
+
+        assertThat(notif.getSourceId()).isEqualTo("0000-0000-0000");
+        assertThat(notif.getSourceRepository()).isEqualTo("repo-test");
+        assertThat(notif.getContext()).isNotEmpty()
+                                      .containsEntry(ORIGINATING_EVENT, "test")
+                                      .containsEntry(ORIGINATING_USER, "Administrator");
     }
 }

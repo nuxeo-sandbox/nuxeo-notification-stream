@@ -20,6 +20,8 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
@@ -35,5 +37,10 @@ public class FileUpdatedResolver extends Resolver {
     @Override
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
         return null;
+    }
+
+    @Override
+    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+        return Collections.emptyMap();
     }
 }

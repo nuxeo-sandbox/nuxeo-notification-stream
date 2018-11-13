@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver.TARGET_USERS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import java.time.Duration;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -66,7 +66,7 @@ public class TestNotificationProcessor {
         Record r = Record.of("toto", codecService.getCodec(DEFAULT_CODEC, EventRecord.class).encode(eventRecord));
         appender.append("toto", r);
 
-        TestNotificationHelper.waitProcessorsCompletion(logManager, 5, TimeUnit.SECONDS);
+        TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
         // We have 2 dispatchers enabled and 1 disabled all using the same class, and 1 resolver that has
         // AcceptAllResolver.TARGET_USERS users.
         // So, we expect to have nb_enabled_dispatchers * nb_TARGET_USERS executions
