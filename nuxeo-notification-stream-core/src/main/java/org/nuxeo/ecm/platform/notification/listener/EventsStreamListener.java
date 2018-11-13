@@ -32,6 +32,8 @@ import org.nuxeo.runtime.codec.CodecService;
  */
 public class EventsStreamListener implements PostCommitEventListener {
 
+    public static final String FORMAT_KEY = "%s:%s";
+
     @Override
     public void handleEvent(EventBundle eventBundle) {
         eventBundle.forEach(this::processEvent);
@@ -57,7 +59,7 @@ public class EventsStreamListener implements PostCommitEventListener {
         byte[] encodedEvent = encodeEvent(event);
 
         // Append the record to the log
-        String key = event.getName();
+        String key = generateKey(event);
         appender.append(eventStream, Record.of(key, encodedEvent));
     }
 
@@ -65,20 +67,33 @@ public class EventsStreamListener implements PostCommitEventListener {
      * Encode the Event using the Avro codec to sent it to the Stream.
      *
      * @param event
-     * @return
+     * @return The encoded event.
      */
     protected byte[] encodeEvent(Event event) {
-        EventRecordBuilder builder = EventRecord.builder()
-                                                .withEventName(event.getName())
-                                                .withUsername(event.getContext().getPrincipal().getName());
+        EventRecordBuilder builder = EventRecord.builder().withEventName(event.getName()).withUsername(
+                event.getContext().getPrincipal().getName());
 
         if (event.getContext() instanceof DocumentEventContext) {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();
             builder.withDocument(ctx.getSourceDocument());
         }
 
-        return Framework.getService(CodecService.class)
-                        .getCodec(DEFAULT_CODEC, EventRecord.class)
-                        .encode(builder.build());
+        return Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class).encode(
+                builder.build());
+    }
+
+    /**
+     * Generates the key for the record that will be appended to the input stream of the topology.
+     * 
+     * @param event
+     * @return A String representing the key.
+     */
+    protected String generateKey(Event event) {
+        if (event.getContext() instanceof DocumentEventContext) {
+            return String.format(FORMAT_KEY, event.getName(),
+                    ((DocumentEventContext) event.getContext()).getSourceDocument().getId());
+        } else {
+            return String.format(FORMAT_KEY, event.getName(), event.getContext().getPrincipal().getName());
+        }
     }
 }
