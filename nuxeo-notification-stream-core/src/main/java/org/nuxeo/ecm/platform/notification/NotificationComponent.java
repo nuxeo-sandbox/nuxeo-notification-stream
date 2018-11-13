@@ -41,6 +41,7 @@ import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
 import org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor;
+import org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
@@ -93,8 +94,6 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     public static final String KVS_SETTINGS = "notificationSettings";
 
-    public static final String KVS_SUBSCRIPTIONS = "notificationSubscriptions";
-
     protected Map<String, Dispatcher> dispatchers = new ConcurrentHashMap<>();
 
     protected Map<String, Resolver> resolvers = new ConcurrentHashMap<>();
@@ -146,10 +145,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public Topology buildTopology(Map<String, String> options) {
-        Topology.Builder builder = Topology.builder()
-                                           .addComputation(EventToNotificationComputation::new,
-                                                   Arrays.asList("i1:" + getEventInputStream(),
-                                                           "o1:" + getNotificationOutputStream()));
+        Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
+                Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
 
         Collection<Dispatcher> dispatchers = Framework.getService(NotificationService.class).getDispatchers();
         dispatchers.forEach(
@@ -175,46 +172,30 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public void doSubscribe(String username, String resolverId, Map<String, String> ctx) {
-        resolveSubscriptions(resolverId, ctx, (s) -> {
-            if (s == null) {
-                return Subscribers.withUser(username);
-            } else {
-                return s.addUsername(username);
-            }
-        }, true);
+        getSubscribableResolver(resolverId).subscribe(username, ctx);
     }
 
     @Override
     public void doUnsubscribe(String username, String resolverId, Map<String, String> ctx) {
-        resolveSubscriptions(resolverId, ctx, (s) -> s.remove(username), true);
+        getSubscribableResolver(resolverId).unsubscribe(username, ctx);
     }
 
     @Override
     public Subscribers getSubscriptions(String resolverId, Map<String, String> ctx) {
-        return resolveSubscriptions(resolverId, ctx, (s) -> s == null ? Subscribers.empty() : s, false);
+        return getSubscribableResolver(resolverId).getSubscriptions(ctx);
     }
 
-    protected Subscribers resolveSubscriptions(String resolverId, Map<String, String> ctx,
-            Function<Subscribers, Subscribers> func, Boolean updateStorage) {
+    protected SubscribableResolver getSubscribableResolver(String resolverId) {
         Resolver resolver = getResolver(resolverId);
         if (resolver == null) {
             throw new NuxeoException("Unknown resolver with id " + resolverId);
         }
 
-        KeyValueStore kvs = getKeyValueStore(KVS_SUBSCRIPTIONS);
-        Codec<Subscribers> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Subscribers.class);
-        String subscriptionsKey = resolver.computeSubscriptionsKey(ctx);
-        byte[] bytes = kvs.get(subscriptionsKey);
-
-        Subscribers subs = bytes == null ? null : codec.decode(bytes);
-        if (func != null) {
-            subs = func.apply(subs);
+        if (!(resolver instanceof SubscribableResolver)) {
+            throw new NuxeoException("You cannot subscribe to an unsubscribable resolver");
         }
 
-        if (updateStorage) {
-            kvs.put(subscriptionsKey, codec.encode(subs));
-        }
-        return subs;
+        return (SubscribableResolver) resolver;
     }
 
     @Override
@@ -314,8 +295,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         UserDispatcherSettings newSettings = new UserDispatcherSettings();
         newSettings.setSettings(dispatchersSettings);
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
-        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class)
-                                                         .getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
+        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
+                UserDispatcherSettings.class);
         settingsKVS.put(username + ":" + resolverId, avroCodec.encode(newSettings));
     }
 
@@ -340,8 +321,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
             return defaults;
         }
 
-        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class)
-                                                         .getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
+        Codec<UserDispatcherSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
+                UserDispatcherSettings.class);
         UserDispatcherSettings userDispatcherSettings = avroCodec.decode(userSettingsBytes);
 
         // Add missing settings for default enabled dispatchers

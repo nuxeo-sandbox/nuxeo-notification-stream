@@ -18,26 +18,30 @@
 
 package org.nuxeo.ecm.platform.notification.resolver.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Stream;
+
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
+import org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver;
 
 /**
  * Resolver aims to ease DocumentEvent resolution
  * 
  * @since XXX
  */
-public abstract class AbstractDocumentResolver extends Resolver {
+public abstract class SimpleSubscribableResolver extends SubscribableResolver {
 
     @Override
-    public boolean accept(EventRecord eventRecord) {
-        if (eventRecord.getDocumentSourceId() == null) {
-            return false;
-        }
-
-        return withDocument(eventRecord, (d) -> acceptEventRecord(eventRecord, d));
-
+    public Map<String, String> computeContextFromEvent(EventRecord eventRecord){
+        return Collections.emptyMap();
     }
 
-    public abstract boolean acceptEventRecord(EventRecord eventRecord, DocumentModel doc);
+    @Override
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return getId();
+    }
 }

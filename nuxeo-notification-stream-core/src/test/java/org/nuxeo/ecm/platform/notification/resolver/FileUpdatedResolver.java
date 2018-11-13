@@ -20,6 +20,8 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
+import java.util.stream.Stream;
+
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 
 public class FileUpdatedResolver extends Resolver {
@@ -28,5 +30,10 @@ public class FileUpdatedResolver extends Resolver {
     public boolean accept(EventRecord eventRecord) {
         return eventRecord.getDocumentSourceType().equals("File")
                 && eventRecord.getEventName().equals(DOCUMENT_UPDATED);
+    }
+
+    @Override
+    public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
+        return null;
     }
 }

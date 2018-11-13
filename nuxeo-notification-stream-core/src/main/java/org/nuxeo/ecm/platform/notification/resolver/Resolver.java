@@ -76,32 +76,8 @@ public abstract class Resolver {
      * @param eventRecord from the context that contain resolution needed
      * @return list of target users, of an empty list otherwise.
      */
-    public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
-        Subscribers subscribtions = Framework.getService(NotificationService.class)
-                                             .getSubscriptions(getId(), computeContextFromEvent(eventRecord));
-        return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
-    }
+    public abstract Stream<String> resolveTargetUsers(EventRecord eventRecord);
 
-    /**
-     * Compute Storage key context based on the given EventRecord
-     * 
-     * @param eventRecord contains informations needed to compute the key, in case we want to store subscriptions
-     *            dependent of a context.
-     * @return Context map, or an emptyMap in case the method hasn't been override.
-     */
-    protected Map<String, String> computeContextFromEvent(EventRecord eventRecord) {
-        return Collections.emptyMap();
-    }
-
-    /**
-     * Compute storage key depending of a context. For instance, to make a difference between subscribers of different
-     * events, or a docId
-     *
-     * @param ctx A map of String used to defined what store to use.
-     */
-    public String computeSubscriptionsKey(Map<String, String> ctx) {
-        return getId();
-    }
 
     protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
         AtomicReference<T> ret = new AtomicReference<>();

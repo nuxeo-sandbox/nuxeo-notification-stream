@@ -19,10 +19,12 @@
 package org.nuxeo.ecm.platform.notification.resolver;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.resolver.impl.SimpleSubscribableResolver;
 
-public class ComplexSubsKeyResolver extends Resolver {
+public class ComplexSubsKeyResolver extends SimpleSubscribableResolver {
 
     public static final String NAME_FIELD = "name";
 
@@ -32,6 +34,7 @@ public class ComplexSubsKeyResolver extends Resolver {
     public boolean accept(EventRecord eventRecord) {
         return false;
     }
+
 
     @Override
     public String computeSubscriptionsKey(Map<String, String> ctx) {

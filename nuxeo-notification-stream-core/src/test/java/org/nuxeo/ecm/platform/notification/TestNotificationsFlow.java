@@ -20,7 +20,7 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
-import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SUBSCRIPTIONS;
+import static org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver.KVS_SUBSCRIPTIONS;
 
 import java.util.Collections;
 import java.util.Map;

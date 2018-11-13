@@ -20,9 +20,12 @@ package org.nuxeo.ecm.platform.notification.resolver;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 
-import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import java.util.stream.Stream;
 
-public class FileCreatedResolver extends Resolver {
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.resolver.impl.SimpleSubscribableResolver;
+
+public class FileCreatedResolver extends SimpleSubscribableResolver {
 
     @Override
     public boolean accept(EventRecord eventRecord) {

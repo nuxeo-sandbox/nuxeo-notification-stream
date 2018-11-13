@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CHECKEDIN;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SUBSCRIPTIONS;
+import static org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver.KVS_SUBSCRIPTIONS;
 
 import java.util.Collections;
 import java.util.Map;
