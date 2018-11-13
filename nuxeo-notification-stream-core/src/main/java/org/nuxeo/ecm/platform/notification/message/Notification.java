@@ -99,7 +99,6 @@ public class Notification {
     }
 
     public static class NotificationBuilder {
-        // XXX Specialized impl like DocumentNotification
         Notification notif;
 
         protected NotificationBuilder() {
