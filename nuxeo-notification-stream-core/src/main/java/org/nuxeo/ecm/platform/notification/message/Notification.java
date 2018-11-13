@@ -19,18 +19,12 @@
 package org.nuxeo.ecm.platform.notification.message;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.avro.reflect.Nullable;
-import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
-import org.nuxeo.runtime.api.Framework;
 
 public class Notification {
 
@@ -44,8 +38,6 @@ public class Notification {
     protected String sourceId;
 
     protected Map<String, Serializable> context = new HashMap<>();
-
-    protected List<String> dispatchers = new ArrayList<>();
 
     public void addTargetUsername(String username) {
         this.username = username;
@@ -69,14 +61,6 @@ public class Notification {
 
     public String getResolverId() {
         return resolverId;
-    }
-
-    public List<String> getDispatchers() {
-        return dispatchers;
-    }
-
-    public boolean hasDispatchers() {
-        return !getDispatchers().isEmpty();
     }
 
     public Map<String, Serializable> getContext() {
@@ -129,12 +113,6 @@ public class Notification {
 
         public Notification build() {
             notif.id = UUID.randomUUID().toString();
-            notif.dispatchers = Framework.getService(NotificationSettingsService.class)
-                                         .getSelectedDispatchers(notif.username, notif.resolverId)
-                                         .stream()
-                                         .map(Dispatcher::getName)
-                                         .collect(Collectors.toList());
-
             return notif;
         }
     }

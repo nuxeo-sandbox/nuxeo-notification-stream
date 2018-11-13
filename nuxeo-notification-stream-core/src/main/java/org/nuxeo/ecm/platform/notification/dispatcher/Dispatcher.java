@@ -22,6 +22,7 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import java.util.Map;
 
+import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
 import org.nuxeo.ecm.platform.notification.message.Notification;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
@@ -48,7 +49,12 @@ public abstract class Dispatcher extends AbstractComputation {
                                              .getCodec(DEFAULT_CODEC, Notification.class)
                                              .decode(record.getData());
 
-        if (notification.getDispatchers().contains(getName())) {
+        boolean isEnabled = Framework.getService(NotificationSettingsService.class)
+                                     .getResolverSettings(notification.getUsername())
+                                     .get(notification.getResolverId())
+                                     .isEnabled(getName());
+
+        if (isEnabled) {
             process(notification);
         }
 

@@ -56,7 +56,6 @@ public class EventToNotificationComputation extends AbstractComputation {
                                                          .withUsername(user)
                                                          .withResolver(r)
                                                          .build())
-                                .filter(Notification::hasDispatchers)
                                 .map(this::encodeNotif)
                                 .forEach(notifRecord -> ctx.produceRecord(outputStream, notifRecord)));
 

@@ -68,6 +68,10 @@ public class UserDispatcherSettings implements Serializable {
         getSettings().put(dispatcherId, false);
     }
 
+    public boolean isEnabled(String dispatcherId) {
+        return getSettings().getOrDefault(dispatcherId, false);
+    }
+
     public static UserDispatcherSettings defaultFromDescriptor(SettingsDescriptor desc) {
         UserDispatcherSettings urs = new UserDispatcherSettings();
         urs.settings = new HashMap<>();
