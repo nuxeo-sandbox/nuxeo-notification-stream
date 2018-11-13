@@ -35,8 +35,8 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.platform.notification.dispatcher.CounterDispatcher;
-import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
+import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
+import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -63,8 +63,8 @@ public class TestNotificationsFlow {
 
     @Before
     public void before() {
-        // Reset counter dispatcher
-        CounterDispatcher.reset();
+        // Reset counter notifiers
+        CounterNotifier.reset();
 
         // Clean KVS
         TestNotificationHelper.clearKVS(KVS_SUBSCRIPTIONS);
@@ -73,11 +73,11 @@ public class TestNotificationsFlow {
 
     @Test
     public void testUserChangingSettings() throws InterruptedException {
-        assertThat(CounterDispatcher.processed).isEqualTo(0);
+        assertThat(CounterNotifier.processed).isEqualTo(0);
 
         createSampleFile();
         waitForAsync();
-        assertThat(CounterDispatcher.processed).isEqualTo(0);
+        assertThat(CounterNotifier.processed).isEqualTo(0);
 
         ns.subscribe("myUser", "fileCreated", Collections.emptyMap());
         waitForAsync();
@@ -86,20 +86,20 @@ public class TestNotificationsFlow {
         waitForAsync();
 
         // First call, only one event should have been processed
-        assertThat(CounterDispatcher.processed).isEqualTo(1);
+        assertThat(CounterNotifier.processed).isEqualTo(1);
 
-        CounterDispatcher.reset();
-        assertThat(CounterDispatcher.processed).isEqualTo(0);
+        CounterNotifier.reset();
+        assertThat(CounterNotifier.processed).isEqualTo(0);
 
         // User change settings to enable disp2
-        Map<String, UserDispatcherSettings> settings = nss.getResolverSettings("myUser");
+        Map<String, UserNotifierSettings> settings = nss.getResolverSettings("myUser");
         settings.get("fileCreated").enable("log");
         nss.updateSettings("myUser", settings);
         waitForAsync();
 
         createSampleFile();
         waitForAsync();
-        assertThat(CounterDispatcher.processed).isEqualTo(2);
+        assertThat(CounterNotifier.processed).isEqualTo(2);
     }
 
     protected DocumentModel createSampleFile() {

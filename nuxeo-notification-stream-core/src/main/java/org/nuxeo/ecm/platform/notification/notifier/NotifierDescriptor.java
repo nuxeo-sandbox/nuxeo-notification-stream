@@ -16,7 +16,7 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.dispatcher;
+package org.nuxeo.ecm.platform.notification.notifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,13 +30,13 @@ import org.nuxeo.runtime.model.Descriptor;
 /**
  * @since XXX
  */
-@XObject("dispatcher")
-public class DispatcherDescriptor implements Descriptor {
+@XObject("notifier")
+public class NotifierDescriptor implements Descriptor {
     @XNode("@id")
     protected String id;
 
     @XNode("@class")
-    protected Class<? extends Dispatcher> dispatcherClass;
+    protected Class<? extends Notifier> notifierClass;
 
     @XNodeMap(value = "property", key = "@name", type = HashMap.class, componentType = String.class)
     protected Map<String, String> properties = new HashMap<String, String>();
@@ -46,9 +46,9 @@ public class DispatcherDescriptor implements Descriptor {
         return id;
     }
 
-    public Dispatcher newInstance() {
+    public Notifier newInstance() {
         try {
-            return dispatcherClass.getConstructor(DispatcherDescriptor.class) //
+            return notifierClass.getConstructor(NotifierDescriptor.class) //
                                   .newInstance(this);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);

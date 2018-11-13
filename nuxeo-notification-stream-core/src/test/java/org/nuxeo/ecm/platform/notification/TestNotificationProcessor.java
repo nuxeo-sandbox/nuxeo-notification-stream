@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.nuxeo.ecm.platform.notification.dispatcher.CounterDispatcher;
+import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.processor.NotificationProcessor;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
@@ -67,9 +67,9 @@ public class TestNotificationProcessor {
         appender.append("toto", r);
 
         TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
-        // We have 2 dispatchers enabled and 1 disabled all using the same class, and 1 resolver that has
+        // We have 2 notifiers enabled and 1 disabled all using the same class, and 1 resolver that has
         // AcceptAllResolver.TARGET_USERS users.
-        // So, we expect to have nb_enabled_dispatchers * nb_TARGET_USERS executions
-        assertThat(CounterDispatcher.processed).isEqualTo(TARGET_USERS * 2);
+        // So, we expect to have nb_enabled_notifiers * nb_TARGET_USERS executions
+        assertThat(CounterNotifier.processed).isEqualTo(TARGET_USERS * 2);
     }
 }

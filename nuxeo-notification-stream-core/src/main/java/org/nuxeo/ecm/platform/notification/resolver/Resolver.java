@@ -76,12 +76,12 @@ public abstract class Resolver {
     public abstract Stream<String> resolveTargetUsers(EventRecord eventRecord);
 
     /**
-     * Return some contextual informations needed to passed to the Dispatcher
+     * Return some contextual informations needed to passed to the Notifier
      * 
      * @param eventRecord that generates the notification
      * @return a map with contextual informations like document title, document path, document url, ...
      */
-    public abstract Map<String, String> buildDispatcherContext(EventRecord eventRecord);
+    public abstract Map<String, String> buildNotifierContext(EventRecord eventRecord);
 
     protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
         AtomicReference<T> ret = new AtomicReference<>();

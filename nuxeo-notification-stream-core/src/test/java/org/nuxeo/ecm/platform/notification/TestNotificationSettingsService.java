@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.notifier.Notifier;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -45,8 +45,8 @@ public class TestNotificationSettingsService {
     @Test
     public void testDefaultNotificationSettings() {
         NotificationComponent cmp = (NotificationComponent) nss;
-        assertThat(cmp.getDefaults("fileCreated").getSelectedDispatchers()).containsExactly("inApp");
-        assertThat(cmp.getDefaults("fileUpdated").getSelectedDispatchers()).isEmpty();
+        assertThat(cmp.getDefaults("fileCreated").getSelectedNotifiers()).containsExactly("inApp");
+        assertThat(cmp.getDefaults("fileUpdated").getSelectedNotifiers()).isEmpty();
 
         // Not *configured* Resolver must return a default settings
         assertThat(cmp.getDefaults("complexKey").getSettings().keySet()).containsExactlyInAnyOrder("inApp", "log");
@@ -58,41 +58,41 @@ public class TestNotificationSettingsService {
     @Test
     public void serviceReturnsDefaultSettingsIfUserHasNoneDefined() {
         NotificationComponent cmp = (NotificationComponent) nss;
-        List<String> dispatchers = nss.getSelectedDispatchers("toto", "fileCreated") //
+        List<String> notifiers = nss.getSelectedNotifiers("toto", "fileCreated") //
                                       .stream()
-                                      .map(Dispatcher::getName)
+                                      .map(Notifier::getName)
                                       .collect(Collectors.toList());
 
-        assertThat(dispatchers).isNotEmpty() //
-                               .containsExactlyElementsOf(cmp.getDefaults("fileCreated").getSelectedDispatchers());
+        assertThat(notifiers).isNotEmpty() //
+                               .containsExactlyElementsOf(cmp.getDefaults("fileCreated").getSelectedNotifiers());
     }
 
     @Test
     public void serviceSavesUserPreferences() {
-        Map<String, Boolean> settingsDispatcher = new HashMap<>();
-        settingsDispatcher.put("inApp", false);
-        settingsDispatcher.put("log", true);
-        scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
+        Map<String, Boolean> settingsNotifier = new HashMap<>();
+        settingsNotifier.put("inApp", false);
+        settingsNotifier.put("log", true);
+        scb.doUpdateSettings("user1", "fileCreated", settingsNotifier);
 
         // Fetch the settings for the user
-        List<String> dispatchers = nss.getSelectedDispatchers("user1", "fileCreated") //
+        List<String> notifiers = nss.getSelectedNotifiers("user1", "fileCreated") //
                                       .stream()
-                                      .map(Dispatcher::getName)
+                                      .map(Notifier::getName)
                                       .collect(Collectors.toList());
-        assertThat(dispatchers).containsExactlyInAnyOrder("log");
+        assertThat(notifiers).containsExactlyInAnyOrder("log");
     }
 
     @Test
-    public void serviceAddsDefaultDispatcher() {
-        Map<String, Boolean> settingsDispatcher = new HashMap<>();
-        settingsDispatcher.put("log", true);
-        scb.doUpdateSettings("user1", "fileCreated", settingsDispatcher);
+    public void serviceAddsDefaultNotifier() {
+        Map<String, Boolean> settingsNotifier = new HashMap<>();
+        settingsNotifier.put("log", true);
+        scb.doUpdateSettings("user1", "fileCreated", settingsNotifier);
 
         // Fetch the settings for the user
-        List<String> dispatchers = nss.getSelectedDispatchers("user1", "fileCreated") //
+        List<String> notifiers = nss.getSelectedNotifiers("user1", "fileCreated") //
                                       .stream()
-                                      .map(Dispatcher::getName)
+                                      .map(Notifier::getName)
                                       .collect(Collectors.toList());
-        assertThat(dispatchers).containsExactlyInAnyOrder("inApp", "log");
+        assertThat(notifiers).containsExactlyInAnyOrder("inApp", "log");
     }
 }

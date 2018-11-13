@@ -11,8 +11,8 @@ package org.nuxeo.ecm.platform.notification;
 import java.util.List;
 import java.util.Map;
 
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
-import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
+import org.nuxeo.ecm.platform.notification.notifier.Notifier;
+import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
 
 /**
  * Service for managing the notification settings.
@@ -20,11 +20,11 @@ import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
  * @since XXX
  */
 public interface NotificationSettingsService {
-    void updateSettings(String username, Map<String, UserDispatcherSettings> userSettings);
+    void updateSettings(String username, Map<String, UserNotifierSettings> userSettings);
 
-    Map<String, UserDispatcherSettings> getResolverSettings(String username);
+    Map<String, UserNotifierSettings> getResolverSettings(String username);
 
     boolean hasSpecificSettings(String username, String resolverId);
 
-    List<Dispatcher> getSelectedDispatchers(String username, String resolverId);
+    List<Notifier> getSelectedNotifiers(String username, String resolverId);
 }

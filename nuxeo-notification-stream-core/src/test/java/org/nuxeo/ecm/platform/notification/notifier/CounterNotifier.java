@@ -1,4 +1,4 @@
-package org.nuxeo.ecm.platform.notification.dispatcher;
+package org.nuxeo.ecm.platform.notification.notifier;
 /*
  * (C) Copyright 2018 Nuxeo (http://nuxeo.com/) and others.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,14 +24,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.platform.notification.message.Notification;
 
-public class CounterDispatcher extends Dispatcher {
-    private static final Log log = LogFactory.getLog(CounterDispatcher.class);
+public class CounterNotifier extends Notifier {
+    private static final Log log = LogFactory.getLog(CounterNotifier.class);
 
     public static int processed = 0;
 
     public static Map<String, String> fullCtx = new HashMap<>();
 
-    public CounterDispatcher(DispatcherDescriptor desc) {
+    public CounterNotifier(NotifierDescriptor desc) {
         super(desc);
     }
 

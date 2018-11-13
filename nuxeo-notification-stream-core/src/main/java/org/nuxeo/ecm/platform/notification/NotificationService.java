@@ -21,7 +21,7 @@ package org.nuxeo.ecm.platform.notification;
 import java.util.Collection;
 import java.util.Map;
 
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.notifier.Notifier;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.notification.resolver.Resolver;
@@ -31,19 +31,19 @@ import org.nuxeo.ecm.platform.notification.resolver.Resolver;
  */
 public interface NotificationService {
     /**
-     * Get Dispacher instance by id.
+     * Get notifier instance by id.
      *
-     * @param id of the Dispatcher.
-     * @return a Dispatcher instance, or null if id is not registered.
+     * @param id of the notifier.
+     * @return a Notifier instance, or null if id is not registered.
      */
-    Dispatcher getDispatcher(String id);
+    Notifier getNotifier(String id);
 
     /**
-     * List all contributed dispatchers.
+     * List all contributed notifiers.
      * 
-     * @return list of dispatcher, or an empty list otherwise.
+     * @return list of notifiers, or an empty list otherwise.
      */
-    Collection<Dispatcher> getDispatchers();
+    Collection<Notifier> getNotifiers();
 
     /**
      * Get resolver instance by id

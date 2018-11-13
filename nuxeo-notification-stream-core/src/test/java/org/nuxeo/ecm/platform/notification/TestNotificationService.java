@@ -41,7 +41,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.notifier.Notifier;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.ecm.platform.notification.message.Notification;
@@ -75,9 +75,9 @@ public class TestNotificationService {
 
     @Test
     public void testRegistration() {
-        assertThat(notif.getDispatcher("dummy")).isNull();
-        assertThat(notif.getDispatcher("inApp")).isNotNull();
-        assertThat(notif.getDispatchers()).hasSize(2);
+        assertThat(notif.getNotifier("dummy")).isNull();
+        assertThat(notif.getNotifier("inApp")).isNotNull();
+        assertThat(notif.getNotifiers()).hasSize(2);
 
         assertThat(notif.getResolver("dummy")).isNull();
         assertThat(notif.getResolver("fileCreated")) //
@@ -88,8 +88,8 @@ public class TestNotificationService {
     }
 
     @Test
-    public void testDispatcherInit() {
-        Dispatcher log = notif.getDispatcher("log");
+    public void testNotifierInit() {
+        Notifier log = notif.getNotifier("log");
         assertThat(log.getProperty("dummy", "john")).isEqualTo("john");
         assertThat(log.getProperty("dummy")).isNull();
         assertThat(log.getProperty("my-secret-key")).isEqualTo("my-secret-value");
@@ -179,7 +179,7 @@ public class TestNotificationService {
     @Test
     public void testNotificationSettings() {
         NotificationComponent cmp = (NotificationComponent) notif;
-        SettingsDescriptor.DispatcherSetting setting = cmp.getSetting("fileCreated").getSetting("inApp");
+        SettingsDescriptor.NotifierSetting setting = cmp.getSetting("fileCreated").getSetting("inApp");
         assertThat(setting.isDefault()).isTrue();
         assertThat(setting.isEnabled()).isTrue();
 
@@ -192,7 +192,7 @@ public class TestNotificationService {
     }
 
     @Test
-    public void testContextInDispatcher() {
+    public void testContextInNotifier() {
         DocumentModel doc = mock(DocumentModel.class);
         when(doc.getId()).thenReturn("0000-0000-0000");
         when(doc.getRepositoryName()).thenReturn("repo-test");

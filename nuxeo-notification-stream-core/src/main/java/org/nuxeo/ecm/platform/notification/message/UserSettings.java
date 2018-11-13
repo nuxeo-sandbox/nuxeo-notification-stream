@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
+import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 
@@ -37,7 +37,7 @@ public class UserSettings implements Serializable {
 
     protected String username;
 
-    protected Map<String, UserDispatcherSettings> settingsMap;
+    protected Map<String, UserNotifierSettings> settingsMap;
 
     public String getUsername() {
         return username;
@@ -47,7 +47,7 @@ public class UserSettings implements Serializable {
         return id;
     }
 
-    public Map<String, UserDispatcherSettings> getSettingsMap() {
+    public Map<String, UserNotifierSettings> getSettingsMap() {
         if (settingsMap == null) {
             settingsMap = new HashMap<>();
         }
@@ -89,13 +89,13 @@ public class UserSettings implements Serializable {
             return this;
         }
 
-        public UserSettingsBuilder withSettings(Map<String, UserDispatcherSettings> dispatchersSettings) {
-            us.getSettingsMap().putAll(dispatchersSettings);
+        public UserSettingsBuilder withSettings(Map<String, UserNotifierSettings> notifiersSettings) {
+            us.getSettingsMap().putAll(notifiersSettings);
             return this;
         }
 
-        public UserSettingsBuilder withSetting(String resolverId, UserDispatcherSettings dispatchersSetting) {
-            us.getSettingsMap().put(resolverId, dispatchersSetting);
+        public UserSettingsBuilder withSetting(String resolverId, UserNotifierSettings notifiersSettings) {
+            us.getSettingsMap().put(resolverId, notifiersSettings);
             return this;
         }
 

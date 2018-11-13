@@ -24,7 +24,7 @@ import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.TestNotificationHelper;
 import org.nuxeo.ecm.platform.notification.message.UserSettings;
-import org.nuxeo.ecm.platform.notification.model.UserDispatcherSettings;
+import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -71,9 +71,9 @@ public class TestNotificationSettingsProcessor {
         TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
         KeyValueStore store = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SETTINGS);
 
-        Codec<UserDispatcherSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserDispatcherSettings.class);
+        Codec<UserNotifierSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
         byte[] userSettingsBytes = store.get("user1:fileCreated");
-        UserDispatcherSettings userSettings = codec.decode(userSettingsBytes);
+        UserNotifierSettings userSettings = codec.decode(userSettingsBytes);
         assertThat(userSettings.getSettings().get("log")).isTrue();
         assertThat(userSettings.getSettings().get("inApp")).isFalse();
         userSettingsBytes = store.get("user1:fileUpdated");
@@ -89,7 +89,7 @@ public class TestNotificationSettingsProcessor {
 
         TestNotificationHelper.waitProcessorsCompletion(getUserSettingsLogManager(), Duration.ofSeconds(5));
 
-        Map<String, UserDispatcherSettings> settings = nss.getResolverSettings(record.getUsername());
+        Map<String, UserNotifierSettings> settings = nss.getResolverSettings(record.getUsername());
         assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();
         assertThat(settings.get("fileCreated").getSettings().get("inApp")).isFalse();
     }
@@ -101,7 +101,7 @@ public class TestNotificationSettingsProcessor {
     protected UserSettings buildUserSettings() {
         UserSettings.UserSettingsBuilder builder = UserSettings.builder().withUsername("user1");
 
-        UserDispatcherSettings settings = new UserDispatcherSettings();
+        UserNotifierSettings settings = new UserNotifierSettings();
         settings.getSettings().put("log", true);
         settings.getSettings().put("inApp", false);
 

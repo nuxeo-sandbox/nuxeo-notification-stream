@@ -21,28 +21,28 @@ public class SettingsDescriptor implements Descriptor {
     @XNode("@id")
     protected String id;
 
-    @XNodeMap(value = "dispatcher", key = "@name", type = HashMap.class, componentType = DispatcherSetting.class)
-    protected Map<String, DispatcherSetting> settings;
+    @XNodeMap(value = "notifier", key = "@name", type = HashMap.class, componentType = NotifierSetting.class)
+    protected Map<String, NotifierSetting> settings;
 
     @Override
     public String getId() {
         return id;
     }
 
-    public Map<String, DispatcherSetting> getSettings() {
+    public Map<String, NotifierSetting> getSettings() {
         return new HashMap<>(settings);
     }
 
-    public DispatcherSetting getSetting(String dispatcher) {
-        return settings.getOrDefault(dispatcher, new DispatcherSetting());
+    public NotifierSetting getSetting(String notifier) {
+        return settings.getOrDefault(notifier, new NotifierSetting());
     }
 
-    public boolean isEnable(String dispatcher) {
-        return getSetting(dispatcher).isEnabled();
+    public boolean isEnable(String notifier) {
+        return getSetting(notifier).isEnabled();
     }
 
-    public boolean isDefault(String dispatcher) {
-        return getSetting(dispatcher).isDefault();
+    public boolean isDefault(String notifier) {
+        return getSetting(notifier).isDefault();
     }
 
     @Override
@@ -52,8 +52,8 @@ public class SettingsDescriptor implements Descriptor {
     }
 
 
-    @XObject("dispatcher")
-    public static class DispatcherSetting {
+    @XObject("notifier")
+    public static class NotifierSetting {
         @XNode("@enabled")
         protected boolean isEnabled = true;
 

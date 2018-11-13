@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.platform.notification.test.basic.config">
 
-  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="dispatcher">
-    <dispatcher id="inApp" class="org.nuxeo.ecm.platform.notification.dispatcher.CounterDispatcher" />
-    <dispatcher id="log" class="org.nuxeo.ecm.platform.notification.dispatcher.CounterDispatcher">
+  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="notifier">
+    <notifier id="inApp" class="org.nuxeo.ecm.platform.notification.notifier.CounterNotifier" />
+    <notifier id="log" class="org.nuxeo.ecm.platform.notification.notifier.CounterNotifier">
       <property name="my-secret-key">my-secret-value</property>
-    </dispatcher>
+    </notifier>
   </extension>
 
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="resolver">
@@ -16,13 +16,13 @@
 
   <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="settings">
     <settings id="fileCreated">
-      <dispatcher name="inApp" default="true" />
-      <dispatcher name="log" default="false" />
+      <notifier name="inApp" default="true" />
+      <notifier name="log" default="false" />
     </settings>
     <settings id="fileUpdated">
       <!-- notifier -->
-      <dispatcher name="inApp" enabled="false" default="true" />
-      <dispatcher name="log" enabled="false" />
+      <notifier name="inApp" enabled="false" default="true" />
+      <notifier name="log" enabled="false" />
     </settings>
   </extension>
 </component>

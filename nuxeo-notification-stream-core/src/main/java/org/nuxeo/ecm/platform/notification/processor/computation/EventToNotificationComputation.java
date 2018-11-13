@@ -53,7 +53,7 @@ public class EventToNotificationComputation extends AbstractComputation {
                  .forEach(r -> r.resolveTargetUsers(eventRecord)
                                 .map(user -> Notification.builder()
                                                          .fromEvent(eventRecord)
-                                                         .withCtx(r.buildDispatcherContext(eventRecord))
+                                                         .withCtx(r.buildNotifierContext(eventRecord))
                                                          .withUsername(user)
                                                          .withResolver(r)
                                                          .build())

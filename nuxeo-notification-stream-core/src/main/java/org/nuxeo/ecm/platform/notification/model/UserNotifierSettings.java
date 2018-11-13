@@ -30,18 +30,18 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.nuxeo.ecm.platform.notification.SettingsDescriptor;
-import org.nuxeo.ecm.platform.notification.dispatcher.Dispatcher;
+import org.nuxeo.ecm.platform.notification.notifier.Notifier;
 
 /**
  * @since XXX
  */
-public class UserDispatcherSettings implements Serializable {
+public class UserNotifierSettings implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
     protected Map<String, Boolean> settings;
 
-    public UserDispatcherSettings() {
+    public UserNotifierSettings() {
         // Empty constructor for Avro
     }
 
@@ -56,24 +56,24 @@ public class UserDispatcherSettings implements Serializable {
         this.settings = settings;
     }
 
-    public List<String> getSelectedDispatchers() {
+    public List<String> getSelectedNotifiers() {
         return settings.entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
     }
 
-    public void enable(String dispatcherId) {
-        getSettings().put(dispatcherId, true);
+    public void enable(String notifierId) {
+        getSettings().put(notifierId, true);
     }
 
-    public void disable(String dispatcherId) {
-        getSettings().put(dispatcherId, false);
+    public void disable(String notifierId) {
+        getSettings().put(notifierId, false);
     }
 
-    public boolean isEnabled(String dispatcherId) {
-        return getSettings().getOrDefault(dispatcherId, false);
+    public boolean isEnabled(String notifierId) {
+        return getSettings().getOrDefault(notifierId, false);
     }
 
-    public static UserDispatcherSettings defaultFromDescriptor(SettingsDescriptor desc) {
-        UserDispatcherSettings urs = new UserDispatcherSettings();
+    public static UserNotifierSettings defaultFromDescriptor(SettingsDescriptor desc) {
+        UserNotifierSettings urs = new UserNotifierSettings();
         urs.settings = new HashMap<>();
         desc.getSettings()
             .entrySet()
@@ -83,10 +83,10 @@ public class UserDispatcherSettings implements Serializable {
         return urs;
     }
 
-    public static UserDispatcherSettings defaultFromDispatchers(Collection<Dispatcher> dispatchers) {
-        UserDispatcherSettings urs = new UserDispatcherSettings();
+    public static UserNotifierSettings defaultFromNotifiers(Collection<Notifier> notifiers) {
+        UserNotifierSettings urs = new UserNotifierSettings();
         urs.settings = new HashMap<>();
-        dispatchers.forEach(d -> urs.settings.put(d.getName(), false));
+        notifiers.forEach(d -> urs.settings.put(d.getName(), false));
         return urs;
     }
 

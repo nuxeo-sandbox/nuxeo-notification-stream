@@ -41,7 +41,7 @@ public class ComplexSubsKeyResolver extends SimpleSubscribableResolver {
     }
 
     @Override
-    public Map<String, String> buildDispatcherContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
         return Collections.emptyMap();
     }
 }

@@ -16,7 +16,7 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.platform.notification.dispatcher;
+package org.nuxeo.ecm.platform.notification.notifier;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
@@ -33,11 +33,11 @@ import org.nuxeo.runtime.codec.CodecService;
 /**
  * @since XXX
  */
-public abstract class Dispatcher extends AbstractComputation {
+public abstract class Notifier extends AbstractComputation {
 
     protected Map<String, String> properties;
 
-    public Dispatcher(DispatcherDescriptor desc) {
+    public Notifier(NotifierDescriptor desc) {
         super(desc.id, 1, 0);
         properties = desc.getProperties();
     }
