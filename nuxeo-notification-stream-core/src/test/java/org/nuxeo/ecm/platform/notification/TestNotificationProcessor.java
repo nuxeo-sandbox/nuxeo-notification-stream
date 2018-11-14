@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
+import org.nuxeo.ecm.platform.notification.computation.EventToNotificationComputation;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
