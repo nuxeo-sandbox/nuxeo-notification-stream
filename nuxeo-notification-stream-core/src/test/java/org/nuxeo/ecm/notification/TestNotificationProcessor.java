@@ -59,8 +59,8 @@ public class TestNotificationProcessor {
     public void testTopologyDefinition() {
         Topology topology = nsc.getTopology(Collections.emptyMap());
         assertThat(topology.streamsSet()).hasSize(4);
-        assertThat(topology.getAncestorComputationNames(EventToNotificationComputation.ID)).isEmpty();
-        assertThat(topology.getDescendantComputationNames(EventToNotificationComputation.ID)).containsOnly("inApp",
+        assertThat(topology.getAncestorComputationNames(EventToNotificationComputation.NAME)).isEmpty();
+        assertThat(topology.getDescendantComputationNames(EventToNotificationComputation.NAME)).containsOnly("inApp",
                 "log", "notEnabled");
     }
 

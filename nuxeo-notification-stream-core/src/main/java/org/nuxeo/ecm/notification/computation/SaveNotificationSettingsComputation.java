@@ -54,5 +54,6 @@ public class SaveNotificationSettingsComputation extends AbstractComputation {
         recordMessage.getSettingsMap()
                      .entrySet() //
                      .forEach(map -> scb.doUpdateSettings(username, map.getKey(), map.getValue().getSettings()));
+        computationContext.askForCheckpoint();
     }
 }

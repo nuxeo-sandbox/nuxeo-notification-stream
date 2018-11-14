@@ -34,10 +34,11 @@ import org.nuxeo.runtime.codec.CodecService;
  * @since XXX
  */
 public class EventToNotificationComputation extends AbstractComputation {
-    public static final String ID = "eventToNotificationComputation";
+
+    public static final String NAME = "eventToNotificationComputation";
 
     public EventToNotificationComputation() {
-        super(EventToNotificationComputation.ID, 1, 1);
+        super(EventToNotificationComputation.NAME, 1, 1);
     }
 
     @Override

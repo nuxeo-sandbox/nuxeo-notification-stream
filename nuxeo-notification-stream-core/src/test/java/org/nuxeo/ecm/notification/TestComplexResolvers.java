@@ -45,8 +45,7 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
 @RunWith(FeaturesRunner.class)
-@Features(CoreFeature.class)
-@Deploy("org.nuxeo.ecm.platform.notification.stream.core")
+@Features(NotificationFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/complex-resolvers-contrib.xml")
 public class TestComplexResolvers {
 
