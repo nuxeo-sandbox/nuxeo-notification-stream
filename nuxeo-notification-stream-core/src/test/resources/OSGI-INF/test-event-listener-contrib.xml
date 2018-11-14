@@ -5,7 +5,7 @@
 
   <extension target="org.nuxeo.ecm.core.event.EventServiceComponent" point="listener">
     <listener name="eventsStreamListener" async="true" postCommit="true"
-              class="org.nuxeo.ecm.platform.notification.listener.EventsStreamListener">
+              class="org.nuxeo.ecm.notification.listener.EventsStreamListener">
       <event>documentCreated</event>
       <event>documentModified</event>
       <event>randomEvent</event>

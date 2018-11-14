@@ -8,7 +8,7 @@
     </documentation>
 
     <listener name="eventsStreamListener" async="false" postCommit="false" priority="500"
-              class="org.nuxeo.ecm.platform.notification.listener.EventsStreamListener">
+              class="org.nuxeo.ecm.notification.listener.EventsStreamListener">
     </listener>
 
   </extension>

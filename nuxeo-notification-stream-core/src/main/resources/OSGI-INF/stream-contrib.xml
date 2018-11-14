@@ -6,7 +6,7 @@
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="notification"
-                     class="org.nuxeo.ecm.platform.notification.NotificationComponent"
+                     class="org.nuxeo.ecm.notification.NotificationComponent"
                      logConfig="notification">
       <!-- Change default policy to continue on Failure -->
       <policy name="default" continueOnFailure="true" maxRetries="0" />

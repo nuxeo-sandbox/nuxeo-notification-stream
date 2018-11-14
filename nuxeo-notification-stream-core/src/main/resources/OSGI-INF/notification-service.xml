@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<component name="org.nuxeo.ecm.platform.notification.NotificationComponent">
+<component name="org.nuxeo.ecm.notification.NotificationComponent">
 
-  <implementation class="org.nuxeo.ecm.platform.notification.NotificationComponent" />
+  <implementation class="org.nuxeo.ecm.notification.NotificationComponent" />
 
   <service>
-    <provide interface="org.nuxeo.ecm.platform.notification.NotificationService" />
-    <provide interface="org.nuxeo.ecm.platform.notification.NotificationSettingsService" />
-    <provide interface="org.nuxeo.ecm.platform.notification.NotificationStreamCallback" />
-    <provide interface="org.nuxeo.ecm.platform.notification.NotificationStreamConfig" />
+    <provide interface="org.nuxeo.ecm.notification.NotificationService" />
+    <provide interface="org.nuxeo.ecm.notification.NotificationSettingsService" />
+    <provide interface="org.nuxeo.ecm.notification.NotificationStreamCallback" />
+    <provide interface="org.nuxeo.ecm.notification.NotificationStreamConfig" />
   </service>
 
   <extension-point name="resolver">
@@ -16,11 +16,11 @@
         Register notifications resolvers. A resolver has a name and aims to identify if a core event deserves a
         notification
         <resolver id="deliverable"
-                  class="org.nuxeo.ecm.platform.notification.resolver.FileCreatedResolver" />
+                  class="FileCreatedResolver" />
       </code>
     </documentation>
 
-    <object class="org.nuxeo.ecm.platform.notification.resolver.ResolverDescriptor" />
+    <object class="org.nuxeo.ecm.notification.resolver.ResolverDescriptor" />
   </extension-point>
 
   <extension-point name="notifier">
@@ -35,7 +35,7 @@
       </code>
     </documentation>
 
-    <object class="org.nuxeo.ecm.platform.notification.notifier.NotifierDescriptor" />
+    <object class="org.nuxeo.ecm.notification.notifier.NotifierDescriptor" />
   </extension-point>
 
   <extension-point name="settings">
@@ -60,7 +60,7 @@
       </code>
     </documentation>
 
-    <object class="org.nuxeo.ecm.platform.notification.SettingsDescriptor" />
+    <object class="org.nuxeo.ecm.notification.SettingsDescriptor" />
   </extension-point>
 
 </component>

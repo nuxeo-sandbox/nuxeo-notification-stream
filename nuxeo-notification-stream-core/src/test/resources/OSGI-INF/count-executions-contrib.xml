@@ -2,17 +2,17 @@
 
 <component name="org.nuxeo.ecm.platform.notification.test.count.executions.config">
 
-  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="notifier">
-    <notifier id="inApp" class="org.nuxeo.ecm.platform.notification.notifier.CounterNotifier" />
-    <notifier id="log" class="org.nuxeo.ecm.platform.notification.notifier.CounterNotifier" />
-    <notifier id="notEnabled" class="org.nuxeo.ecm.platform.notification.notifier.CounterNotifier" />
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
+    <notifier id="inApp" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
+    <notifier id="log" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
+    <notifier id="notEnabled" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
   </extension>
 
-  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="resolver">
-    <resolver id="fileCreated" class="org.nuxeo.ecm.platform.notification.resolver.TestEventOnlyResolver" />
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
+    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.TestEventOnlyResolver" />
   </extension>
 
-  <extension target="org.nuxeo.ecm.platform.notification.NotificationComponent" point="settings">
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="settings">
     <settings id="fileCreated">
       <notifier name="inApp" default="true" />
       <notifier name="log" default="true" />
