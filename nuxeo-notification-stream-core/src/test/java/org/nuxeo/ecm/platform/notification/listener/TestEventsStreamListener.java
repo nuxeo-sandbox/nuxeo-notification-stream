@@ -102,7 +102,7 @@ public class TestEventsStreamListener {
 
         // Check the Record in the stream
         record = readRecord();
-        assertThat(record.getKey()).isEqualTo("randomEvent:Administrator");
+        assertThat(record.getKey()).isEqualTo("randomEvent:null:Administrator");
     }
 
     protected Record readRecord() throws InterruptedException {

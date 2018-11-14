@@ -35,8 +35,8 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
+import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -115,8 +115,6 @@ public class TestNotificationsFlow {
     }
 
     protected void waitForAsync() throws InterruptedException {
-        TestNotificationHelper.waitForEvents();
-
         LogManager lm = nsc.getLogManager(nsc.getLogConfigNotification());
         TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
 

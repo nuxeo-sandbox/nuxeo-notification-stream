@@ -9,13 +9,11 @@
 package org.nuxeo.ecm.platform.notification;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import org.mockito.Mockito;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.lib.stream.log.LogLag;
 import org.nuxeo.lib.stream.log.LogManager;
@@ -69,10 +67,6 @@ public class TestNotificationHelper {
         Mockito.when(source.getId()).thenReturn(docId);
 
         return new DocumentEventContext(session, session.getPrincipal(), source).newEvent(event);
-    }
-
-    public static void waitForEvents() {
-        Framework.getService(EventService.class).waitForAsyncCompletion();
     }
 
     public static void clearKVS(String name) {

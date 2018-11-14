@@ -9,7 +9,7 @@
 package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.nuxeo.ecm.platform.notification.resolver.AcceptAllResolver.TARGET_USERS;
+import static org.nuxeo.ecm.platform.notification.resolver.TestEventOnlyResolver.TARGET_USERS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import java.time.Duration;
@@ -19,9 +19,9 @@ import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
-import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.computation.EventToNotificationComputation;
+import org.nuxeo.ecm.platform.notification.message.EventRecord;
+import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -30,6 +30,7 @@ import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * @since XXX
@@ -65,9 +66,12 @@ public class TestNotificationProcessor {
         Record r = Record.of("toto", codecService.getCodec(DEFAULT_CODEC, EventRecord.class).encode(eventRecord));
         appender.append("toto", r);
 
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+
         TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
         // We have 2 notifiers enabled and 1 disabled all using the same class, and 1 resolver that has
-        // AcceptAllResolver.TARGET_USERS users.
+        // TestEventOnlyResolver.TARGET_USERS users.
         // So, we expect to have nb_enabled_notifiers * nb_TARGET_USERS executions
         assertThat(CounterNotifier.processed).isEqualTo(TARGET_USERS * 2);
     }

@@ -30,8 +30,8 @@ public class FileUpdatedResolver extends Resolver {
 
     @Override
     public boolean accept(EventRecord eventRecord) {
-        return eventRecord.getDocumentSourceType().equals("File")
-                && eventRecord.getEventName().equals(DOCUMENT_UPDATED);
+        return eventRecord.getEventName().equals(DOCUMENT_UPDATED)
+                && eventRecord.getDocumentSourceType().equals("File");
     }
 
     @Override

@@ -30,8 +30,8 @@ public class FileCreatedResolver extends SimpleSubscribableResolver {
 
     @Override
     public boolean accept(EventRecord eventRecord) {
-        return eventRecord.getDocumentSourceType().equals("File")
-                && eventRecord.getEventName().equals(DOCUMENT_CREATED);
+        return eventRecord.getEventName().equals(DOCUMENT_CREATED)
+                && eventRecord.getDocumentSourceType().equals("File");
     }
 
     @Override

@@ -10,41 +10,84 @@ package org.nuxeo.ecm.platform.notification.listener;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.NamingException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.EventBundle;
-import org.nuxeo.ecm.core.event.PostCommitEventListener;
+import org.nuxeo.ecm.core.event.EventContext;
+import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.platform.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
 import org.nuxeo.ecm.platform.notification.message.EventRecord.EventRecordBuilder;
+import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
 /**
  * Asynchronous events listener that pushed all the contributed events into a Log to feed the Notification Topology.
  *
  * @since XXX
  */
-public class EventsStreamListener implements PostCommitEventListener {
+public class EventsStreamListener implements EventListener, Synchronization {
 
-    public static final String FORMAT_KEY = "%s:%s";
+    private static final Log log = LogFactory.getLog(EventsStreamListener.class);
 
-    @Override
-    public void handleEvent(EventBundle eventBundle) {
-        eventBundle.forEach(this::processEvent);
-    }
+    protected static final String DELIMITER = ":";
+
+    protected static final ThreadLocal<Boolean> isEnlisted = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
+    protected static final ThreadLocal<Map<String, EventRecord>> entries = ThreadLocal.withInitial(HashMap::new);
 
     /**
      * Extract the event and push it into the Log configured.
      *
      * @param event The raised event.
      */
-    protected void processEvent(Event event) {
+    @Override
+    public void handleEvent(Event event) {
+        if (!isEnlisted.get()) {
+            isEnlisted.set(registerSynchronization(this));
+            entries.get().clear();
+            log.debug("AuditEventListener collecting entries for the tx");
+        }
+
+        EventRecordBuilder builder = EventRecord.builder()
+                                                .withEventName(event.getName())
+                                                .withUsername(event.getContext().getPrincipal().getName());
+        if (isDocumentEventContext(event.getContext())) {
+            DocumentEventContext ctx = (DocumentEventContext) event.getContext();
+            builder.withDocument(ctx.getSourceDocument());
+        }
+
+        EventRecord eventRecord = builder.build();
+        String key = generateKey(event);
+        // Deduplicate events in the same thread.
+        entries.get().putIfAbsent(key, eventRecord);
+
+        if (!isEnlisted.get()) {
+            // there is no transaction so don't wait for a commit
+            afterCompletion(Status.STATUS_COMMITTED);
+        }
+    }
+
+    protected LogAppender<Record> getAppender() {
         // Get the stream where to publish the event
         NotificationStreamConfig notificationService = Framework.getService(NotificationStreamConfig.class);
         String eventStream = notificationService.getEventInputStream();
@@ -55,31 +98,22 @@ public class EventsStreamListener implements PostCommitEventListener {
 
         // Create a record in the stream in input of the notification processor
         LogManager logManager = notificationService.getLogManager(notificationService.getLogConfigNotification());
-        LogAppender<Record> appender = logManager.getAppender(notificationService.getEventInputStream());
-        byte[] encodedEvent = encodeEvent(event);
-
-        // Append the record to the log
-        String key = generateKey(event);
-        appender.append(eventStream, Record.of(key, encodedEvent));
+        return logManager.getAppender(notificationService.getEventInputStream());
     }
 
-    /**
-     * Encode the Event using the Avro codec to sent it to the Stream.
-     *
-     * @param event
-     * @return The encoded event.
-     */
-    protected byte[] encodeEvent(Event event) {
-        EventRecordBuilder builder = EventRecord.builder().withEventName(event.getName()).withUsername(
-                event.getContext().getPrincipal().getName());
-
-        if (event.getContext() instanceof DocumentEventContext) {
-            DocumentEventContext ctx = (DocumentEventContext) event.getContext();
-            builder.withDocument(ctx.getSourceDocument());
+    protected void appendEntries() {
+        if (entries.get().isEmpty()) {
+            return;
         }
 
-        return Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class).encode(
-                builder.build());
+        LogAppender<Record> appender = getAppender();
+        Codec<EventRecord> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class);
+
+        entries.get().forEach((key, event) -> {
+            // Append the record to the log
+            byte[] encodedEvent = codec.encode(event);
+            appender.append(key, Record.of(key, encodedEvent));
+        });
     }
 
     /**
@@ -89,11 +123,62 @@ public class EventsStreamListener implements PostCommitEventListener {
      * @return A String representing the key.
      */
     protected String generateKey(Event event) {
-        if (event.getContext() instanceof DocumentEventContext) {
-            return String.format(FORMAT_KEY, event.getName(),
-                    ((DocumentEventContext) event.getContext()).getSourceDocument().getId());
+        if (isDocumentEventContext(event.getContext())) {
+            DocumentEventContext ctx = (DocumentEventContext) event.getContext();
+            return String.join(DELIMITER, event.getName(), ctx.getSourceDocument().getId());
         } else {
-            return String.format(FORMAT_KEY, event.getName(), event.getContext().getPrincipal().getName());
+            NuxeoPrincipal principal = event.getContext().getPrincipal();
+            return String.join(DELIMITER, event.getName(), principal.getTenantId(), principal.getName());
+        }
+    }
+
+    protected boolean isDocumentEventContext(EventContext ctx) {
+        return (ctx instanceof DocumentEventContext) && ((DocumentEventContext) ctx).getSourceDocument() != null;
+    }
+
+    @Override
+    public void beforeCompletion() {
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s going to write %d entries.", this.getClass().getSimpleName(),
+                    entries.get().size()));
+        }
+    }
+
+    @Override
+    public void afterCompletion(int status) {
+        try {
+            if (entries.get().isEmpty()
+                    || (Status.STATUS_MARKED_ROLLBACK == status || Status.STATUS_ROLLEDBACK == status)) {
+                // This means that in case of rollback there is no event logged
+                return;
+            }
+            appendEntries();
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        String.format("%s writes %d entries.", this.getClass().getSimpleName(), entries.get().size()));
+            }
+        } finally {
+            isEnlisted.set(false);
+            entries.get().clear();
+        }
+    }
+
+    protected boolean registerSynchronization(Synchronization sync) {
+        try {
+            TransactionManager tm = TransactionHelper.lookupTransactionManager();
+            if (tm != null) {
+                if (tm.getTransaction() != null) {
+                    tm.getTransaction().registerSynchronization(sync);
+                    return true;
+                }
+                return false;
+            } else {
+                log.error("Unable to register synchronization : no TransactionManager");
+                return false;
+            }
+        } catch (NamingException | IllegalStateException | SystemException | RollbackException e) {
+            log.error("Unable to register synchronization", e);
+            return false;
         }
     }
 }
