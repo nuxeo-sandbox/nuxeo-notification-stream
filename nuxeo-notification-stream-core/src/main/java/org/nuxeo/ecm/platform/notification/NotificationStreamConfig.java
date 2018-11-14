@@ -22,12 +22,9 @@ import java.util.Map;
 
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.runtime.stream.StreamProcessorTopology;
 
-public interface NotificationStreamConfig {
-    /**
-     * Returns Notification's Stream computation topology.
-     */
-    Topology buildTopology(Map<String, String> options);
+public interface NotificationStreamConfig extends StreamProcessorTopology {
 
     /**
      * Returns stream name which is going to be consumed to create Notification object

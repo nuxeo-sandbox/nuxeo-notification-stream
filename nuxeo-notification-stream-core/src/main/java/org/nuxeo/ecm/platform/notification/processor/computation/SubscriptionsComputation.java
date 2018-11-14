@@ -33,7 +33,7 @@ public class SubscriptionsComputation extends AbstractComputation {
     }
 
     @Override
-    public void processRecord(ComputationContext computationContext, String key, Record record) {
+    public void processRecord(ComputationContext computationContext, String inputStreamName, Record record) {
         Codec<SubscriptionAction> codec = Framework.getService(CodecService.class)
                 .getCodec(DEFAULT_CODEC, SubscriptionAction.class);
         SubscriptionAction sub = codec.decode(record.getData());
@@ -47,7 +47,6 @@ public class SubscriptionsComputation extends AbstractComputation {
                 scb.doUnsubscribe(sub.getUsername(), sub.getResolverId(), sub.getCtx());
                 break;
         }
-        // End the computation
         computationContext.askForCheckpoint();
     }
 }

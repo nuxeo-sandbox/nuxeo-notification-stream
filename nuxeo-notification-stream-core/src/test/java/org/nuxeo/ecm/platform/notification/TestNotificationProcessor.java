@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.platform.notification.message.EventRecord;
-import org.nuxeo.ecm.platform.notification.processor.NotificationProcessor;
 import org.nuxeo.ecm.platform.notification.processor.computation.EventToNotificationComputation;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
@@ -48,7 +47,7 @@ public class TestNotificationProcessor {
 
     @Test
     public void testTopologyDefinition() {
-        Topology topology = new NotificationProcessor().getTopology(Collections.emptyMap());
+        Topology topology = nsc.getTopology(Collections.emptyMap());
         assertThat(topology.streamsSet()).hasSize(4);
         assertThat(topology.getAncestorComputationNames(EventToNotificationComputation.ID)).isEmpty();
         assertThat(topology.getDescendantComputationNames(EventToNotificationComputation.ID)).containsOnly("inApp",

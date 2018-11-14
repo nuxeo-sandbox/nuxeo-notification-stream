@@ -6,7 +6,7 @@
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="notification"
-                     class="org.nuxeo.ecm.platform.notification.processor.NotificationProcessor"
+                     class="org.nuxeo.ecm.platform.notification.NotificationComponent"
                      logConfig="notification">
     </streamProcessor>
   </extension>

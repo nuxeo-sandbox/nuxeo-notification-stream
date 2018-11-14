@@ -141,7 +141,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public Topology buildTopology(Map<String, String> options) {
+    public Topology getTopology(Map<String, String> options) {
         Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
                 Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
 

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.nuxeo.ecm.platform.notification.NotificationSettingsService;
 import org.nuxeo.ecm.platform.notification.message.Notification;
+import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.AbstractComputation;
 import org.nuxeo.lib.stream.computation.ComputationContext;
 import org.nuxeo.lib.stream.computation.Record;
@@ -37,17 +38,24 @@ public abstract class Notifier extends AbstractComputation {
 
     protected Map<String, String> properties;
 
+    protected Codec<Notification> codec;
+
     public Notifier(NotifierDescriptor desc) {
         super(desc.id, 1, 0);
         properties = desc.getProperties();
     }
 
     @Override
+    public void init(ComputationContext context) {
+        super.init(context);
+        // Init the codec
+        codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Notification.class);
+    }
+
+    @Override
     public void processRecord(ComputationContext ctx, String inputStreamName, Record record) {
 
-        Notification notification = Framework.getService(CodecService.class)
-                                             .getCodec(DEFAULT_CODEC, Notification.class)
-                                             .decode(record.getData());
+        Notification notification = codec.decode(record.getData());
 
         boolean isEnabled = Framework.getService(NotificationSettingsService.class)
                                      .getResolverSettings(notification.getUsername())

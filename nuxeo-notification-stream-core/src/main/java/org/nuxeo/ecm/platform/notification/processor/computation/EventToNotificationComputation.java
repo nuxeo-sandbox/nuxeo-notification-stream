@@ -41,7 +41,7 @@ public class EventToNotificationComputation extends AbstractComputation {
     }
 
     @Override
-    public void processRecord(ComputationContext ctx, String s, Record record) {
+    public void processRecord(ComputationContext ctx, String inputStreamName, Record record) {
         String outputStream = Framework.getService(NotificationStreamConfig.class).getNotificationOutputStream();
 
         // Extract the EventRecord from the input Record
