@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.resolver.TestEventOnlyResolver.TARGET_USERS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.time.Duration;
 import java.util.Collections;
 
 import javax.inject.Inject;
@@ -56,7 +55,7 @@ public class TestNotificationProcessor {
     }
 
     @Test
-    public void testTopologyExecution() throws InterruptedException {
+    public void testTopologyExecution() {
         // Create a record in the stream in input of the notification processor
         LogManager logManager = nsc.getLogManager(nsc.getLogConfigNotification());
         assertThat(logManager.getAppender(nsc.getEventInputStream())).isNotNull();
@@ -69,7 +68,7 @@ public class TestNotificationProcessor {
         TransactionHelper.commitOrRollbackTransaction();
         TransactionHelper.startTransaction();
 
-        TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
+        TestNotificationHelper.waitProcessorsCompletion();
         // We have 2 notifiers enabled and 1 disabled all using the same class, and 1 resolver that has
         // TestEventOnlyResolver.TARGET_USERS users.
         // So, we expect to have nb_enabled_notifiers * nb_TARGET_USERS executions

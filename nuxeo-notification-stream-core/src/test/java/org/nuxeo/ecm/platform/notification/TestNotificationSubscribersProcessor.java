@@ -20,7 +20,6 @@ package org.nuxeo.ecm.platform.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -40,9 +39,6 @@ public class TestNotificationSubscribersProcessor {
     @Inject
     protected NotificationService notif;
 
-    @Inject
-    protected NotificationStreamConfig config;
-
     protected String username = "tommy";
 
     protected String resolverId = "fileCreated";
@@ -50,19 +46,17 @@ public class TestNotificationSubscribersProcessor {
     protected Map<String, String> ctx = Collections.emptyMap();
 
     @Test
-    public void testSubscribeAndUnsubscribe() throws InterruptedException {
+    public void testSubscribeAndUnsubscribe() {
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).isEmpty();
 
         notif.subscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()),
-                Duration.ofSeconds(5));
+        TestNotificationHelper.waitProcessorsCompletion();
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).containsExactly(username);
 
         notif.unsubscribe(username, resolverId, ctx);
 
-        TestNotificationHelper.waitProcessorsCompletion(config.getLogManager(config.getLogConfigNotification()),
-                Duration.ofSeconds(5));
+        TestNotificationHelper.waitProcessorsCompletion();
         assertThat(notif.getSubscriptions(resolverId, ctx).getUsernames()).isEmpty();
     }
 }

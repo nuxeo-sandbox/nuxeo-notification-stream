@@ -29,7 +29,7 @@ public class CounterNotifier extends Notifier {
 
     public static int processed = 0;
 
-    public static Map<String, String> fullCtx = new HashMap<>();
+    public static final Map<String, String> fullCtx = new HashMap<>();
 
     public CounterNotifier(NotifierDescriptor desc) {
         super(desc);

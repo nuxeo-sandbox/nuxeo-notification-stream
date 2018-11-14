@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.time.Duration;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -55,7 +54,7 @@ public class TestNotificationSettingsProcessor {
     protected CodecService codecService;
 
     @Test
-    public void testTopologyExecution() throws InterruptedException {
+    public void testTopologyExecution() {
         // Create a record in the stream in input of the notification settings processor
         LogManager logManager = getUserSettingsLogManager();
         assertThat(logManager.getAppender(nsc.getNotificationSettingsInputStream())).isNotNull();
@@ -68,7 +67,7 @@ public class TestNotificationSettingsProcessor {
                 Record.of("settings", codecService.getCodec(DEFAULT_CODEC, UserSettings.class).encode(record)));
 
         // Wait for the completion and check the result stored in the KVS
-        TestNotificationHelper.waitProcessorsCompletion(logManager, Duration.ofSeconds(5));
+        TestNotificationHelper.waitProcessorsCompletion();
         KeyValueStore store = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SETTINGS);
 
         Codec<UserNotifierSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
@@ -83,11 +82,11 @@ public class TestNotificationSettingsProcessor {
     }
 
     @Test
-    public void testUserSettingsSave() throws InterruptedException {
+    public void testUserSettingsSave() {
         UserSettings record = buildUserSettings();
         nss.updateSettings(record.getUsername(), record.getSettingsMap());
 
-        TestNotificationHelper.waitProcessorsCompletion(getUserSettingsLogManager(), Duration.ofSeconds(5));
+        TestNotificationHelper.waitProcessorsCompletion();
 
         Map<String, UserNotifierSettings> settings = nss.getResolverSettings(record.getUsername());
         assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();

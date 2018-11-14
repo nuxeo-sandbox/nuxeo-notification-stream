@@ -8,17 +8,9 @@
  */
 package org.nuxeo.ecm.platform.notification;
 
-import java.time.Duration;
-
-import org.mockito.Mockito;
-import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.event.Event;
-import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.lib.stream.log.LogLag;
-import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
+import org.nuxeo.runtime.stream.StreamHelper;
 
 /**
  * @since XXX
@@ -26,47 +18,12 @@ import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 public class TestNotificationHelper {
 
     /**
-     * Await for the lag of all streams to be 0.
+     * Await for notification processor to drain and stop all his computations
      *
-     * @param logManager to use to resolve available logs
-     * @param duration of the deadline before interrupting the wait, in unit
-     * @return true if lag is empty, false if the deadline is reached
-     * @throws InterruptedException
+     * @return {@code true} if computations are stopped during the timeout delay.
      */
-    public static boolean waitProcessorsCompletion(LogManager logManager, Duration duration)
-            throws InterruptedException {
-        if (logManager == null) {
-            return false;
-        }
-
-        long durationMs = duration.toMillis();
-        long deadline = System.currentTimeMillis() + durationMs;
-        while (System.currentTimeMillis() < deadline) {
-            long lagTotal = logManager.listAll()
-                                      .stream()
-                                      .mapToLong(l -> logManager.listConsumerGroups(l)
-                                                                .stream()
-                                                                .map(g -> logManager.getLag(l, g))
-                                                                .mapToLong(LogLag::lag)
-                                                                .sum())
-                                      .sum();
-
-            if (lagTotal == 0L) {
-                return true;
-            }
-
-            Thread.sleep(200);
-        }
-
-        return false;
-    }
-
-    public static Event buildEvent(CoreSession session, String docId, String docType, String event) {
-        DocumentModel source = Mockito.mock(DocumentModel.class, Mockito.withSettings().serializable());
-        Mockito.when(source.getType()).thenReturn(docType);
-        Mockito.when(source.getId()).thenReturn(docId);
-
-        return new DocumentEventContext(session, session.getPrincipal(), source).newEvent(event);
+    public static boolean waitProcessorsCompletion() {
+        return StreamHelper.drainAndStop();
     }
 
     public static void clearKVS(String name) {

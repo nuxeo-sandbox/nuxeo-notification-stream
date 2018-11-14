@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.platform.notification.NotificationComponent.KVS_SETTINGS;
 import static org.nuxeo.ecm.platform.notification.resolver.SubscribableResolver.KVS_SUBSCRIPTIONS;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.platform.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.platform.notification.notifier.CounterNotifier;
-import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -56,9 +54,6 @@ public class TestNotificationsFlow {
     protected NotificationSettingsService nss;
 
     @Inject
-    protected NotificationStreamConfig nsc;
-
-    @Inject
     protected CoreSession session;
 
     @Before
@@ -72,18 +67,18 @@ public class TestNotificationsFlow {
     }
 
     @Test
-    public void testUserChangingSettings() throws InterruptedException {
+    public void testUserChangingSettings() {
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         createSampleFile();
-        waitForAsync();
+        TestNotificationHelper.waitProcessorsCompletion();
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         ns.subscribe("myUser", "fileCreated", Collections.emptyMap());
-        waitForAsync();
+        TestNotificationHelper.waitProcessorsCompletion();
 
         createSampleFile();
-        waitForAsync();
+        TestNotificationHelper.waitProcessorsCompletion();
 
         // First call, only one event should have been processed
         assertThat(CounterNotifier.processed).isEqualTo(1);
@@ -95,10 +90,10 @@ public class TestNotificationsFlow {
         Map<String, UserNotifierSettings> settings = nss.getResolverSettings("myUser");
         settings.get("fileCreated").enable("log");
         nss.updateSettings("myUser", settings);
-        waitForAsync();
+        TestNotificationHelper.waitProcessorsCompletion();
 
         createSampleFile();
-        waitForAsync();
+        TestNotificationHelper.waitProcessorsCompletion();
         assertThat(CounterNotifier.processed).isEqualTo(2);
     }
 
@@ -112,16 +107,5 @@ public class TestNotificationsFlow {
         TransactionHelper.startTransaction();
 
         return doc;
-    }
-
-    protected void waitForAsync() throws InterruptedException {
-        LogManager lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
-
-        lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
-
-        lm = nsc.getLogManager(nsc.getLogConfigNotification());
-        TestNotificationHelper.waitProcessorsCompletion(lm, Duration.ofSeconds(5));
     }
 }
