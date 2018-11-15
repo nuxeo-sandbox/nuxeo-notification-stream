@@ -9,7 +9,7 @@
     <version>10.3-SNAPSHOT</version>
   </parent>
   <artifactId>nuxeo-notification-stream-core</artifactId>
-  <name>Nuxeo notification stream core</name>
+  <name>Nuxeo Notification Stream - Core</name>
   <description>Nuxeo Notification Stream - Core</description>
 
   <dependencies>

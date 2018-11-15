@@ -1,0 +1,13 @@
+## Edit this file to customize your configuration ##
+#nuxeo-notifications-stream-package.target=
+
+# Set list of templates to include, comma separated values.
+nuxeo.template.includes=common
+
+# Default configuration for the notifications infrastructure
+nuxeo.stream.notification.input=notificationInput
+nuxeo.stream.notification.output=notificationOutput
+nuxeo.stream.notification.log.config=notification
+nuxeo.stream.notification.subscriptions=subscriptions
+nuxeo.stream.notification.settings.input=notificationSettings
+
