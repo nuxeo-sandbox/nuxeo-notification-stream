@@ -28,7 +28,9 @@ import org.nuxeo.ecm.notification.message.Notification;
 public class CounterNotifier extends Notifier {
     private static final Log log = LogFactory.getLog(CounterNotifier.class);
 
-    public static int processed = 0;
+    private static final Object sync = new Object();
+
+    public static Integer processed = 0;
 
     public static final Map<String, String> fullCtx = new HashMap<>();
 
@@ -38,14 +40,18 @@ public class CounterNotifier extends Notifier {
 
     @Override
     public void process(Notification notification) {
-        processed++;
-        fullCtx.putAll(notification.getContext());
+        synchronized (sync) {
+            processed++;
+            fullCtx.putAll(notification.getContext());
 
-        log.warn(getName() + ":" + notification.toString());
+            log.warn(getName() + ":" + notification.toString());
+        }
     }
 
     public static void reset() {
-        processed = 0;
-        fullCtx.clear();
+        synchronized (sync) {
+            processed = 0;
+            fullCtx.clear();
+        }
     }
 }

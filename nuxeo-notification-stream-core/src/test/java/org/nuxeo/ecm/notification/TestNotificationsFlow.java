@@ -56,9 +56,6 @@ public class TestNotificationsFlow {
 
     @Before
     public void before() {
-        // Reset counter notifiers
-        CounterNotifier.reset();
-
         // Clean KVS
         TestNotificationHelper.clearKVS(SubscribableResolver.KVS_SUBSCRIPTIONS);
         TestNotificationHelper.clearKVS(NotificationComponent.KVS_SETTINGS);

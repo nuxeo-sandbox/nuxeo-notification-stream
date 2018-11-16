@@ -17,9 +17,12 @@
  */
 package org.nuxeo.ecm.notification;
 
+import org.junit.runners.model.FrameworkMethod;
 import org.nuxeo.ecm.core.test.CoreFeature;
+import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.RunnerFeature;
 
 /**
@@ -28,5 +31,8 @@ import org.nuxeo.runtime.test.runner.RunnerFeature;
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")
 public class NotificationFeature implements RunnerFeature {
-
+    @Override
+    public void beforeMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {
+        CounterNotifier.reset();
+    }
 }

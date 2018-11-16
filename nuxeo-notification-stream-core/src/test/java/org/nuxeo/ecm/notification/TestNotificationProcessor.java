@@ -25,6 +25,7 @@ import java.util.Collections;
 import javax.inject.Inject;
 
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.notification.computation.EventToNotificationComputation;
