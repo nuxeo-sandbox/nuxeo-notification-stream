@@ -76,6 +76,7 @@ public class TestEventToNotificationComputation {
         comp.processRecord(context, "i1", Record.of("foo", codec.encode(builder.build())));
 
         // Check that the record has been processed and a Notification per user has been pushed to the output stream
-        assertThat(context.getRecords(nsc.getNotificationOutputStream())).hasSize(3);
+        // Except user1 which is the notification author. (only user2, user3)
+        assertThat(context.getRecords(nsc.getNotificationOutputStream())).hasSize(2);
     }
 }

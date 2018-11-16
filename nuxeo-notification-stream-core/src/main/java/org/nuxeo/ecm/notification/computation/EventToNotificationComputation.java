@@ -52,6 +52,7 @@ public class EventToNotificationComputation extends AbstractComputation {
         Framework.getService(NotificationService.class)
                  .getResolvers(eventRecord)
                  .forEach(r -> r.resolveTargetUsers(eventRecord)
+                                .filter(user -> !user.equals(eventRecord.getUsername()))
                                 .map(user -> Notification.builder()
                                                          .fromEvent(eventRecord)
                                                          .withCtx(r.buildNotifierContext(eventRecord))
