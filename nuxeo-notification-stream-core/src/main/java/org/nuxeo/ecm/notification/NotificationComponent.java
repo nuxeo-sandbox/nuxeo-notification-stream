@@ -31,18 +31,18 @@ import java.util.stream.Collectors;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.notification.computation.EventToNotificationComputation;
+import org.nuxeo.ecm.notification.computation.SaveNotificationSettingsComputation;
+import org.nuxeo.ecm.notification.computation.SubscriptionsComputation;
+import org.nuxeo.ecm.notification.message.EventRecord;
+import org.nuxeo.ecm.notification.message.SubscriptionAction;
 import org.nuxeo.ecm.notification.message.UserSettings;
 import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.notification.notifier.NotifierDescriptor;
+import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.resolver.ResolverDescriptor;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
-import org.nuxeo.ecm.notification.message.EventRecord;
-import org.nuxeo.ecm.notification.message.SubscriptionAction;
-import org.nuxeo.ecm.notification.computation.SaveNotificationSettingsComputation;
-import org.nuxeo.ecm.notification.computation.SubscriptionsComputation;
-import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
@@ -142,8 +142,10 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     @Override
     public Topology getTopology(Map<String, String> options) {
-        Topology.Builder builder = Topology.builder().addComputation(EventToNotificationComputation::new,
-                Arrays.asList("i1:" + getEventInputStream(), "o1:" + getNotificationOutputStream()));
+        Topology.Builder builder = Topology.builder()
+                                           .addComputation(EventToNotificationComputation::new,
+                                                   Arrays.asList("i1:" + getEventInputStream(),
+                                                           "o1:" + getNotificationOutputStream()));
 
         Collection<Notifier> notifiers = Framework.getService(NotificationService.class).getNotifiers();
         notifiers.forEach(
@@ -181,6 +183,11 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     @Override
     public void doUnsubscribe(String username, String resolverId, Map<String, String> ctx) {
         getSubscribableResolver(resolverId).unsubscribe(username, ctx);
+    }
+
+    @Override
+    public boolean hasSubscribe(String username, String resolverId, Map<String, String> ctx) {
+        return getSubscriptions(resolverId, ctx).getUsernames().anyMatch(s -> s.equals(username));
     }
 
     @Override
@@ -288,8 +295,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         UserNotifierSettings newSettings = new UserNotifierSettings();
         newSettings.setSettings(notifiersSettings);
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
-        Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
-                UserNotifierSettings.class);
+        Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class)
+                                                         .getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
         settingsKVS.put(username + ":" + resolverId, avroCodec.encode(newSettings));
     }
 
@@ -314,8 +321,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
             return defaults;
         }
 
-        Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC,
-                UserNotifierSettings.class);
+        Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class)
+                                                         .getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
         UserNotifierSettings userNotifierSettings = avroCodec.decode(userSettingsBytes);
 
         // Add missing settings for default enabled notifiers
@@ -334,8 +341,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         return getNotifiers().stream() //
-                               .filter(d -> notifiers.contains(d.getName()))
-                               .collect(Collectors.toList());
+                             .filter(d -> notifiers.contains(d.getName()))
+                             .collect(Collectors.toList());
     }
 
     protected UserNotifierSettings getDefaults(String resolverId) {

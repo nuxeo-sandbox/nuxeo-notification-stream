@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-Name: nuxeo-notification-stream-core-test
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.nuxeo.ecm.platform.notification.stream.core.test;singleton=true

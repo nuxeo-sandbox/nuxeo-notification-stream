@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-Name: nuxeo-notification-stream-rest-test
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.nuxeo.ecm.platform.notification.stream.rest.test;singleton=true
+Nuxeo-Component: OSGI-INF/notifications-contrib.xml

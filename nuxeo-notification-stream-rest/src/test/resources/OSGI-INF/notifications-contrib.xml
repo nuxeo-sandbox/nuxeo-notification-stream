@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.rest.test.config">
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
+    <notifier id="inApp" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
+    <notifier id="log" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
+    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.FileCreatedResolver" />
+    <resolver id="fileUpdated" class="org.nuxeo.ecm.notification.resolver.FileUpdatedResolver" />
+  </extension>
+</component>
