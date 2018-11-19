@@ -30,16 +30,15 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
-import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
+import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -55,7 +54,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  */
 public class EventsStreamListener implements EventListener, Synchronization {
 
-    private static final Log log = LogFactory.getLog(EventsStreamListener.class);
+    private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(EventsStreamListener.class);
 
     protected static final String DELIMITER = ":";
 
@@ -77,8 +76,8 @@ public class EventsStreamListener implements EventListener, Synchronization {
         }
 
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
-                                                .withEventName(event.getName())
-                                                .withUsername(event.getContext().getPrincipal().getName());
+                                                            .withEventName(event.getName())
+                                                            .withUsername(event.getContext().getPrincipal().getName());
         if (isDocumentEventContext(event.getContext())) {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();
             builder.withDocument(ctx.getSourceDocument());
@@ -146,10 +145,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
 
     @Override
     public void beforeCompletion() {
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("%s going to write %d entries.", this.getClass().getSimpleName(),
-                    entries.get().size()));
-        }
+        log.debug("{} going to write {} entries.", this.getClass().getSimpleName(), entries.get().size());
     }
 
     @Override
@@ -161,10 +157,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
                 return;
             }
             appendEntries();
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        String.format("%s writes %d entries.", this.getClass().getSimpleName(), entries.get().size()));
-            }
+            log.debug("{} writes {} entries.", this.getClass().getSimpleName(), entries.get().size());
         } finally {
             isEnlisted.set(false);
             entries.get().clear();

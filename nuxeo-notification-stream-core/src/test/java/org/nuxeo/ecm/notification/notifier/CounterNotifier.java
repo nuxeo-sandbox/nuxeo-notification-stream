@@ -21,12 +21,12 @@ package org.nuxeo.ecm.notification.notifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.notification.message.Notification;
 
 public class CounterNotifier extends Notifier {
-    private static final Log log = LogFactory.getLog(CounterNotifier.class);
+    private static final Logger log = LogManager.getLogger(CounterNotifier.class);
 
     private static final Object sync = new Object();
 
