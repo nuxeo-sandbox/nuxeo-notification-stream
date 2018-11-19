@@ -72,5 +72,7 @@ public interface NotificationService {
 
     void unsubscribe(String username, String resolverId, Map<String, String> ctx);
 
+    boolean hasSubscribe(String username, String resolverId, Map<String, String> ctx);
+
     Subscribers getSubscriptions(String resolverId, Map<String, String> ctx);
 }
