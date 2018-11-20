@@ -108,9 +108,10 @@ public class TestNotificationSettingsProcessor {
     protected UserSettings buildUserSettings() {
         UserSettings.UserSettingsBuilder builder = UserSettings.builder().withUsername("user1");
 
-        UserNotifierSettings settings = new UserNotifierSettings();
-        settings.getSettings().put("log", true);
-        settings.getSettings().put("inApp", false);
+        UserNotifierSettings settings = UserNotifierSettings.builder()
+                                                            .putSetting("log", true)
+                                                            .putSetting("inApp", false)
+                                                            .build();
 
         builder.withSetting("fileCreated", settings);
         builder.withSetting("fileUpdated", settings);
