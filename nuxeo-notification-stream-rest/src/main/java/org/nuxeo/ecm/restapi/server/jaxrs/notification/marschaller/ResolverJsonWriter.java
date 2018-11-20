@@ -35,7 +35,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 @Setup(mode = SINGLETON, priority = REFERENCE)
 public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {
 
-    public static final String ENTITY_TYPE = "notification_resolver";
+    public static final String ENTITY_TYPE = "notification-resolver";
 
     public ResolverJsonWriter() {
         super(ENTITY_TYPE, Resolver.class);

@@ -39,21 +39,18 @@ public class UserNotifierSettings implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
-    protected Map<String, Boolean> settings;
+    protected Map<String, Boolean> settings = new HashMap<>();
 
     public UserNotifierSettings() {
         // Empty constructor for Avro
     }
 
     public Map<String, Boolean> getSettings() {
-        if (settings == null) {
-            settings = new HashMap<>();
-        }
         return settings;
     }
 
     public void setSettings(Map<String, Boolean> settings) {
-        getSettings().putAll(settings);
+        this.settings.putAll(settings);
     }
 
     public List<String> getSelectedNotifiers() {

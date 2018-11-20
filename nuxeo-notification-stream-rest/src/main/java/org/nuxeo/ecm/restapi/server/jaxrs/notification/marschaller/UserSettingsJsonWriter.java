@@ -37,7 +37,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 @Setup(mode = SINGLETON, priority = REFERENCE)
 public class UserSettingsJsonWriter extends ExtensibleEntityJsonWriter<UserSettings> {
-    public static final String ENTITY_TYPE = "notification_user_settings";
+    public static final String ENTITY_TYPE = "notification-user-settings";
 
     public UserSettingsJsonWriter() {
         super(ENTITY_TYPE, UserSettings.class);

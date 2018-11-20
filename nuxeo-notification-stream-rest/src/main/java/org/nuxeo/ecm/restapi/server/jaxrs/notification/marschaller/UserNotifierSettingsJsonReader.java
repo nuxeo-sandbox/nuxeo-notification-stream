@@ -18,31 +18,40 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller;
 
+import static org.nuxeo.ecm.core.io.registry.MarshallingConstants.ENTITY_FIELD_NAME;
 import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
 import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
 
 import java.io.IOException;
 
-import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
+import org.nuxeo.ecm.core.io.marshallers.json.EntityJsonReader;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
-import org.nuxeo.ecm.notification.notifier.Notifier;
+import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * @since XXX
  */
 @Setup(mode = SINGLETON, priority = REFERENCE)
-public class NotifierJsonWriter extends ExtensibleEntityJsonWriter<Notifier> {
+public class UserNotifierSettingsJsonReader extends EntityJsonReader<UserNotifierSettings> {
 
-    public static final String ENTITY_TYPE = "notification-notifier";
-
-    public NotifierJsonWriter() {
-        super(ENTITY_TYPE, Notifier.class);
+    public UserNotifierSettingsJsonReader() {
+        super(UserNotifierSettingsJsonWriter.ENTITY_TYPE);
     }
 
     @Override
-    protected void writeEntityBody(Notifier notifier, JsonGenerator jg) throws IOException {
-        jg.writeStringField("name", notifier.getName());
+    protected UserNotifierSettings readEntity(JsonNode jsonNode) throws IOException {
+        UserNotifierSettings settings = new UserNotifierSettings();
+
+        jsonNode.fields().forEachRemaining((field) -> {
+            if (field.getKey().equals(ENTITY_FIELD_NAME)) {
+                return;
+            }
+
+            settings.putSetting(field.getKey(), field.getValue().booleanValue());
+        });
+
+        return settings;
     }
 }
