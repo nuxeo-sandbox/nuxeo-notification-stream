@@ -25,6 +25,9 @@ import org.nuxeo.ecm.core.io.marshallers.json.DefaultListJsonWriter;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 
+/**
+ * @since XXX
+ */
 @Setup(mode = SINGLETON, priority = REFERENCE + 1)
 public class NotifierListJsonWriter extends DefaultListJsonWriter<Notifier> {
     public static final String ENTITY_TYPE = "notification_notifiers";

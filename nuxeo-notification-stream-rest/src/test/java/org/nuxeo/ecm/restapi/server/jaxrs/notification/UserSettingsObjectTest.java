@@ -46,8 +46,8 @@ public class UserSettingsObjectTest extends BaseTest {
     public void testGetSettings() throws IOException {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings");
         assertThat(json).isNotNull();
-        assertThat(json.get("fileCreated").get("settings").get("log").booleanValue()).isFalse();
-        assertThat(json.get("fileCreated").get("settings").get("inApp").booleanValue()).isFalse();
+        assertThat(json.get("fileCreated").get("log").booleanValue()).isFalse();
+        assertThat(json.get("fileCreated").get("inApp").booleanValue()).isFalse();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class UserSettingsObjectTest extends BaseTest {
         }
 
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings/fileCreated");
-        assertThat(json.get("settings").get("log").booleanValue()).isFalse();
-        assertThat(json.get("settings").get("inApp").booleanValue()).isFalse();
+        assertThat(json.get("log").booleanValue()).isFalse();
+        assertThat(json.get("inApp").booleanValue()).isFalse();
     }
 }

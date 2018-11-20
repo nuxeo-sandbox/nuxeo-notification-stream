@@ -59,7 +59,7 @@ public abstract class Notifier extends AbstractComputation {
 
         boolean isEnabled = Framework.getService(NotificationSettingsService.class)
                                      .getResolverSettings(notification.getUsername())
-                                     .get(notification.getResolverId())
+                                     .getSettings(notification.getResolverId())
                                      .isEnabled(getName());
 
         if (isEnabled) {

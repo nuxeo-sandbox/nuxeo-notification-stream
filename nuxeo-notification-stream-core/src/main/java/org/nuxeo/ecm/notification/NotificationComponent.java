@@ -23,7 +23,6 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -272,15 +271,15 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     }
 
     @Override
-    public Map<String, UserNotifierSettings> getResolverSettings(String username) {
-        Map<String, UserNotifierSettings> settings = new HashMap<>();
+    public UserSettings getResolverSettings(String username) {
+        UserSettings.UserSettingsBuilder builder = UserSettings.builder();
 
         getResolvers().forEach(r -> {
             UserNotifierSettings urs = getUserResolverSettings(username, r.getId());
-            settings.put(r.getId(), urs);
+            builder.withSetting(r.getId(), urs);
         });
 
-        return settings;
+        return builder.build();
     }
 
     @Override

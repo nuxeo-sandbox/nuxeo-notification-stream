@@ -39,6 +39,9 @@ import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
 
+/**
+ * @since XXX
+ */
 @WebObject(type = ResolverObject.TYPE)
 public class ResolverObject extends AbstractNotificationObject {
 

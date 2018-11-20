@@ -32,6 +32,9 @@ import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
 
+/**
+ * @since XXX
+ */
 @WebObject(type = NotifierObject.TYPE)
 public class NotifierObject extends AbstractNotificationObject {
 

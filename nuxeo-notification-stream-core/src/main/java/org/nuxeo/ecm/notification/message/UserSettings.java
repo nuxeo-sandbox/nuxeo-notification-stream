@@ -46,7 +46,7 @@ public class UserSettings implements Serializable {
 
     protected String username;
 
-    protected Map<String, UserNotifierSettings> settingsMap;
+    protected Map<String, UserNotifierSettings> settingsMap = new HashMap<>();
 
     public String getUsername() {
         return username;
@@ -57,10 +57,11 @@ public class UserSettings implements Serializable {
     }
 
     public Map<String, UserNotifierSettings> getSettingsMap() {
-        if (settingsMap == null) {
-            settingsMap = new HashMap<>();
-        }
-        return settingsMap;
+        return new HashMap<>(settingsMap);
+    }
+
+    public UserNotifierSettings getSettings(String resolverId) {
+        return settingsMap.get(resolverId);
     }
 
     public byte[] encode() {
@@ -99,12 +100,12 @@ public class UserSettings implements Serializable {
         }
 
         public UserSettingsBuilder withSettings(Map<String, UserNotifierSettings> notifiersSettings) {
-            us.getSettingsMap().putAll(notifiersSettings);
+            us.settingsMap.putAll(notifiersSettings);
             return this;
         }
 
         public UserSettingsBuilder withSetting(String resolverId, UserNotifierSettings notifiersSettings) {
-            us.getSettingsMap().put(resolverId, notifiersSettings);
+            us.settingsMap.put(resolverId, notifiersSettings);
             return this;
         }
 

@@ -34,6 +34,9 @@ import org.nuxeo.runtime.api.Framework;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * @since XXX
+ */
 public abstract class AbstractNotificationObject extends AbstractResource<ResourceTypeImpl> {
     private static final Logger log = LogManager.getLogger();
 
