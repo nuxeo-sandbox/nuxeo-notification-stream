@@ -23,7 +23,6 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
 import java.util.Collections;
-import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -35,6 +34,9 @@ import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
 
+/**
+ * @since XXX
+ */
 @WebObject(type = SettingsObject.TYPE)
 public class SettingsObject extends AbstractNotificationObject {
 
@@ -42,17 +44,15 @@ public class SettingsObject extends AbstractNotificationObject {
 
     @GET
     @Path("/")
-    public Response getUserSettings() {
-        String username = getUsername();
-        Map<String, UserNotifierSettings> resolverSettings = getSettingsService().getResolverSettings(username);
-        return buildResponse(OK, resolverSettings);
+    public Object getUserSettings() {
+        return getSettingsService().getResolverSettings(getUsername());
     }
 
     @GET
     @Path("/{resolverId}")
-    public Response getResolverSettings(@PathParam("resolverId") String resolverId) {
-        UserNotifierSettings uns = getSettingsService().getResolverSettings(getUsername()).get(resolverId);
-        return uns != null ? buildResponse(OK, uns) : Response.status(NOT_FOUND).build();
+    public Object getResolverSettings(@PathParam("resolverId") String resolverId) {
+        UserNotifierSettings uns = getSettingsService().getResolverSettings(getUsername()).getSettings(resolverId);
+        return uns != null ? uns : Response.status(NOT_FOUND).build();
     }
 
     @PUT
@@ -61,8 +61,6 @@ public class SettingsObject extends AbstractNotificationObject {
         if (getNotifService().getResolver(resolverId) == null) {
             return Response.status(NOT_FOUND).build();
         }
-
-
 
         UserNotifierSettings nus = new UserNotifierSettings();
         getContext().getForm().getFormFields().forEach((k, v) -> nus.putSetting(k, Boolean.valueOf(v[0])));

@@ -21,7 +21,6 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -31,8 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.notification.model.UserNotifierSettings;
+import org.nuxeo.ecm.notification.message.UserSettings;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -82,9 +80,9 @@ public class TestNotificationsFlow {
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         // User change settings to enable disp2
-        Map<String, UserNotifierSettings> settings = nss.getResolverSettings("myUser");
-        settings.get("fileCreated").enable("log");
-        nss.updateSettings("myUser", settings);
+        UserSettings settings = nss.getResolverSettings("myUser");
+        settings.getSettings("fileCreated").enable("log");
+        nss.updateSettings("myUser", settings.getSettingsMap());
         TestNotificationHelper.waitProcessorsCompletion();
 
         createSampleFile();

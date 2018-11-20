@@ -20,6 +20,7 @@ package org.nuxeo.ecm.notification;
 import java.util.List;
 import java.util.Map;
 
+import org.nuxeo.ecm.notification.message.UserSettings;
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 
@@ -31,7 +32,7 @@ import org.nuxeo.ecm.notification.notifier.Notifier;
 public interface NotificationSettingsService {
     void updateSettings(String username, Map<String, UserNotifierSettings> userSettings);
 
-    Map<String, UserNotifierSettings> getResolverSettings(String username);
+    UserSettings getResolverSettings(String username);
 
     boolean hasSpecificSettings(String username, String resolverId);
 

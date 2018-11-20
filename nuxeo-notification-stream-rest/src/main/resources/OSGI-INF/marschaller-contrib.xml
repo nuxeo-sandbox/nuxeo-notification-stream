@@ -7,5 +7,9 @@
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.ResolverJsonWriter" enable="true" />
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.ResolverListJsonWriter"
               enable="true" />
+    <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.UserSettingsJsonWriter"
+              enable="true" />
+    <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.UserNotifierSettingsJsonWriter"
+              enable="true" />
   </extension>
 </component>

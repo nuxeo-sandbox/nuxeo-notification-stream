@@ -20,19 +20,17 @@ package org.nuxeo.ecm.notification.processor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.notification.NotificationComponent;
-import org.nuxeo.ecm.notification.NotificationSettingsService;
-import org.nuxeo.ecm.notification.message.UserSettings;
-import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.notification.NotificationFeature;
+import org.nuxeo.ecm.notification.NotificationSettingsService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.TestNotificationHelper;
+import org.nuxeo.ecm.notification.message.UserSettings;
+import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -77,7 +75,8 @@ public class TestNotificationSettingsProcessor {
 
         // Wait for the completion and check the result stored in the KVS
         TestNotificationHelper.waitProcessorsCompletion();
-        KeyValueStore store = Framework.getService(KeyValueService.class).getKeyValueStore(NotificationComponent.KVS_SETTINGS);
+        KeyValueStore store = Framework.getService(KeyValueService.class)
+                                       .getKeyValueStore(NotificationComponent.KVS_SETTINGS);
 
         Codec<UserNotifierSettings> codec = codecService.getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
         byte[] userSettingsBytes = store.get("user1:fileCreated");
@@ -97,9 +96,9 @@ public class TestNotificationSettingsProcessor {
 
         TestNotificationHelper.waitProcessorsCompletion();
 
-        Map<String, UserNotifierSettings> settings = nss.getResolverSettings(record.getUsername());
-        assertThat(settings.get("fileCreated").getSettings().get("log")).isTrue();
-        assertThat(settings.get("fileCreated").getSettings().get("inApp")).isFalse();
+        UserSettings settings = nss.getResolverSettings(record.getUsername());
+        assertThat(settings.getSettings("fileCreated").getSettings().get("log")).isTrue();
+        assertThat(settings.getSettings("fileCreated").getSettings().get("inApp")).isFalse();
     }
 
     protected LogManager getUserSettingsLogManager() {
