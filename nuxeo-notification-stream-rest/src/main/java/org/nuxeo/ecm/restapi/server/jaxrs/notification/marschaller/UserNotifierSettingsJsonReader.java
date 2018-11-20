@@ -42,16 +42,16 @@ public class UserNotifierSettingsJsonReader extends EntityJsonReader<UserNotifie
 
     @Override
     protected UserNotifierSettings readEntity(JsonNode jsonNode) throws IOException {
-        UserNotifierSettings settings = new UserNotifierSettings();
+        UserNotifierSettings.UserNotifierSettingsBuilder builder = UserNotifierSettings.builder();
 
         jsonNode.fields().forEachRemaining((field) -> {
             if (field.getKey().equals(ENTITY_FIELD_NAME)) {
                 return;
             }
 
-            settings.putSetting(field.getKey(), field.getValue().booleanValue());
+            builder.putSetting(field.getKey(), field.getValue().booleanValue());
         });
 
-        return settings;
+        return builder.build();
     }
 }

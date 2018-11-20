@@ -41,32 +41,16 @@ public class UserNotifierSettings implements Serializable {
 
     protected Map<String, Boolean> settings = new HashMap<>();
 
-    public UserNotifierSettings() {
+    protected UserNotifierSettings() {
         // Empty constructor for Avro
     }
 
     public Map<String, Boolean> getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Map<String, Boolean> settings) {
-        this.settings.putAll(settings);
+        return new HashMap<>(settings);
     }
 
     public List<String> getSelectedNotifiers() {
         return settings.entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
-    }
-
-    public void putSetting(String notifierId, Boolean value) {
-        settings.put(notifierId, value);
-    }
-
-    public void enable(String notifierId) {
-        getSettings().put(notifierId, true);
-    }
-
-    public void disable(String notifierId) {
-        getSettings().put(notifierId, false);
     }
 
     public boolean isEnabled(String notifierId) {
@@ -104,5 +88,31 @@ public class UserNotifierSettings implements Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    public static UserNotifierSettingsBuilder builder() {
+        return new UserNotifierSettingsBuilder();
+    }
+
+    public static class UserNotifierSettingsBuilder {
+        UserNotifierSettings uns;
+
+        protected UserNotifierSettingsBuilder() {
+            uns = new UserNotifierSettings();
+        }
+
+        public UserNotifierSettingsBuilder putSetting(String notifierId, Boolean value) {
+            uns.settings.put(notifierId, value);
+            return this;
+        }
+
+        public UserNotifierSettingsBuilder putSettings(Map<String, Boolean> settings) {
+            uns.settings.putAll(settings);
+            return this;
+        }
+
+        public UserNotifierSettings build() {
+            return uns;
+        }
     }
 }

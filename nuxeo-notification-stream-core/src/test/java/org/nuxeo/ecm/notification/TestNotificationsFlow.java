@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.notification.message.UserSettings;
+import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -81,8 +82,12 @@ public class TestNotificationsFlow {
 
         // User change settings to enable disp2
         UserSettings settings = nss.getResolverSettings("myUser");
-        settings.getSettings("fileCreated").enable("log");
-        nss.updateSettings("myUser", settings.getSettingsMap());
+
+        UserNotifierSettings uns = UserNotifierSettings.builder()
+                                                       .putSettings(settings.getSettings("fileCreated").getSettings())
+                                                       .putSetting("log", true)
+                                                       .build();
+        nss.updateSettings("myUser", Collections.singletonMap("fileCreated", uns));
         TestNotificationHelper.waitProcessorsCompletion();
 
         createSampleFile();

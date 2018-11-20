@@ -291,9 +291,9 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         // Update the settings
-        UserNotifierSettings newSettings = new UserNotifierSettings();
         // XXX Validate notifierSettings input
-        newSettings.setSettings(notifiersSettings);
+        UserNotifierSettings newSettings = UserNotifierSettings.builder().putSettings(notifiersSettings).build();
+
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
         Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class)
                                                          .getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
@@ -325,14 +325,10 @@ public class NotificationComponent extends DefaultComponent implements Notificat
                                                          .getCodec(DEFAULT_CODEC, UserNotifierSettings.class);
         UserNotifierSettings userNotifierSettings = avroCodec.decode(userSettingsBytes);
 
-        // Add missing settings for default enabled notifiers
-        defaults.getSettings()
-                .entrySet()
-                .stream() //
-                .filter(d -> !userNotifierSettings.getSettings().containsKey(d.getKey()))
-                .forEach(d -> userNotifierSettings.getSettings().put(d.getKey(), d.getValue()));
-
-        return userNotifierSettings;
+        return UserNotifierSettings.builder()
+                                   .putSettings(defaults.getSettings())
+                                   .putSettings(userNotifierSettings.getSettings())
+                                   .build();
     }
 
     protected List<Notifier> getNotifiers(List<String> notifiers) {
