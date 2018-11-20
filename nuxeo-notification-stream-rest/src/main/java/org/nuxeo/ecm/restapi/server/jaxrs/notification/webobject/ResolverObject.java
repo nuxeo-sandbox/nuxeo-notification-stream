@@ -16,9 +16,8 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.restapi.server.jaxrs.notification;
+package org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -34,81 +33,57 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.nuxeo.ecm.notification.NotificationService;
-import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.notification.resolver.Resolver;
+import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
-import org.nuxeo.ecm.webengine.model.impl.AbstractResource;
-import org.nuxeo.ecm.webengine.model.impl.ResourceTypeImpl;
-import org.nuxeo.runtime.api.Framework;
 
-/**
- * @since XXX
- */
-@WebObject(type = "notification")
-@Produces(APPLICATION_JSON)
-public class NotificationObject extends AbstractResource<ResourceTypeImpl> {
+@WebObject(type = ResolverObject.TYPE)
+public class ResolverObject extends AbstractNotificationObject {
+
+    public static final String TYPE = "notification-resolver";
 
     @GET
-    @Path("resolver")
+    @Path("/")
     public List<Resolver> getResolvers() {
-        return new ArrayList<>(getService().getResolvers());
+        return new ArrayList<>(getNotifService().getResolvers());
     }
 
     @GET
-    @Path("resolver/{resolverId}")
+    @Path("/{resolverId}")
     public Object getResolver(@PathParam("resolverId") String resolverId) {
-        Resolver resolver = getService().getResolver(resolverId);
+        Resolver resolver = getNotifService().getResolver(resolverId);
         return resolver != null ? resolver : Response.status(NOT_FOUND).build();
     }
 
     @POST
-    @Path("resolver/{resolverId}")
+    @Path("/{resolverId}")
     public Response subscribe(@PathParam("resolverId") String resolverId) {
-        String username = getContext().getPrincipal().getName();
+        String username = getUsername();
 
-        if (getService().hasSubscribe(username, resolverId, computeContext())) {
+        if (getNotifService().hasSubscribe(username, resolverId, computeContext())) {
             return Response.status(NOT_MODIFIED).build();
         }
 
-        getService().subscribe(username, resolverId, computeContext());
+        getNotifService().subscribe(username, resolverId, computeContext());
         return Response.status(CREATED).build();
     }
 
     @DELETE
-    @Path("resolver/{resolverId}")
+    @Path("/{resolverId}")
     public Response unsubscribe(@PathParam("resolverId") String resolverId) {
-        String username = getContext().getPrincipal().getName();
+        String username = getUsername();
 
-        if (!getService().hasSubscribe(username, resolverId, computeContext())) {
+        if (!getNotifService().hasSubscribe(username, resolverId, computeContext())) {
             return Response.status(NOT_FOUND).build();
         }
 
-        getService().unsubscribe(username, resolverId, computeContext());
+        getNotifService().unsubscribe(username, resolverId, computeContext());
         return Response.status(ACCEPTED).build();
-    }
-
-    @GET
-    @Path("notifier")
-    public List<Notifier> getNotifiers() {
-        return new ArrayList<>(getService().getNotifiers());
-    }
-
-    @GET
-    @Path("notifier/{notifierId}")
-    public Object getNotifier(@PathParam("notifierId") String notifierId) {
-        Notifier notifier = getService().getNotifier(notifierId);
-        return notifier != null ? notifier : Response.status(NOT_FOUND).build();
     }
 
     protected Map<String, String> computeContext() {
         return Collections.emptyMap();
-    }
-
-    protected NotificationService getService() {
-        return Framework.getService(NotificationService.class);
     }
 }

@@ -52,8 +52,7 @@ public class SaveNotificationSettingsComputation extends AbstractComputation {
         String username = recordMessage.getUsername();
         NotificationStreamCallback scb = Framework.getService(NotificationStreamCallback.class);
         recordMessage.getSettingsMap()
-                     .entrySet() //
-                     .forEach(map -> scb.doUpdateSettings(username, map.getKey(), map.getValue().getSettings()));
+                     .forEach((key, value) -> scb.doUpdateSettings(username, key, value.getSettings()));
         computationContext.askForCheckpoint();
     }
 }

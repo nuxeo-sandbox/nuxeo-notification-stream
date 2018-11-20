@@ -293,6 +293,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
         // Update the settings
         UserNotifierSettings newSettings = new UserNotifierSettings();
+        // XXX Validate notifierSettings input
         newSettings.setSettings(notifiersSettings);
         KeyValueStore settingsKVS = getKeyValueStore(KVS_SETTINGS);
         Codec<UserNotifierSettings> avroCodec = Framework.getService(CodecService.class)

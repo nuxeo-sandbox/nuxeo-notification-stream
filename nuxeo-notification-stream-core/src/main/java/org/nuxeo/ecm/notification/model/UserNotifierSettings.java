@@ -53,11 +53,15 @@ public class UserNotifierSettings implements Serializable {
     }
 
     public void setSettings(Map<String, Boolean> settings) {
-        this.settings = settings;
+        getSettings().putAll(settings);
     }
 
     public List<String> getSelectedNotifiers() {
         return settings.entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList());
+    }
+
+    public void putSetting(String notifierId, Boolean value) {
+        settings.put(notifierId, value);
     }
 
     public void enable(String notifierId) {
