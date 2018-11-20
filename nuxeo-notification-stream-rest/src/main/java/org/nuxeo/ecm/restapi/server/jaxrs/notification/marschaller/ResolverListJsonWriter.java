@@ -30,7 +30,7 @@ import org.nuxeo.ecm.notification.resolver.Resolver;
  */
 @Setup(mode = SINGLETON, priority = REFERENCE + 1)
 public class ResolverListJsonWriter extends DefaultListJsonWriter<Resolver> {
-    public static final String ENTITY_TYPE = "notification_resolvers";
+    public static final String ENTITY_TYPE = "notification-resolvers";
 
     public ResolverListJsonWriter() {
         super(ENTITY_TYPE, Resolver.class);

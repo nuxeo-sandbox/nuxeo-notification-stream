@@ -20,9 +20,9 @@ package org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject;
 
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.OK;
 
 import java.util.Collections;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -31,6 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
+import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
 
@@ -57,13 +58,10 @@ public class SettingsObject extends AbstractNotificationObject {
 
     @PUT
     @Path("/{resolverId}")
-    public Response updateResolverSettings(@PathParam("resolverId") String resolverId) {
+    public Response updateResolverSettings(@PathParam("resolverId") String resolverId, UserNotifierSettings nus) {
         if (getNotifService().getResolver(resolverId) == null) {
             return Response.status(NOT_FOUND).build();
         }
-
-        UserNotifierSettings nus = new UserNotifierSettings();
-        getContext().getForm().getFormFields().forEach((k, v) -> nus.putSetting(k, Boolean.valueOf(v[0])));
 
         getSettingsService().updateSettings(getUsername(), Collections.singletonMap(resolverId, nus));
 
@@ -72,8 +70,7 @@ public class SettingsObject extends AbstractNotificationObject {
 
     @GET
     @Path("/{resolverId}/selected")
-    public Response getSelectedNotifiers(@PathParam("resolverId") String resolverId) {
-        String username = getUsername();
-        return buildResponse(OK, getSettingsService().getSelectedNotifiers(username, resolverId));
+    public List<Notifier> getSelectedNotifiers(@PathParam("resolverId") String resolverId) {
+        return getSettingsService().getSelectedNotifiers(getUsername(), resolverId);
     }
 }

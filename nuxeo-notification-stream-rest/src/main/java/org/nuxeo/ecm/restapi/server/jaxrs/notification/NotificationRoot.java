@@ -37,12 +37,6 @@ import org.nuxeo.ecm.webengine.model.WebObject;
 @Produces(APPLICATION_JSON)
 public class NotificationRoot extends AbstractNotificationObject {
 
-    @GET
-    @Path("/")
-    public Response empty() {
-        return Response.noContent().build();
-    }
-
     @Path("resolver")
     public Object resolver() {
         return newObject(ResolverObject.TYPE);

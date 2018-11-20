@@ -18,27 +18,16 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationSettingsService;
 import org.nuxeo.ecm.webengine.model.impl.AbstractResource;
 import org.nuxeo.ecm.webengine.model.impl.ResourceTypeImpl;
 import org.nuxeo.runtime.api.Framework;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * @since XXX
  */
 public abstract class AbstractNotificationObject extends AbstractResource<ResourceTypeImpl> {
-    private static final Logger log = LogManager.getLogger();
 
     protected NotificationService getNotifService() {
         return Framework.getService(NotificationService.class);
@@ -50,20 +39,5 @@ public abstract class AbstractNotificationObject extends AbstractResource<Resour
 
     protected String getUsername() {
         return getContext().getPrincipal().getName();
-    }
-
-    protected Response buildResponse(Response.Status status, Object obj) {
-        try {
-            String message = new ObjectMapper().writeValueAsString(obj);
-
-            return Response.status(status)
-                           .header("Content-Length", message.getBytes(UTF_8).length)
-                           .type(MediaType.APPLICATION_JSON + "; charset=" + UTF_8)
-                           .entity(message)
-                           .build();
-        } catch (JsonProcessingException e) {
-            log.warn("Unable to map object to JSON", e);
-            return Response.serverError().build();
-        }
     }
 }

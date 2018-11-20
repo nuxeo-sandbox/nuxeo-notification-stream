@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.platform.notification.stream.rest.marshallers" version="1.0.0">
   <extension target="org.nuxeo.ecm.core.io.MarshallerRegistry" point="marshallers">
+    <!-- Writers -->
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.NotifierJsonWriter" enable="true" />
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.NotifierListJsonWriter"
               enable="true" />
@@ -10,6 +11,10 @@
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.UserSettingsJsonWriter"
               enable="true" />
     <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.UserNotifierSettingsJsonWriter"
+              enable="true" />
+
+    <!-- Readers -->
+    <register class="org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller.UserNotifierSettingsJsonReader"
               enable="true" />
   </extension>
 </component>

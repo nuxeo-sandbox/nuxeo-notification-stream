@@ -30,7 +30,7 @@ import org.nuxeo.ecm.notification.notifier.Notifier;
  */
 @Setup(mode = SINGLETON, priority = REFERENCE + 1)
 public class NotifierListJsonWriter extends DefaultListJsonWriter<Notifier> {
-    public static final String ENTITY_TYPE = "notification_notifiers";
+    public static final String ENTITY_TYPE = "notification-notifiers";
 
     public NotifierListJsonWriter() {
         super(ENTITY_TYPE, Notifier.class);
