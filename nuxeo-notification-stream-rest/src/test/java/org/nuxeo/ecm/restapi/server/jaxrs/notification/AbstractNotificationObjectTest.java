@@ -18,7 +18,9 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,6 +30,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.nuxeo.ecm.core.api.NuxeoException;
 
 public class AbstractNotificationObjectTest {
 
@@ -47,5 +50,16 @@ public class AbstractNotificationObjectTest {
 
         assertThat(ctx.containsKey("key2")).isFalse();
         assertThat(ctx.containsKey("key4")).isFalse();
+    }
+
+    @Test
+    public void testBadJson() {
+        String badJson = "{dasdsad,}";
+        try {
+            AbstractNotificationObject.readJson(badJson);
+            fail("Should have thrown an exception");
+        } catch (NuxeoException e) {
+            assertThat(e.getStatusCode()).isEqualTo(BAD_REQUEST.getStatusCode());
+        }
     }
 }
