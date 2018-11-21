@@ -18,16 +18,19 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.util.Collections;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
@@ -39,6 +42,7 @@ import org.nuxeo.ecm.webengine.model.WebObject;
  * @since XXX
  */
 @WebObject(type = SettingsObject.TYPE)
+@Produces(APPLICATION_JSON)
 public class SettingsObject extends AbstractNotificationObject {
 
     public static final String TYPE = "notification-settings";
@@ -58,6 +62,7 @@ public class SettingsObject extends AbstractNotificationObject {
 
     @PUT
     @Path("/{resolverId}")
+    @Consumes(APPLICATION_JSON)
     public Response updateResolverSettings(@PathParam("resolverId") String resolverId, UserNotifierSettings nus) {
         if (getNotifService().getResolver(resolverId) == null) {
             return Response.status(NOT_FOUND).build();
