@@ -18,6 +18,15 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationSettingsService;
 import org.nuxeo.ecm.webengine.model.impl.AbstractResource;
@@ -39,5 +48,21 @@ public abstract class AbstractNotificationObject extends AbstractResource<Resour
 
     protected String getUsername() {
         return getContext().getPrincipal().getName();
+    }
+
+    protected static Map<String, String> readJson(String json) {
+        try {
+            Map<String, String> params = new HashMap<>();
+            JsonNode jsonTree = new ObjectMapper().readTree(json);
+            jsonTree.getFields().forEachRemaining((entry) -> {
+                JsonNode value = entry.getValue();
+                if (value.isValueNode()) {
+                    params.put(entry.getKey(), value.getValueAsText());
+                }
+            });
+            return params;
+        } catch (IOException e) {
+            throw new NuxeoException(BAD_REQUEST.getStatusCode());
+        }
     }
 }

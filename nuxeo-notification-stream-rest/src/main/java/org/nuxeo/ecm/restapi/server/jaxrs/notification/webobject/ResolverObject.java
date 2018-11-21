@@ -24,7 +24,6 @@ import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -63,32 +62,30 @@ public class ResolverObject extends AbstractNotificationObject {
     @POST
     @Path("/subscribe")
     @Consumes(APPLICATION_JSON)
-    public Response subscribe() {
+    public Response subscribe(String data) {
         String username = getUsername();
+        Map<String, String> ctx = readJson(data);
 
-        if (getNotifService().hasSubscribe(username, resolver.getId(), computeContext())) {
+        if (getNotifService().hasSubscribe(username, resolver.getId(), ctx)) {
             return Response.status(NOT_MODIFIED).build();
         }
 
-        getNotifService().subscribe(username, resolver.getId(), computeContext());
+        getNotifService().subscribe(username, resolver.getId(), ctx);
         return Response.status(CREATED).build();
     }
 
     @POST
     @Path("/unsubscribe")
     @Consumes(APPLICATION_JSON)
-    public Response unsubscribe() {
+    public Response unsubscribe(String data) {
         String username = getUsername();
+        Map<String, String> ctx = readJson(data);
 
-        if (!getNotifService().hasSubscribe(username, resolver.getId(), computeContext())) {
+        if (!getNotifService().hasSubscribe(username, resolver.getId(), ctx)) {
             return Response.status(NOT_FOUND).build();
         }
 
-        getNotifService().unsubscribe(username, resolver.getId(), computeContext());
+        getNotifService().unsubscribe(username, resolver.getId(), ctx);
         return Response.status(ACCEPTED).build();
-    }
-
-    protected Map<String, String> computeContext() {
-        return Collections.emptyMap();
     }
 }
