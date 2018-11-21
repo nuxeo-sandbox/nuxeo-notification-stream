@@ -52,7 +52,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class NotificationObjectTest extends BaseTest {
 
     @Test
-    public void testUnknonResolver() {
+    public void testUnknownResolver() {
         try (CloseableClientResponse res = getResponse(RequestType.GET, "/notification/resolver/missing")) {
             assertThat(res.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
         }
@@ -95,7 +95,8 @@ public class NotificationObjectTest extends BaseTest {
 
     @Test
     public void testSubscribeAndUnsubscribe() {
-        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated")) {
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated/subscribe",
+                "{}")) {
             assertThat(res.getStatus()).isEqualTo(CREATED.getStatusCode());
         }
 
@@ -103,11 +104,13 @@ public class NotificationObjectTest extends BaseTest {
         assertThat(StreamHelper.drainAndStop()).isTrue();
 
         // Second call should not modify existing registration
-        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated")) {
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated/subscribe",
+                "{}")) {
             assertThat(res.getStatus()).isEqualTo(NOT_MODIFIED.getStatusCode());
         }
 
-        try (CloseableClientResponse res = getResponse(RequestType.DELETE, "/notification/resolver/fileCreated")) {
+        try (CloseableClientResponse res = getResponse(RequestType.POST,
+                "/notification/resolver/fileCreated/unsubscribe", "{}")) {
             assertThat(res.getStatus()).isEqualTo(ACCEPTED.getStatusCode());
         }
 
@@ -115,7 +118,8 @@ public class NotificationObjectTest extends BaseTest {
         assertThat(StreamHelper.drainAndStop()).isTrue();
 
         // Second call should response not found
-        try (CloseableClientResponse res = getResponse(RequestType.DELETE, "/notification/resolver/fileCreated")) {
+        try (CloseableClientResponse res = getResponse(RequestType.POST,
+                "/notification/resolver/fileCreated/unsubscribe", "{}")) {
             assertThat(res.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
         }
     }

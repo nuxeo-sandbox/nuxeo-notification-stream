@@ -19,12 +19,19 @@
 package org.nuxeo.ecm.restapi.server.jaxrs.notification;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.notification.notifier.Notifier;
+import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject.NotifierObject;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject.ResolverObject;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject.SettingsObject;
@@ -37,18 +44,38 @@ import org.nuxeo.ecm.webengine.model.WebObject;
 @Produces(APPLICATION_JSON)
 public class NotificationRoot extends AbstractNotificationObject {
 
-    @Path("resolver")
-    public Object resolver() {
-        return newObject(ResolverObject.TYPE);
+    @GET
+    @Path("/resolver")
+    public List<Resolver> getResolvers() {
+        return new ArrayList<>(getNotifService().getResolvers());
     }
 
-    @Path("notifier")
-    public Object notifier() {
-        return newObject(NotifierObject.TYPE);
+    @GET
+    @Path("/notifier")
+    public List<Notifier> getNotifiers() {
+        return new ArrayList<>(getNotifService().getNotifiers());
+    }
+
+    @Path("resolver/{resolverId}")
+    public Object toResolverObject(@PathParam("resolverId") String resolverId) {
+        Resolver resolver = getNotifService().getResolver(resolverId);
+        if (resolver == null) {
+            throw new NuxeoException(NOT_FOUND.getStatusCode());
+        }
+        return newObject(ResolverObject.TYPE, resolver);
+    }
+
+    @Path("/notifier/{notifierId}")
+    public Object toNotifierObject(@PathParam("notifierId") String notifierId) {
+        Notifier notifier = getNotifService().getNotifier(notifierId);
+        if (notifier == null) {
+            throw new NuxeoException(NOT_FOUND.getStatusCode());
+        }
+        return newObject(NotifierObject.TYPE, notifier);
     }
 
     @Path("settings")
-    public Object settings() {
+    public Object toSettingsObject() {
         return newObject(SettingsObject.TYPE);
     }
 }

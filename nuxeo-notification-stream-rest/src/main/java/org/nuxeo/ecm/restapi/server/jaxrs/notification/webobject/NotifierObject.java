@@ -18,15 +18,11 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject;
 
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.util.ArrayList;
-import java.util.List;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.Produces;
 
 import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.restapi.server.jaxrs.notification.AbstractNotificationObject;
@@ -36,20 +32,21 @@ import org.nuxeo.ecm.webengine.model.WebObject;
  * @since XXX
  */
 @WebObject(type = NotifierObject.TYPE)
+@Produces(APPLICATION_JSON)
 public class NotifierObject extends AbstractNotificationObject {
 
     public static final String TYPE = "notification-notifier";
 
-    @GET
-    @Path("/")
-    public List<Notifier> getNotifiers() {
-        return new ArrayList<>(getNotifService().getNotifiers());
+    protected Notifier notifier;
+
+    @Override
+    protected void initialize(Object... args) {
+        notifier = (Notifier) args[0];
     }
 
     @GET
-    @Path("/{notifierId}")
-    public Object getNotifier(@PathParam("notifierId") String notifierId) {
-        Notifier notifier = getNotifService().getNotifier(notifierId);
-        return notifier != null ? notifier : Response.status(NOT_FOUND).build();
+    @Path("/")
+    public Object getNotifier() {
+        return notifier;
     }
 }
