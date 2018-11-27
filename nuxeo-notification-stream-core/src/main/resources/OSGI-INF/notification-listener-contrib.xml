@@ -4,7 +4,7 @@
   <extension target="org.nuxeo.ecm.core.event.EventServiceComponent" point="listener">
 
     <documentation>
-      Asynchronous event listener to push the contributed events to a Stream in input of the Notification processor.
+      Synchronous event listener to push the contributed events to a Stream in input of the Notification processor.
     </documentation>
 
     <listener name="eventsStreamListener" async="false" postCommit="false" priority="500"
