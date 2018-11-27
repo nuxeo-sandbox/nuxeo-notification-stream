@@ -27,6 +27,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
+/**
+ * @since XXX
+ */
 public class Notification {
 
     public static final String ORIGINATING_USER = "originatingUser";

@@ -22,6 +22,10 @@
       <groupId>org.nuxeo.ecm.platform</groupId>
       <artifactId>nuxeo-notification-stream-rest</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.nuxeo.ecm.platform</groupId>
+      <artifactId>nuxeo-notification-stream-default</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
