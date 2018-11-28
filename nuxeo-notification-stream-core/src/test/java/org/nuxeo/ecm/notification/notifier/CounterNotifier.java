@@ -18,8 +18,8 @@
 
 package org.nuxeo.ecm.notification.notifier;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ public class CounterNotifier extends Notifier {
 
     public static Integer processed = 0;
 
-    public static final Map<String, String> fullCtx = new HashMap<>();
+    public static final List<Notification> fullCtx = new ArrayList<>();
 
     public CounterNotifier(NotifierDescriptor desc) {
         super(desc);
@@ -42,10 +42,14 @@ public class CounterNotifier extends Notifier {
     public void process(Notification notification) {
         synchronized (sync) {
             processed++;
-            fullCtx.putAll(notification.getContext());
+            fullCtx.add(notification);
 
             log.warn(getName() + ":" + notification.toString());
         }
+    }
+
+    public static Notification getLast() {
+        return fullCtx.size() > 0 ? fullCtx.get(fullCtx.size() - 1) : null;
     }
 
     public static void reset() {
