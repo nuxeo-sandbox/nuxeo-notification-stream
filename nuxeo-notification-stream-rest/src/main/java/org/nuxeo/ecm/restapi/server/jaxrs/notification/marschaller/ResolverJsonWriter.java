@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.resolver.Resolver;
+import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -44,5 +45,12 @@ public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {
     @Override
     protected void writeEntityBody(Resolver resolver, JsonGenerator jg) throws IOException {
         jg.writeStringField("id", resolver.getId());
+        if (resolver instanceof SubscribableResolver) {
+            jg.writeArrayFieldStart("requiredFields");
+            for (String s : ((SubscribableResolver) resolver).getRequiredContextFields()) {
+                jg.writeString(s);
+            }
+            jg.writeEndArray();
+        }
     }
 }
