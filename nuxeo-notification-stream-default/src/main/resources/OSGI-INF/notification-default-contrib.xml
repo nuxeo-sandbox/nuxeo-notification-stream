@@ -3,6 +3,7 @@
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
     <resolver id="documentUpdated" class="org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver" />
+    <resolver id="collection" class="org.nuxeo.ecm.notification.resolver.CollectionResolver" />
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">

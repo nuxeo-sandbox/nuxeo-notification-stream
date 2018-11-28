@@ -73,8 +73,7 @@ public abstract class SubscribableResolver extends Resolver {
 
     @Override
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
-        Subscribers subscribtions = getSubscriptions(buildNotifierContext(eventRecord));
-        return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
+        return getSubscriptions(buildNotifierContext(eventRecord)).getUsernames();
     }
 
     /**

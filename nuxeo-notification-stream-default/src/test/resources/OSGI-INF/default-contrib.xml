@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.default.test.config">
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
+    <notifier id="counter" class="org.nuxeo.ecm.notification.notifier.CounterNotifier" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="settings">
+    <settings id="collection">
+      <notifier name="counter" default="true" />
+    </settings>
+  </extension>
+</component>
