@@ -57,7 +57,8 @@ public abstract class SubscribableResolver extends Resolver {
      * @param ctx A map of String used to defined what store to use.
      */
     public String computeSubscriptionsKey(Map<String, String> ctx) {
-        return getRequiredContextFields().stream().map(ctx::get).collect(Collectors.joining(":"));
+        return id + DELIMITER
+                + getRequiredContextFields().stream().map(ctx::get).collect(Collectors.joining(DELIMITER));
     }
 
     /**
