@@ -18,15 +18,16 @@
 
 package org.nuxeo.ecm.notification.resolver;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.resolver.impl.SimpleSubscribableResolver;
 
-public class DynDocumentResolver extends SimpleSubscribableResolver {
+public class DynDocumentResolver extends SubscribableResolver {
     public static final String DOC_ID_KEY = "docId";
 
     public static final String EVENT_KEY = "event";
@@ -42,15 +43,15 @@ public class DynDocumentResolver extends SimpleSubscribableResolver {
     }
 
     @Override
-    public Map<String, String> computeContextFromEvent(EventRecord eventRecord) {
-        Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, eventRecord.getDocumentSourceId());
-        ctx.put(EVENT_KEY, eventRecord.getEventName());
-        return ctx;
+    public List<String> getRequiredContextFields() {
+        return Arrays.asList(DOC_ID_KEY, EVENT_KEY);
     }
 
     @Override
     public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
-        return Collections.emptyMap();
+        Map<String, String> ctx = new HashMap<>();
+        ctx.put(DOC_ID_KEY, eventRecord.getDocumentSourceId());
+        ctx.put(EVENT_KEY, eventRecord.getEventName());
+        return ctx;
     }
 }

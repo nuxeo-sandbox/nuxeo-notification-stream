@@ -19,10 +19,15 @@ package org.nuxeo.ecm.notification.resolver;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.lib.stream.codec.Codec;
@@ -32,6 +37,11 @@ import org.nuxeo.runtime.kv.KeyValueService;
 import org.nuxeo.runtime.kv.KeyValueStore;
 
 /**
+ * Subscribable Resolver that requires an explicit user's subscription to resolve his target users (eg. When a user
+ * wants to be notified for action on a specific document).
+ * <p>
+ * This abstract class stores subscriptions in a KVS based on an unique key per context.
+ *
  * @since XXX
  */
 public abstract class SubscribableResolver extends Resolver {
@@ -39,25 +49,29 @@ public abstract class SubscribableResolver extends Resolver {
     public static final String KVS_SUBSCRIPTIONS = "notificationSubscriptions";
 
     /**
-     * Compute Storage key context based on the given EventRecord
-     *
-     * @param eventRecord contains informations needed to compute the key, in case we want to store subscriptions
-     *            dependent of a context.
-     * @return Context map, or an emptyMap in case the method hasn't been override.
-     */
-    protected abstract Map<String, String> computeContextFromEvent(EventRecord eventRecord);
-
-    /**
      * Compute storage key depending of a context. For instance, to make a difference between subscribers of different
      * events, or a docId
      *
      * @param ctx A map of String used to defined what store to use.
      */
-    public abstract String computeSubscriptionsKey(Map<String, String> ctx);
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return getRequiredContextFields().stream().map(ctx::get).collect(Collectors.joining(":"));
+    }
+
+    /**
+     * List require fields in order to be able to subscribe to the Resolver
+     * 
+     * @return list of String, should not return null value.
+     */
+    public abstract List<String> getRequiredContextFields();
+
+    protected boolean hasRequiredFields(Map<String, String> ctx) {
+        return ctx.keySet().containsAll(getRequiredContextFields());
+    }
 
     @Override
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
-        Subscribers subscribtions = getSubscriptions(computeContextFromEvent(eventRecord));
+        Subscribers subscribtions = getSubscriptions(buildNotifierContext(eventRecord));
         return subscribtions == null ? Stream.empty() : subscribtions.getUsernames();
     }
 
@@ -85,6 +99,12 @@ public abstract class SubscribableResolver extends Resolver {
 
     protected Subscribers resolveSubscriptions(Map<String, String> ctx, Function<Subscribers, Subscribers> func,
             Boolean updateStorage) {
+        if (!hasRequiredFields(ctx)) {
+            List<String> retained = new ArrayList<>(getRequiredContextFields());
+            retained.removeAll(ctx.keySet());
+            throw new NuxeoException("Missing required context fields: " + StringUtils.join(retained, ", "));
+        }
+
         KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
         Codec<Subscribers> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Subscribers.class);
         String subscriptionsKey = computeSubscriptionsKey(ctx);
