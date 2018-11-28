@@ -48,6 +48,8 @@ public abstract class SubscribableResolver extends Resolver {
 
     public static final String KVS_SUBSCRIPTIONS = "notificationSubscriptions";
 
+    public static final String DELIMITER = ":";
+
     /**
      * Compute storage key depending of a context. For instance, to make a difference between subscribers of different
      * events, or a docId
