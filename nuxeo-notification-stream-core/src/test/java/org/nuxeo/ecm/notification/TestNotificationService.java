@@ -19,6 +19,7 @@
 package org.nuxeo.ecm.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_EVENT;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -40,16 +42,16 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.test.CoreFeature;
-import org.nuxeo.ecm.notification.notifier.Notifier;
-import org.nuxeo.ecm.notification.resolver.FileCreatedResolver;
-import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.notification.model.Subscribers;
+import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver;
+import org.nuxeo.ecm.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.ecm.notification.resolver.Resolver;
+import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -112,10 +114,33 @@ public class TestNotificationService {
         assertThat(notif.getResolvers(builder.build())).hasSize(0);
     }
 
+    @Test(expected = NuxeoException.class)
+    public void testMissingSubscriptionsKeys() {
+        Map<String, String> ctx = Collections.emptyMap();
+        notif.getSubscriptions("complexKey", ctx);
+    }
+
+    @Test
+    public void testMissingSubscriptionsKeysMessage() {
+        try {
+            Map<String, String> ctx = new HashMap<>();
+            ctx.put(ComplexSubsKeyResolver.NAME_FIELD, "myName");
+            notif.getSubscriptions("complexKey", ctx);
+
+            fail("Should have thrown a NuxeoException.");
+        } catch (NuxeoException ne) {
+            assertThat(ne.getMessage()).isEqualTo(
+                    "Missing required context fields: " + ComplexSubsKeyResolver.SUFFIX_FIELD);
+        }
+    }
+
     @Test
     public void testSubscriptionsStorage() {
         String resolverId = "complexKey";
-        Map<String, String> ctx = Collections.emptyMap();
+        Map<String, String> ctx = new HashMap<>();
+        ctx.put(ComplexSubsKeyResolver.NAME_FIELD, "aName");
+        ctx.put(ComplexSubsKeyResolver.SUFFIX_FIELD, "aSuffix");
+
         String firstUser = "dummy";
         String secondUser = "Johnny";
         String thirdUser = "Arthur";
@@ -134,7 +159,8 @@ public class TestNotificationService {
         subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(firstUser, secondUser);
 
-        ctx = Collections.singletonMap(ComplexSubsKeyResolver.NAME_FIELD, "newName");
+        // Change a ctx key to ensure we have different results
+        ctx.put(ComplexSubsKeyResolver.NAME_FIELD, "newName");
         scb.doSubscribe(thirdUser, resolverId, ctx);
         subs = notif.getSubscriptions(resolverId, ctx);
         assertThat(subs.getUsernames()).containsExactly(thirdUser);
@@ -157,7 +183,10 @@ public class TestNotificationService {
     @Test
     public void testResolverUnsubscribe() {
         String resolverId = "complexKey";
-        Map<String, String> ctx = Collections.emptyMap();
+        Map<String, String> ctx = new HashMap<>();
+        ctx.put(ComplexSubsKeyResolver.NAME_FIELD, "aName");
+        ctx.put(ComplexSubsKeyResolver.SUFFIX_FIELD, "aSuffix");
+
         String firstUser = "dummy";
 
         scb.doSubscribe(firstUser, resolverId, ctx);

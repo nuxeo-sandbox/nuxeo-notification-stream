@@ -19,25 +19,26 @@
 package org.nuxeo.ecm.notification.resolver.impl;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
-import org.nuxeo.ecm.notification.message.EventRecord;
 
 /**
- * Resolver aims to ease DocumentEvent resolution
+ * Simple subscribable resolver that do not depend on context fields to isolate subscriptions. Each subscription is
+ * global.
  * 
  * @since XXX
  */
 public abstract class SimpleSubscribableResolver extends SubscribableResolver {
 
     @Override
-    public Map<String, String> computeContextFromEvent(EventRecord eventRecord){
-        return Collections.emptyMap();
+    public String computeSubscriptionsKey(Map<String, String> ctx) {
+        return getId();
     }
 
     @Override
-    public String computeSubscriptionsKey(Map<String, String> ctx) {
-        return getId();
+    public List<String> getRequiredContextFields() {
+        return Collections.emptyList();
     }
 }

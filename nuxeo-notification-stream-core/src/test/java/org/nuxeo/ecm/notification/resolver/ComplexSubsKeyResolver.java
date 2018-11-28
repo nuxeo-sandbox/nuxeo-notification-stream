@@ -18,17 +18,18 @@
 
 package org.nuxeo.ecm.notification.resolver;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.notification.message.EventRecord;
-import org.nuxeo.ecm.notification.resolver.impl.SimpleSubscribableResolver;
 
-public class ComplexSubsKeyResolver extends SimpleSubscribableResolver {
+public class ComplexSubsKeyResolver extends SubscribableResolver {
 
     public static final String NAME_FIELD = "name";
 
-    public static final String SUFFIX_FIELD = "name";
+    public static final String SUFFIX_FIELD = "suffix";
 
     @Override
     public boolean accept(EventRecord eventRecord) {
@@ -36,8 +37,8 @@ public class ComplexSubsKeyResolver extends SimpleSubscribableResolver {
     }
 
     @Override
-    public String computeSubscriptionsKey(Map<String, String> ctx) {
-        return String.format("%s:%s", ctx.getOrDefault(NAME_FIELD, "name"), ctx.getOrDefault(SUFFIX_FIELD, "suffix"));
+    public List<String> getRequiredContextFields() {
+        return Arrays.asList(NAME_FIELD, SUFFIX_FIELD);
     }
 
     @Override
