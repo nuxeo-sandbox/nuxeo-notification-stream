@@ -9,9 +9,9 @@
 package org.nuxeo.ecm.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_AUTHOR_KEY;
+import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_ID_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
-import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.EVENT_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
@@ -25,6 +25,9 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.notification.message.Notification;
+import org.nuxeo.ecm.platform.comment.api.Comment;
+import org.nuxeo.ecm.platform.comment.api.CommentImpl;
+import org.nuxeo.ecm.platform.comment.api.CommentManager;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogManager;
@@ -44,6 +47,8 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)
+@Deploy("org.nuxeo.ecm.platform.comment.api")
+@Deploy("org.nuxeo.ecm.platform.comment")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.default")
 public class TestDocumentUpdatedNotifications {
 
@@ -56,24 +61,25 @@ public class TestDocumentUpdatedNotifications {
     @Inject
     protected NotificationStreamConfig streamConfig;
 
+    @Inject
+    protected NotificationStreamCallback scb;
+
+    @Inject
+    protected CommentManager commentManager;
+
     @Test
-    public void notifierIsAvailable() {
+    public void resolverIsAvailable() {
         assertThat(notificationService.getResolver(RESOLVER_NAME)).isNotNull();
     }
 
     @Test
     public void userCanSubscribeToResolver() {
-        // Create a new Document
-        DocumentModel doc = session.createDocumentModel("/", "Test", "File");
-        doc = session.createDocument(doc);
-        session.save();
+        // Create a new Document and subscribe a user to it
+        DocumentModel doc = createDocumentAndSubscribeUsers("user1");
 
-        // User subscribe to the new document
+        // Context for checking the subscriptions
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(EVENT_KEY, DOCUMENT_UPDATED);
         ctx.put(DOC_ID_KEY, doc.getId());
-        notificationService.subscribe("user1", RESOLVER_NAME, ctx);
-        TestNotificationHelper.waitProcessorsCompletion();
 
         // Check if the user has properly subscribed to the resolver
         assertThat(notificationService.hasSubscribe("user1", RESOLVER_NAME, ctx)).isTrue();
@@ -89,12 +95,10 @@ public class TestDocumentUpdatedNotifications {
     public void resolverReturnsListTargetUsers() {
         // Subscribe a few users to the resolver for a fake document
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(EVENT_KEY, DOCUMENT_UPDATED);
         ctx.put(DOC_ID_KEY, "0000");
-        notificationService.subscribe("user1", RESOLVER_NAME, ctx);
-        notificationService.subscribe("user2", RESOLVER_NAME, ctx);
-        notificationService.subscribe("user3", RESOLVER_NAME, ctx);
-        TestNotificationHelper.waitProcessorsCompletion();
+        scb.doSubscribe("user1", RESOLVER_NAME, ctx);
+        scb.doSubscribe("user2", RESOLVER_NAME, ctx);
+        scb.doSubscribe("user3", RESOLVER_NAME, ctx);
 
         assertThat(notificationService.getSubscriptions(RESOLVER_NAME, ctx).getUsernames()).containsExactlyInAnyOrder(
                 "user1", "user2", "user3");
@@ -103,19 +107,7 @@ public class TestDocumentUpdatedNotifications {
     @Test
     public void notificationIsCreated() throws InterruptedException {
         // Create a new document and subscribe to the resolver for this document
-        DocumentModel doc = session.createDocumentModel("/", "Test", "File");
-        doc = session.createDocument(doc);
-        session.save();
-        TransactionHelper.commitOrRollbackTransaction();
-        TransactionHelper.startTransaction();
-        TestNotificationHelper.waitProcessorsCompletion();
-
-        // User subscribe to the new document
-        Map<String, String> ctx = new HashMap<>();
-        ctx.put(EVENT_KEY, DOCUMENT_UPDATED);
-        ctx.put(DOC_ID_KEY, doc.getId());
-        notificationService.subscribe("user1", RESOLVER_NAME, ctx);
-        TestNotificationHelper.waitProcessorsCompletion();
+        DocumentModel doc = createDocumentAndSubscribeUsers("user1");
 
         // Update the document and check if a notification record has been created
         doc = session.getDocument(doc.getRef());
@@ -134,6 +126,52 @@ public class TestDocumentUpdatedNotifications {
         assertThat(notification.getUsername()).isEqualTo("user1");
         assertThat(notification.getSourceId()).isEqualTo(doc.getId());
         assertThat(notification.getSourceRepository()).isEqualTo(doc.getRepositoryName());
+    }
+
+    @Test
+    public void notificationIsCreatedWhenCommentIsCreated() throws InterruptedException {
+        // Create a new document and subscribe to the resolver for this document
+        DocumentModel doc = createDocumentAndSubscribeUsers("user1");
+
+        // Create a comment on the document
+        Comment comment = new CommentImpl();
+        comment.setParentId(doc.getId());
+        comment.setAuthor("user2");
+        comment.setText("Test comment");
+        comment = commentManager.createComment(session, comment);
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+        TestNotificationHelper.waitProcessorsCompletion();
+
+        // Check the notification stream
+        Record record = readRecord();
+        Codec<Notification> codec = Framework.getService(CodecService.class)
+                                             .getCodec(DEFAULT_CODEC, Notification.class);
+        Notification notification = codec.decode(record.getData());
+        assertThat(notification.getUsername()).isEqualTo("user1");
+        assertThat(notification.getSourceId()).isEqualTo(comment.getId());
+        assertThat(notification.getSourceRepository()).isEqualTo(doc.getRepositoryName());
+        assertThat(notification.getUsername()).isEqualTo("user1");
+        assertThat(notification.getContext().get(DOC_ID_KEY)).isEqualTo(doc.getId());
+        assertThat(notification.getContext().get(COMMENT_ID_KEY)).isEqualTo(comment.getId());
+        assertThat(notification.getContext().get(COMMENT_AUTHOR_KEY)).isEqualTo("Administrator");
+    }
+
+    protected DocumentModel createDocumentAndSubscribeUsers(String user) {
+        DocumentModel doc = session.createDocumentModel("/", "Test", "File");
+        doc = session.createDocument(doc);
+        session.save();
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+        TestNotificationHelper.waitProcessorsCompletion();
+
+        // User subscribe to the new document
+        Map<String, String> ctx = new HashMap<>();
+        ctx.put(DOC_ID_KEY, doc.getId());
+        scb.doSubscribe(user, RESOLVER_NAME, ctx);
+        TestNotificationHelper.waitProcessorsCompletion();
+
+        return doc;
     }
 
     protected Record readRecord() throws InterruptedException {
