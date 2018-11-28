@@ -23,8 +23,12 @@ import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.NAME_FIELD;
+import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.SUFFIX_FIELD;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +67,18 @@ public class NotificationObjectTest extends BaseTest {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/fileCreated");
         assertThat(json.get("entity-type").asText()).isEqualTo(ResolverJsonWriter.ENTITY_TYPE);
         assertThat(json.get("id").asText()).isEqualTo("fileCreated");
+    }
+
+    @Test
+    public void testSubscribableResolverWriter() throws IOException {
+        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/complexResolver");
+        assertThat(json.get("entity-type").asText()).isEqualTo(ResolverJsonWriter.ENTITY_TYPE);
+        assertThat(json.get("id").asText()).isEqualTo("complexResolver");
+        assertThat(json.get("requiredFields").isArray()).isTrue();
+
+        List<String> requiredFields = new ArrayList<>();
+        json.get("requiredFields").elements().forEachRemaining(j -> requiredFields.add(j.asText()));
+        assertThat(requiredFields).hasSize(2).containsExactlyInAnyOrder(NAME_FIELD, SUFFIX_FIELD);
     }
 
     @Test
