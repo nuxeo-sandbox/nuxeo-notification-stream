@@ -25,11 +25,28 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 import org.nuxeo.ecm.notification.resolver.Resolver;
+import org.nuxeo.ecm.notification.transformer.EventTransformer;
 
 /**
  * @since XXX
  */
 public interface NotificationService {
+
+    /**
+     * Get the EventTransformer with the given id.
+     *
+     * @param id The id of the transformer to get.
+     * @return The given EventTransformer or null if the id doesn't match.
+     */
+    EventTransformer getEventTransformer(String id);
+
+    /**
+     * List all the EventTranformers contributed.
+     *
+     * @return A collection with all the contributed EventTransformers.
+     */
+    Collection<EventTransformer> getEventTransformers();
+
     /**
      * Get notifier instance by id.
      *

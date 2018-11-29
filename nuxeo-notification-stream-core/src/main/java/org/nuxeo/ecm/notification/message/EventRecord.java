@@ -18,6 +18,8 @@
 package org.nuxeo.ecm.notification.message;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.avro.reflect.Nullable;
@@ -57,6 +59,8 @@ public class EventRecord implements Serializable {
 
     protected String username;
 
+    protected Map<String, String> context = new HashMap<>();
+
     public String getEventName() {
         return eventName;
     }
@@ -77,6 +81,10 @@ public class EventRecord implements Serializable {
         return StringUtils.isBlank(documentSourceRepository)
                 ? Framework.getService(RepositoryManager.class).getDefaultRepositoryName()
                 : documentSourceRepository;
+    }
+
+    public Map<String, String> getContext() {
+        return new HashMap<>(context);
     }
 
     @Override
@@ -132,6 +140,11 @@ public class EventRecord implements Serializable {
 
         public EventRecordBuilder withUsername(String username) {
             record.username = username;
+            return this;
+        }
+
+        public EventRecordBuilder withContext(Map<String, String> context) {
+            record.context.putAll(context);
             return this;
         }
 
