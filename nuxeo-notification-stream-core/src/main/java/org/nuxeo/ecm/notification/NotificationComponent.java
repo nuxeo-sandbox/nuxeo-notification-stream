@@ -42,6 +42,8 @@ import org.nuxeo.ecm.notification.notifier.NotifierDescriptor;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.resolver.ResolverDescriptor;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
+import org.nuxeo.ecm.notification.transformer.EventTransformer;
+import org.nuxeo.ecm.notification.transformer.EventTransformerDescriptor;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
@@ -68,6 +70,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     public static final String XP_SETTINGS = "settings";
 
+    public static final String XP_EVENT_TRANSFORMERS = "eventTransformer";
+
     public static final String STREAM_OUPUT_PROP = "nuxeo.stream.notification.output";
 
     public static final String DEFAULT_STREAM_OUTPUT = "notificationOutput";
@@ -93,6 +97,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     protected Map<String, Notifier> notifiers = new ConcurrentHashMap<>();
 
     protected Map<String, Resolver> resolvers = new ConcurrentHashMap<>();
+
+    protected Map<String, EventTransformer> eventTransformers = new ConcurrentHashMap<>();
 
     @Override
     public int getApplicationStartedOrder() {
@@ -123,6 +129,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
             notifiers.remove(desc.getId());
         } else if (XP_RESOLVER.equals(xp)) {
             resolvers.remove(desc.getId());
+        } else if (XP_EVENT_TRANSFORMERS.equals(xp)) {
+            eventTransformers.remove(desc.getId());
         }
     }
 
@@ -136,6 +144,8 @@ public class NotificationComponent extends DefaultComponent implements Notificat
             notifiers.put(desc.getId(), ((NotifierDescriptor) desc).newInstance());
         } else if (XP_RESOLVER.equals(xp)) {
             resolvers.put(desc.getId(), ((ResolverDescriptor) desc).newInstance());
+        } else if (XP_EVENT_TRANSFORMERS.equals(xp)) {
+            eventTransformers.put(desc.getId(), ((EventTransformerDescriptor) desc).newInstance());
         }
     }
 
@@ -205,6 +215,16 @@ public class NotificationComponent extends DefaultComponent implements Notificat
         }
 
         return (SubscribableResolver) resolver;
+    }
+
+    @Override
+    public EventTransformer getEventTransformer(String id) {
+        return eventTransformers.get(id);
+    }
+
+    @Override
+    public Collection<EventTransformer> getEventTransformers() {
+        return eventTransformers.values();
     }
 
     @Override

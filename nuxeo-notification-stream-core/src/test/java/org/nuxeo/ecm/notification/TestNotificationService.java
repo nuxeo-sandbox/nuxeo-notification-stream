@@ -28,12 +28,14 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_EVENT;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
+import static org.nuxeo.ecm.notification.transformer.AnotherBasicTransformer.KEY_INFO;
+import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_EVENT_NAME;
+import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_TRANSFORMER_NAME;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,10 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.event.Event;
+import org.nuxeo.ecm.core.event.EventContext;
+import org.nuxeo.ecm.core.event.impl.EventContextImpl;
+import org.nuxeo.ecm.core.event.impl.EventImpl;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.message.EventRecord.EventRecordBuilder;
@@ -52,6 +58,7 @@ import org.nuxeo.ecm.notification.resolver.FileCreatedResolver;
 import org.nuxeo.ecm.notification.resolver.FileUpdatedResolver;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
+import org.nuxeo.ecm.notification.transformer.EventTransformer;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -87,6 +94,30 @@ public class TestNotificationService {
         assertThat(notif.getResolver("fileUpdated")) //
                                                     .isNotNull();
         assertThat(notif.getResolvers()).hasSize(3);
+        assertThat(notif.getEventTransformer("unknown")).isNull();
+        assertThat(notif.getEventTransformer("basicTransformer")).isNotNull();
+        assertThat(notif.getEventTransformers()).hasSize(2);
+    }
+
+    @Test
+    public void testEventTransformer() {
+        EventContext eventContext = new EventContextImpl();
+        eventContext.getProperties().put(KEY_INFO, "Test Info");
+        eventContext.setRepositoryName("test");
+        Event event = new EventImpl(DOCUMENT_UPDATED, eventContext);
+
+        EventTransformer transformer = notif.getEventTransformer("anotherBasicTransformer");
+        assertThat(transformer.getId()).isEqualTo("anotherBasicTransformer");
+        assertThat(transformer.accept(event)).isTrue();
+        assertThat(transformer.buildEventRecordContext(event).get(KEY_INFO)).isEqualTo("Test Info");
+
+        event = new EventImpl(DOCUMENT_CREATED, eventContext);
+        assertThat(transformer.accept(event)).isFalse();
+
+        Map<String, String> ctx = notif.getEventTransformer("basicTransformer").buildEventRecordContext(event);
+        assertThat(ctx).hasSize(2);
+        assertThat(ctx.get(KEY_EVENT_NAME)).isEqualTo(DOCUMENT_CREATED);
+        assertThat(ctx.get("basicTransformer")).isEqualTo("Transformer Name");
     }
 
     @Test

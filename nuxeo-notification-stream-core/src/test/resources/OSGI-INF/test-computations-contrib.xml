@@ -16,4 +16,10 @@
       <notifier name="log" default="false" />
     </settings>
   </extension>
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="eventTransformer">
+    <eventTransformer id="basicTransformer" class="org.nuxeo.ecm.notification.transformer.BasicTransformer" />
+    <eventTransformer id="anotherTransformer" class="org.nuxeo.ecm.notification.transformer.BasicTransformer" />
+  </extension>
+
 </component>

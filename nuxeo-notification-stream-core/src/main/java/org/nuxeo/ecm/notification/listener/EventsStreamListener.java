@@ -19,15 +19,14 @@ package org.nuxeo.ecm.notification.listener;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.naming.NamingException;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +36,7 @@ import org.nuxeo.ecm.core.event.Event;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
+import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.lib.stream.codec.Codec;
@@ -82,6 +82,13 @@ public class EventsStreamListener implements EventListener, Synchronization {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();
             builder.withDocument(ctx.getSourceDocument());
         }
+
+        // Loop on the EventTransformer to add context information to the EventRecord
+        NotificationService notificationService = Framework.getService(NotificationService.class);
+        notificationService.getEventTransformers()
+                           .stream()
+                           .filter(t -> t.accept(event))
+                           .forEach(t -> builder.withContext(t.buildEventRecordContext(event)));
 
         EventRecord eventRecord = builder.build();
         String key = generateKey(event);

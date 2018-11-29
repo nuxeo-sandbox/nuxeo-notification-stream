@@ -63,4 +63,17 @@
     <object class="org.nuxeo.ecm.notification.SettingsDescriptor" />
   </extension-point>
 
+  <extension-point name="eventTransformer">
+    <documentation>
+      <code>
+        Register Event Transformers. An Event Transformer has a name and aims to add context information to an
+        EventRecord from the Event.
+        <eventTransformer id="fileCreatedTransformer"
+                          class="FileCreatedTransformer" />
+      </code>
+    </documentation>
+
+    <object class="org.nuxeo.ecm.notification.transformer.EventTransformerDescriptor" />
+  </extension-point>
+
 </component>
