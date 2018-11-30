@@ -72,7 +72,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
         if (!isEnlisted.get()) {
             isEnlisted.set(registerSynchronization(this));
             entries.get().clear();
-            log.debug("AuditEventListener collecting entries for the tx");
+            log.debug("EventsStreamListener collecting entries for the tx");
         }
 
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
