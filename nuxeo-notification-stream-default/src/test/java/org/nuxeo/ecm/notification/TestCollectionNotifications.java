@@ -21,10 +21,9 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.notification.resolver.CollectionResolver.COLLECTION_DOC_ID;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
@@ -34,13 +33,15 @@ import org.nuxeo.ecm.collections.api.CollectionManager;
 import org.nuxeo.ecm.collections.core.adapter.CollectionMember;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
+import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.runtime.stream.StreamHelper;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.transaction.TransactionHelper;
+import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
 /**
  * @since XXX
@@ -53,6 +54,9 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 public class TestCollectionNotifications {
     @Inject
     protected CoreSession session;
+
+    @Inject
+    protected TransactionalFeature txFeature;
 
     @Inject
     protected CollectionManager collectionManager;
@@ -71,6 +75,9 @@ public class TestCollectionNotifications {
 
     @Before
     public void before() {
+        // Clean KVS
+        TestNotificationHelper.clearKVS(SubscribableResolver.KVS_SUBSCRIPTIONS);
+
         doc = session.createDocumentModel("/", "my-file", "File");
         doc = session.createDocument(doc);
 
@@ -78,6 +85,8 @@ public class TestCollectionNotifications {
         collectionManager.addToCollection(collection, doc, session);
 
         session.save();
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
 
         doc = session.getDocument(doc.getRef());
         collectionId = collection.getId();
@@ -93,7 +102,6 @@ public class TestCollectionNotifications {
 
         nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
         assertThat(ns.getSubscriptions(RESOLVER_ID, getCtx()).getUsernames()).hasSize(1);
-
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         updateDocAndWait();
@@ -103,7 +111,7 @@ public class TestCollectionNotifications {
 
         assertThat(last).isNotNull();
         assertThat(last.getUsername()).isEqualTo("dummyUser");
-        assertThat(last.getResolverId()).isEqualTo("collection");
+        assertThat(last.getResolverId()).isEqualTo(RESOLVER_ID);
     }
 
     @Test
@@ -111,13 +119,20 @@ public class TestCollectionNotifications {
         DocumentModel collection = collectionManager.createCollection(session, "My Other Collection", "Rly -nd- ?!",
                 "/");
         collectionManager.addToCollection(collection, doc, session);
+        session.save();
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+        assertThat(CounterNotifier.processed).isEqualTo(0);
 
         // Subscribe different user to two collections, and dummyUser to both
         nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
         nsc.doSubscribe("dummyOtherUser", RESOLVER_ID, Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
         nsc.doSubscribe("dummyUser", RESOLVER_ID, Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
+        // Update the document added to the two collections
         updateDocAndWait();
 
         // Ensure dummyUser is only notified 1 time
@@ -126,13 +141,38 @@ public class TestCollectionNotifications {
                 "dummyOtherUser", "dummyUser");
     }
 
+    @Test
+    public void testDocumentAddedToCollection() {
+        // Subscribe a dummy user to the update of a collection
+        nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+        assertThat(CounterNotifier.processed).isEqualTo(0);
+
+        // Create a new Doc and add it to the Collection
+        DocumentModel newDoc = session.createDocumentModel("/", "my-file-2", "File");
+        newDoc = session.createDocument(newDoc);
+        DocumentModel collection = session.getDocument(new IdRef(collectionId));
+        collectionManager.addToCollection(collection, newDoc, session);
+
+        // Wait for the end the notification process
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+
+        assertThat(CounterNotifier.processed).isEqualTo(2);
+        Notification last = CounterNotifier.getLast();
+
+        assertThat(last).isNotNull();
+        assertThat(last.getUsername()).isEqualTo("dummyUser");
+        assertThat(last.getResolverId()).isEqualTo(RESOLVER_ID);
+    }
+
     protected void updateDocAndWait() {
         doc.setPropertyValue("dc:title", RandomStringUtils.randomAlphabetic(10));
+        session.saveDocument(doc);
         session.save();
 
-        TransactionHelper.commitOrRollbackTransaction();
-        TransactionHelper.startTransaction();
-
+        txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
     }
 

@@ -30,7 +30,6 @@ import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_EVENT;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 import static org.nuxeo.ecm.notification.transformer.AnotherBasicTransformer.KEY_INFO;
 import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_EVENT_NAME;
-import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_TRANSFORMER_NAME;
 
 import javax.inject.Inject;
 import java.util.Collections;
