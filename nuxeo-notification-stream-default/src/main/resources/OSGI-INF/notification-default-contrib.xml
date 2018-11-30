@@ -12,4 +12,9 @@
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="settings">
   </extension>
 
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="eventTransformer">
+    <eventTransformer id="collectionTransformer"
+                      class="org.nuxeo.ecm.notification.transformer.CollectionEventTransformer" />
+  </extension>
+
 </component>
