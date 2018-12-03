@@ -159,7 +159,8 @@ public class TestCollectionNotifications {
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
 
-        assertThat(CounterNotifier.processed).isEqualTo(2);
+        // Only one notification sent because the filter skipped the update on the documentModified event
+        assertThat(CounterNotifier.processed).isEqualTo(1);
         Notification last = CounterNotifier.getLast();
 
         assertThat(last).isNotNull();
