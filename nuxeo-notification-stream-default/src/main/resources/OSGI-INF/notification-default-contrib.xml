@@ -17,4 +17,8 @@
                       class="org.nuxeo.ecm.notification.transformer.CollectionEventTransformer" />
   </extension>
 
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="filter">
+    <eventFilter id="basicFilter" class="org.nuxeo.ecm.notification.event.CollectionEventsFilter" />
+  </extension>
+
 </component>
