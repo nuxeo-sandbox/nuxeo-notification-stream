@@ -9,6 +9,7 @@
 package org.nuxeo.ecm.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.nuxeo.ecm.notification.TestNotificationHelper.readRecord;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_AUTHOR_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_ID_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
@@ -16,7 +17,6 @@ import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVE
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import javax.inject.Inject;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,9 +30,6 @@ import org.nuxeo.ecm.platform.comment.api.CommentImpl;
 import org.nuxeo.ecm.platform.comment.api.CommentManager;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
-import org.nuxeo.lib.stream.log.LogManager;
-import org.nuxeo.lib.stream.log.LogRecord;
-import org.nuxeo.lib.stream.log.LogTailer;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -119,7 +116,8 @@ public class TestDocumentUpdatedNotifications {
         TestNotificationHelper.waitProcessorsCompletion();
 
         // Check the notification stream
-        Record record = readRecord();
+        Record record = readRecord(streamConfig.getNotificationOutputStream(),
+                streamConfig.getNotificationOutputStream());
         Codec<Notification> codec = Framework.getService(CodecService.class)
                                              .getCodec(DEFAULT_CODEC, Notification.class);
         Notification notification = codec.decode(record.getData());
@@ -144,7 +142,8 @@ public class TestDocumentUpdatedNotifications {
         TestNotificationHelper.waitProcessorsCompletion();
 
         // Check the notification stream
-        Record record = readRecord();
+        Record record = readRecord(streamConfig.getNotificationOutputStream(),
+                streamConfig.getNotificationOutputStream());
         Codec<Notification> codec = Framework.getService(CodecService.class)
                                              .getCodec(DEFAULT_CODEC, Notification.class);
         Notification notification = codec.decode(record.getData());
@@ -172,18 +171,5 @@ public class TestDocumentUpdatedNotifications {
         TestNotificationHelper.waitProcessorsCompletion();
 
         return doc;
-    }
-
-    protected Record readRecord() throws InterruptedException {
-        // Check the record in the stream
-        Codec<Record> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
-        LogManager logManager = streamConfig.getLogManager(streamConfig.getLogConfigNotification());
-        try (LogTailer<Record> tailer = logManager.createTailer(streamConfig.getNotificationOutputStream(),
-                streamConfig.getNotificationOutputStream(), codec)) {
-            LogRecord<Record> logRecord = tailer.read(Duration.ofSeconds(5));
-            tailer.commit();
-            return logRecord.message();
-        }
-        // never close the manager this is done by the service
     }
 }
