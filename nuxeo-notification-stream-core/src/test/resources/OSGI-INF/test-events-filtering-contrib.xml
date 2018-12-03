@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.test.filtering.config">
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="filter">
+    <eventFilter id="basicFilter" class="org.nuxeo.ecm.notification.event.BasicEventFilter" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="eventTransformer">
+    <eventTransformer id="filterTransformer" class="org.nuxeo.ecm.notification.transformer.EventFilteringTransformer" />
+  </extension>
+
+</component>

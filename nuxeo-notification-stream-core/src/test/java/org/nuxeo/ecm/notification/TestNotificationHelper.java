@@ -17,7 +17,17 @@
  */
 package org.nuxeo.ecm.notification;
 
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
+
+import java.time.Duration;
+
+import org.nuxeo.lib.stream.codec.Codec;
+import org.nuxeo.lib.stream.computation.Record;
+import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.lib.stream.log.LogRecord;
+import org.nuxeo.lib.stream.log.LogTailer;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 import org.nuxeo.runtime.stream.StreamHelper;
 
@@ -38,5 +48,18 @@ public class TestNotificationHelper {
     public static void clearKVS(String name) {
         NotificationComponent nc = (NotificationComponent) Framework.getService(NotificationService.class);
         ((KeyValueStoreProvider) nc.getKeyValueStore(name)).clear();
+    }
+
+    public static Record readRecord(String group, String streamName) throws InterruptedException {
+        NotificationStreamConfig streamConfig = Framework.getService(NotificationStreamConfig.class);
+        // Check the record in the stream
+        Codec<Record> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
+        LogManager logManager = streamConfig.getLogManager(streamConfig.getLogConfigNotification());
+        try (LogTailer<Record> tailer = logManager.createTailer(group, streamName, codec)) {
+            LogRecord<Record> logRecord = tailer.read(Duration.ofSeconds(5));
+            tailer.commit();
+            return logRecord.message();
+        }
+        // never close the manager this is done by the service
     }
 }

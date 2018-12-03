@@ -19,11 +19,11 @@ package org.nuxeo.ecm.notification.listener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
+import static org.nuxeo.ecm.notification.TestNotificationHelper.readRecord;
 import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_EVENT_NAME;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import javax.inject.Inject;
-import java.time.Duration;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,9 +39,6 @@ import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
-import org.nuxeo.lib.stream.log.LogManager;
-import org.nuxeo.lib.stream.log.LogRecord;
-import org.nuxeo.lib.stream.log.LogTailer;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -85,7 +82,7 @@ public class TestEventsStreamListener {
         eventService.waitForAsyncCompletion();
 
         // Check the Record in the stream
-        Record record = readRecord();
+        Record record = readRecord(streamConfig.getEventInputStream(), streamConfig.getEventInputStream());
         assertThat(record.getKey()).isEqualTo("documentCreated:" + doc.getId());
 
         // Check the EventRecord in the Record
@@ -110,20 +107,7 @@ public class TestEventsStreamListener {
         eventService.waitForAsyncCompletion();
 
         // Check the Record in the stream
-        record = readRecord();
+        record = readRecord(streamConfig.getEventInputStream(), streamConfig.getEventInputStream());
         assertThat(record.getKey()).isEqualTo("randomEvent:null:Administrator");
-    }
-
-    protected Record readRecord() throws InterruptedException {
-        // Check the record in the stream
-        Codec<Record> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, Record.class);
-        LogManager logManager = streamConfig.getLogManager(streamConfig.getLogConfigNotification());
-        try (LogTailer<Record> tailer = logManager.createTailer(streamConfig.getEventInputStream(),
-                streamConfig.getEventInputStream(), codec)) {
-            LogRecord<Record> logRecord = tailer.read(Duration.ofSeconds(5));
-            tailer.commit();
-            return logRecord.message();
-        }
-        // never close the manager this is done by the service
     }
 }

@@ -21,6 +21,7 @@ package org.nuxeo.ecm.notification;
 import java.util.Collection;
 import java.util.Map;
 
+import org.nuxeo.ecm.notification.event.EventFilter;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.ecm.notification.notifier.Notifier;
@@ -46,6 +47,13 @@ public interface NotificationService {
      * @return A collection with all the contributed EventTransformers.
      */
     Collection<EventTransformer> getEventTransformers();
+
+    /**
+     * List all the EventFilter contributed.
+     *
+     * @return A collection with all the contributed EventFilters.
+     */
+    Collection<EventFilter> getEventFilters();
 
     /**
      * Get notifier instance by id.

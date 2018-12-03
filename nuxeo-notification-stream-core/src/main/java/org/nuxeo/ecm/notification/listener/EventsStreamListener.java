@@ -27,6 +27,7 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +39,7 @@ import org.nuxeo.ecm.core.event.EventListener;
 import org.nuxeo.ecm.core.event.impl.DocumentEventContext;
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
+import org.nuxeo.ecm.notification.event.EventFilter;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
@@ -123,11 +125,24 @@ public class EventsStreamListener implements EventListener, Synchronization {
         LogAppender<Record> appender = getAppender();
         Codec<EventRecord> codec = Framework.getService(CodecService.class).getCodec(DEFAULT_CODEC, EventRecord.class);
 
-        entries.get().forEach((key, event) -> {
+        Map<String, EventRecord> filteredRecords = filterEntries(entries.get());
+        filteredRecords.forEach((key, event) -> {
             // Append the record to the log
             byte[] encodedEvent = codec.encode(event);
             appender.append(key, Record.of(key, encodedEvent));
         });
+    }
+
+    protected Map<String, EventRecord> filterEntries(Map<String, EventRecord> entries) {
+        // Loop on all the EventFilter to check if the event must be kept or not
+        return entries.entrySet().stream().filter(x -> {
+            for (EventFilter filter : Framework.getService(NotificationService.class).getEventFilters()) {
+                if (!filter.acceptEvent(entries, x.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

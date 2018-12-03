@@ -76,4 +76,17 @@
     <object class="org.nuxeo.ecm.notification.transformer.EventTransformerDescriptor" />
   </extension-point>
 
+  <extension-point name="filter">
+    <documentation>
+      <code>
+        Register Event Filters. An Event Filter has a name and aims to filter events considered to be duplicated in
+        the same thread. For example, avoiding multiple edits on the same document.
+        <eventFilter id="collectionEventsFilter"
+                          class="CollectionEventsFilter" />
+      </code>
+    </documentation>
+
+    <object class="org.nuxeo.ecm.notification.event.EventFilterDescriptor" />
+  </extension-point>
+
 </component>
