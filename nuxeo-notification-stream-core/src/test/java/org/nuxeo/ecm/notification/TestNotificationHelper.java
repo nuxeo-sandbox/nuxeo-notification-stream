@@ -19,8 +19,16 @@ package org.nuxeo.ecm.notification;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import java.time.Duration;
 
+import org.nuxeo.ecm.core.api.CloseableCoreSession;
+import org.nuxeo.ecm.core.api.CoreInstance;
+import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogManager;
@@ -61,5 +69,19 @@ public class TestNotificationHelper {
             return logRecord.message();
         }
         // never close the manager this is done by the service
+    }
+
+    public static void withUser(String username, String repositoryName, ThrowingConsumer<CoreSession> sessionYield) {
+        try {
+            LoginContext loginCtx = Framework.loginAsUser(username);
+            NuxeoPrincipal principal = Framework.getService(UserManager.class).getPrincipal(username);
+            try (CloseableCoreSession userSession = CoreInstance.openCoreSession(repositoryName, principal)) {
+                sessionYield.accept(userSession);
+            } finally {
+                loginCtx.logout();
+            }
+        } catch (LoginException e) {
+            throw new NuxeoException(e);
+        }
     }
 }

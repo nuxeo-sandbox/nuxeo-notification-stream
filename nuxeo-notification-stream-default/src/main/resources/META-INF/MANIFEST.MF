@@ -6,4 +6,5 @@ Bundle-Version: 1.0.0
 Bundle-Name: nuxeo-notification-stream-default
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.nuxeo.ecm.platform.notification.stream.default;singleton=true
-Nuxeo-Component: OSGI-INF/notification-default-contrib.xml
+Nuxeo-Component: OSGI-INF/notification-default-contrib.xml,
+    OSGI-INF/autosubscribe-listener-contrib.xml

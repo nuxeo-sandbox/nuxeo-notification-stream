@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.notification.default.autosubscribe.listeners">
+
+  <extension target="org.nuxeo.ecm.core.event.EventServiceComponent" point="listener">
+
+    <documentation>
+      Asynchronous event listeners to automatically subscribe a user after raising an event. For example, automatically
+      subscribe a user after he creates a new document.
+    </documentation>
+
+    <listener name="autosubscribeAtCreation" async="true" postCommit="true"
+              class="org.nuxeo.ecm.notification.listener.AutoSubscribeAtCreationListener">
+      <event>documentCreated</event>
+      <event>documentCreatedByCopy</event>
+      <event></event>
+    </listener>
+
+  </extension>
+
+</component>
