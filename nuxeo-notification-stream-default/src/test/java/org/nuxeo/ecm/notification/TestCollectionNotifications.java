@@ -71,7 +71,9 @@ public class TestCollectionNotifications {
 
     protected String collectionId;
 
-    protected static final String RESOLVER_ID = "collection";
+    protected static final String RESOLVER_COLLECTION_ID = "collection";
+
+    protected static final String RESOLVER_COLLECTION_UPDATES_ID = "collectionUpdates";
 
     @Before
     public void before() {
@@ -98,10 +100,10 @@ public class TestCollectionNotifications {
 
     @Test
     public void testSubscription() {
-        assertThat(ns.getSubscriptions(RESOLVER_ID, getCtx()).getUsernames()).isEmpty();
+        assertThat(ns.getSubscriptions(RESOLVER_COLLECTION_ID, getCtx()).getUsernames()).isEmpty();
 
-        nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
-        assertThat(ns.getSubscriptions(RESOLVER_ID, getCtx()).getUsernames()).hasSize(1);
+        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID, getCtx());
+        assertThat(ns.getSubscriptions(RESOLVER_COLLECTION_ID, getCtx()).getUsernames()).hasSize(1);
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         updateDocAndWait();
@@ -111,7 +113,7 @@ public class TestCollectionNotifications {
 
         assertThat(last).isNotNull();
         assertThat(last.getUsername()).isEqualTo("dummyUser");
-        assertThat(last.getResolverId()).isEqualTo(RESOLVER_ID);
+        assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_ID);
     }
 
     @Test
@@ -125,9 +127,11 @@ public class TestCollectionNotifications {
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         // Subscribe different user to two collections, and dummyUser to both
-        nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
-        nsc.doSubscribe("dummyOtherUser", RESOLVER_ID, Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
-        nsc.doSubscribe("dummyUser", RESOLVER_ID, Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
+        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID, getCtx());
+        nsc.doSubscribe("dummyOtherUser", RESOLVER_COLLECTION_ID,
+                Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
+        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID,
+                Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
         assertThat(CounterNotifier.processed).isEqualTo(0);
@@ -143,8 +147,8 @@ public class TestCollectionNotifications {
 
     @Test
     public void testDocumentAddedToCollection() {
-        // Subscribe a dummy user to the update of a collection
-        nsc.doSubscribe("dummyUser", RESOLVER_ID, getCtx());
+        // Subscribe a dummy user to the updates of a collection and on the updates on the children
+        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_UPDATES_ID, getCtx());
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
         assertThat(CounterNotifier.processed).isEqualTo(0);
@@ -165,7 +169,7 @@ public class TestCollectionNotifications {
 
         assertThat(last).isNotNull();
         assertThat(last.getUsername()).isEqualTo("dummyUser");
-        assertThat(last.getResolverId()).isEqualTo(RESOLVER_ID);
+        assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
     }
 
     protected void updateDocAndWait() {
