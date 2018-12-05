@@ -28,11 +28,11 @@ import org.nuxeo.ecm.notification.message.EventRecord;
  *
  * @since XXX
  */
-public class TestCollectionResolver {
+public class TestCollectionUpdatesResolver {
 
     @Test
     public void resolverOnlyAcceptsAddedAndRemovedEvents() {
-        Resolver resolver = new CollectionResolver().withId("collection");
+        Resolver resolver = new CollectionUpdatesResolver().withId("collectionUpdate");
         EventRecord.EventRecordBuilder builder = EventRecord.builder().withEventName(ADDED_TO_COLLECTION);
         assertThat(resolver.accept(builder.build())).isTrue();
         assertThat(resolver.accept(builder.withEventName(REMOVED_FROM_COLLECTION).build())).isTrue();
@@ -48,7 +48,7 @@ public class TestCollectionResolver {
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(ADDED_TO_COLLECTION)
                                                             .withContext(ctx);
-        CollectionResolver resolver = (CollectionResolver) new CollectionResolver().withId("collection");
+        CollectionUpdatesResolver resolver = (CollectionUpdatesResolver) new CollectionUpdatesResolver().withId("collectionUpdate");
         assertThat(resolver.computeSubscriptionsKey(resolver.buildNotifierContext(builder.build()))).isEqualTo(
                 "collection:0000-1111");
     }
@@ -61,7 +61,7 @@ public class TestCollectionResolver {
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(ADDED_TO_COLLECTION)
                                                             .withContext(ctx);
-        Resolver resolver = new CollectionResolver().withId("collection");
+        Resolver resolver = new CollectionUpdatesResolver().withId("collectionUpdate");
         Map<String, String> ctxNotifier = resolver.buildNotifierContext(builder.build());
         assertThat(ctxNotifier).hasSize(1);
         assertThat(ctxNotifier.get(COLLECTION_DOC_ID)).isEqualTo("0000-1111");
