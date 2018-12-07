@@ -82,7 +82,7 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     public static final String STREAM_SUBSCRIPTIONS_PROP = "nuxeo.stream.notification.subscriptions";
 
-    public static final String DEFAULT_STREAM_SUBSCRIPTIONS = "subscriptions";
+    public static final String DEFAULT_STREAM_SUBSCRIPTIONS = "notificationSubscriptions";
 
     public static final String STREAM_INPUT_PROP = "nuxeo.stream.notification.input";
 
