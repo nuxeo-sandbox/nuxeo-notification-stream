@@ -23,11 +23,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.avro.reflect.Nullable;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.runtime.api.Framework;
 
@@ -63,6 +67,10 @@ public class EventRecord implements Serializable {
 
     public String getEventName() {
         return eventName;
+    }
+
+    public DocumentRef getDocumentSourceRef() {
+        return documentSourceId.startsWith("/") ? new PathRef(documentSourceId) : new IdRef(documentSourceId);
     }
 
     public String getDocumentSourceId() {
@@ -111,6 +119,11 @@ public class EventRecord implements Serializable {
 
         protected EventRecordBuilder() {
             record = new EventRecord();
+        }
+
+        public EventRecordBuilder fromEvent(EventRecord record) {
+            this.record = SerializationUtils.clone(record);
+            return this;
         }
 
         public EventRecordBuilder withDocument(DocumentModel doc) {

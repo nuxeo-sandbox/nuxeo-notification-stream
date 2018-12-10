@@ -28,11 +28,9 @@ import javax.security.auth.login.LoginException;
 
 import org.nuxeo.ecm.core.api.CloseableCoreSession;
 import org.nuxeo.ecm.core.api.CoreInstance;
+import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.api.DocumentRef;
-import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
@@ -84,13 +82,17 @@ public abstract class Resolver {
     public abstract Map<String, String> buildNotifierContext(EventRecord eventRecord);
 
     protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
+        return withSession(eventRecord, session -> func.apply(session.getDocument(eventRecord.getDocumentSourceRef())));
+    }
+
+    protected static <T> T withSession(EventRecord eventRecord, Function<CoreSession, T> func) {
         AtomicReference<T> ret = new AtomicReference<>();
         TransactionHelper.runInTransaction(() -> {
             try {
                 LoginContext loginContext = Framework.loginAsUser(eventRecord.getUsername());
                 String repository = eventRecord.getRepository();
                 try (CloseableCoreSession session = CoreInstance.openCoreSession(repository)) {
-                    ret.set(func.apply(session.getDocument(getRef(eventRecord.getDocumentSourceId()))));
+                    ret.set(func.apply(session));
                 } finally {
                     loginContext.logout();
                 }
@@ -100,9 +102,5 @@ public abstract class Resolver {
         });
 
         return ret.get();
-    }
-
-    protected static DocumentRef getRef(String id) {
-        return id.startsWith("/") ? new PathRef(id) : new IdRef(id);
     }
 }

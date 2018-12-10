@@ -5,6 +5,7 @@
     <resolver id="documentUpdated" class="org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver" />
     <resolver id="collection" class="org.nuxeo.ecm.notification.resolver.CollectionResolver" />
     <resolver id="collectionUpdates" class="org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver" />
+    <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver" />
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
