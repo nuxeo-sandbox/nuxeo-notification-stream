@@ -12,5 +12,8 @@
     <settings id="collectionUpdates">
       <notifier name="counter" default="true" />
     </settings>
+    <settings id="descendantChanges">
+      <notifier name="counter" default="true" />
+    </settings>
   </extension>
 </component>

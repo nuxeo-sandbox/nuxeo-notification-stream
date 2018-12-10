@@ -71,7 +71,7 @@ public class DocumentUpdateResolver extends SubscribableResolver {
 
     protected String getAncestorId(EventRecord eventRecord) {
         return withDocument(eventRecord, d -> {
-            List<String> ancestors = ((Collection<String>) d.getPropertyValue(
+            List<String> ancestors = ((List<String>) d.getPropertyValue(
                     COMMENT_ANCESTOR_IDS)).stream()
                                           .filter(id -> d.getCoreSession()
                                                          .getDocument(new IdRef(id))

@@ -41,7 +41,8 @@ public class AutoSubscribeAtCreationListener implements PostCommitEventListener 
         // If the document is created as system, do not register the user.
         // Same if the user is part of the group Administrators
         NuxeoPrincipal originatingUser = event.getContext().getPrincipal();
-        if (originatingUser == null || originatingUser.equals(SYSTEM_USERNAME) || originatingUser.isAdministrator()) {
+        if (originatingUser == null || SYSTEM_USERNAME.equals(originatingUser.getName())
+                || originatingUser.isAdministrator()) {
             return;
         }
 
