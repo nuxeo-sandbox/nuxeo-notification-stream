@@ -18,16 +18,17 @@
 
 package org.nuxeo.ecm.notification.io;
 
+import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
+import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
+
 import org.nuxeo.ecm.core.io.marshallers.json.DefaultListJsonWriter;
-import org.nuxeo.ecm.core.io.registry.reflect.Instantiations;
-import org.nuxeo.ecm.core.io.registry.reflect.Priorities;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 
 /**
  * @since XXX
  */
-@Setup(mode = Instantiations.SINGLETON, priority = Priorities.REFERENCE + 1)
+@Setup(mode = SINGLETON, priority = REFERENCE + 1)
 public class NotifierListJsonWriter extends DefaultListJsonWriter<Notifier> {
     public static final String ENTITY_TYPE = "notification-notifiers";
 

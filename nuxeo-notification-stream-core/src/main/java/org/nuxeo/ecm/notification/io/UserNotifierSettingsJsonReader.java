@@ -18,12 +18,13 @@
 
 package org.nuxeo.ecm.notification.io;
 
+import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
+import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
+
 import java.io.IOException;
 
 import org.nuxeo.ecm.core.io.marshallers.json.EntityJsonReader;
 import org.nuxeo.ecm.core.io.registry.MarshallingConstants;
-import org.nuxeo.ecm.core.io.registry.reflect.Instantiations;
-import org.nuxeo.ecm.core.io.registry.reflect.Priorities;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 
@@ -32,7 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * @since XXX
  */
-@Setup(mode = Instantiations.SINGLETON, priority = Priorities.REFERENCE)
+@Setup(mode = SINGLETON, priority = REFERENCE)
 public class UserNotifierSettingsJsonReader extends EntityJsonReader<UserNotifierSettings> {
 
     public UserNotifierSettingsJsonReader() {
