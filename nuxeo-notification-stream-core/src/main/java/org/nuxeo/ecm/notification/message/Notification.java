@@ -25,6 +25,9 @@ import org.apache.avro.reflect.Nullable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.nuxeo.ecm.core.api.DocumentRef;
+import org.nuxeo.ecm.core.api.IdRef;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
 /**
@@ -72,6 +75,10 @@ public class Notification {
 
     public Map<String, String> getContext() {
         return context;
+    }
+
+    public DocumentRef getSourceRef() {
+        return sourceId.startsWith("/") ? new PathRef(sourceId) : new IdRef(sourceId);
     }
 
     public String getSourceId() {
