@@ -31,10 +31,11 @@ import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 import static org.nuxeo.ecm.notification.transformer.AnotherBasicTransformer.KEY_INFO;
 import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_EVENT_NAME;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -233,6 +234,17 @@ public class TestNotificationService {
     public void testSubscriptionForMissingResolver() {
         notif.getSubscriptions("somethiiiing", null);
         failBecauseExceptionWasNotThrown(NuxeoException.class);
+    }
+
+    @Test
+    public void testLabelAndDescriptionKeys() {
+        Resolver resolver = notif.getResolver("complexKey");
+        assertThat(resolver).hasFieldOrPropertyWithValue("labelKey", "label.notification.resolver.complexKey");
+        assertThat(resolver).hasFieldOrPropertyWithValue("descriptionKey", "description.notification.resolver.complexKey");
+
+        Notifier notifier = notif.getNotifier("inApp");
+        assertThat(notifier).hasFieldOrPropertyWithValue("labelKey", "label.notification.notifier.inApp");
+        assertThat(notifier).hasFieldOrPropertyWithValue("descriptionKey", "description.notification.notifier.inApp");
     }
 
     @Test
