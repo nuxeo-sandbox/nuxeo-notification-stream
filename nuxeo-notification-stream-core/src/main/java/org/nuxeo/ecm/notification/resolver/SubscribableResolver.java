@@ -69,7 +69,9 @@ public abstract class SubscribableResolver extends Resolver {
     public abstract List<String> getRequiredContextFields();
 
     protected boolean hasRequiredFields(Map<String, String> ctx) {
-        return ctx.keySet().containsAll(getRequiredContextFields());
+        return getRequiredContextFields().stream()
+                                         .map(s -> ctx.getOrDefault(s, null))
+                                         .allMatch(StringUtils::isNotEmpty);
     }
 
     @Override
