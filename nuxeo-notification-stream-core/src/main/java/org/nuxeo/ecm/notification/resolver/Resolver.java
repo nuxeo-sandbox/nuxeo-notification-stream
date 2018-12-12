@@ -54,6 +54,24 @@ public abstract class Resolver {
     }
 
     /**
+     * Compute Resolver message property key following the pattern: label.notification.resolver.RESOLVER_NAME
+     * 
+     * @return resolver's label message property entry key
+     */
+    public String getLabelKey() {
+        return String.format("label.notification.resolver.%s", getId());
+    }
+
+    /**
+     * Compute Resolver message property key following the pattern: description.notification.resolver.RESOLVER_NAME
+     * 
+     * @return resolver's description message property entry key
+     */
+    public String getDescriptionKey() {
+        return String.format("description.notification.resolver.%s", getId());
+    }
+
+    /**
      * Check if the resolver is able to compute the current Event in a Notification Object.
      * <p>
      * The method is executed on EVERY core event, his resolution MUST be as fast as possible.

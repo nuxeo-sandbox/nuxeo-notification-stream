@@ -14,7 +14,11 @@
     <documentation>
       <code>
         Register notifications resolvers. A resolver has a name and aims to identify if a core event deserves a
-        notification
+        notification.
+        <p/>
+        Label and description are handled based on an automatic properties computing following this format:
+        `label.notification.resolver.RESOLVER_NAME` and `description.notification.resolver.RESOLVER_NAME`.
+
         <resolver id="deliverable"
                   class="FileCreatedResolver" />
       </code>
@@ -43,6 +47,10 @@
       Register the default settings for notifications. For each resolver, it is possible to define the active notifiers
       and if they are available by default. If there is no entry defined, by default, the notifiers are enabled but not
       selected by default.
+      <p/>
+      Label and description are handled based on an automatic properties computing following this format:
+      `label.notification.notifier.NOTIFIER_NAME` and `description.notification.notifier.NOTIFIER_NAME`.
+
       <code>
         <!-- XXX Implementation: For now, a notifier is not enabled by default until you set up a default settings.
         Can be the opposite, in order to enable it by default in case there is no settings.
