@@ -74,17 +74,18 @@ public abstract class Notifier extends AbstractComputation {
     public void processRecord(ComputationContext ctx, String inputStreamName, Record record) {
 
         Notification notification = codec.decode(record.getData());
-
-        boolean isEnabled = Framework.getService(NotificationSettingsService.class)
-                                     .getResolverSettings(notification.getUsername())
-                                     .getSettings(notification.getResolverId())
-                                     .isEnabled(getName());
-
-        if (isEnabled) {
+        if (isEnabled(notification)) {
             process(notification);
         }
 
         ctx.askForCheckpoint();
+    }
+
+    protected boolean isEnabled(Notification notification) {
+        return Framework.getService(NotificationSettingsService.class)
+                        .getResolverSettings(notification.getUsername())
+                        .getSettings(notification.getResolverId())
+                        .isEnabled(getName());
     }
 
     public String getName() {
