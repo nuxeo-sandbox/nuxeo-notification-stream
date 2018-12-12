@@ -16,14 +16,13 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller;
-
-import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
-import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
+package org.nuxeo.ecm.notification.io;
 
 import java.io.IOException;
 
 import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
+import org.nuxeo.ecm.core.io.registry.reflect.Instantiations;
+import org.nuxeo.ecm.core.io.registry.reflect.Priorities;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
@@ -33,7 +32,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 /**
  * @since XXX
  */
-@Setup(mode = SINGLETON, priority = REFERENCE)
+@Setup(mode = Instantiations.SINGLETON, priority = Priorities.REFERENCE)
 public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {
 
     public static final String ENTITY_TYPE = "notification-resolver";

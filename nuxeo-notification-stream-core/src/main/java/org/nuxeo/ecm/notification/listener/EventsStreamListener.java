@@ -17,7 +17,12 @@
  */
 package org.nuxeo.ecm.notification.listener;
 
+import static org.nuxeo.ecm.core.api.security.SecurityConstants.SYSTEM_USERNAME;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.naming.NamingException;
 import javax.transaction.RollbackException;
@@ -25,9 +30,6 @@ import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -77,9 +79,14 @@ public class EventsStreamListener implements EventListener, Synchronization {
             log.debug("EventsStreamListener collecting entries for the tx");
         }
 
+        String user = event.getContext().getPrincipal().getActingUser();
+        if (SYSTEM_USERNAME.equals(user)) {
+            return;
+        }
+
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(event.getName())
-                                                            .withUsername(event.getContext().getPrincipal().getName());
+                                                            .withUsername(user);
         if (isDocumentEventContext(event.getContext())) {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();
             builder.withDocument(ctx.getSourceDocument());

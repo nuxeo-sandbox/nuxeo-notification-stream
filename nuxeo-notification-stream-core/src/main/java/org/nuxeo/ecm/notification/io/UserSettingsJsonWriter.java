@@ -16,26 +16,25 @@
  *      Nuxeo
  */
 
-package org.nuxeo.ecm.restapi.server.jaxrs.notification.marschaller;
+package org.nuxeo.ecm.notification.io;
 
 /**
  * @since XXX
  */
 
-import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
-import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
-
 import java.io.IOException;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
+import org.nuxeo.ecm.core.io.registry.reflect.Instantiations;
+import org.nuxeo.ecm.core.io.registry.reflect.Priorities;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.message.UserSettings;
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
-@Setup(mode = SINGLETON, priority = REFERENCE)
+@Setup(mode = Instantiations.SINGLETON, priority = Priorities.REFERENCE)
 public class UserSettingsJsonWriter extends ExtensibleEntityJsonWriter<UserSettings> {
     public static final String ENTITY_TYPE = "notification-user-settings";
 

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.platform.notification.stream.rest.marshallers" version="1.0.0">
+  <extension target="org.nuxeo.ecm.core.io.MarshallerRegistry" point="marshallers">
+    <!-- Writers -->
+    <register class="org.nuxeo.ecm.notification.io.NotifierJsonWriter" enable="true" />
+    <register class="org.nuxeo.ecm.notification.io.NotifierListJsonWriter"
+              enable="true" />
+    <register class="org.nuxeo.ecm.notification.io.ResolverJsonWriter" enable="true" />
+    <register class="org.nuxeo.ecm.notification.io.ResolverListJsonWriter"
+              enable="true" />
+    <register class="org.nuxeo.ecm.notification.io.UserSettingsJsonWriter"
+              enable="true" />
+    <register class="org.nuxeo.ecm.notification.io.UserNotifierSettingsJsonWriter"
+              enable="true" />
+
+    <!-- Readers -->
+    <register class="org.nuxeo.ecm.notification.io.UserNotifierSettingsJsonReader"
+              enable="true" />
+  </extension>
+</component>
