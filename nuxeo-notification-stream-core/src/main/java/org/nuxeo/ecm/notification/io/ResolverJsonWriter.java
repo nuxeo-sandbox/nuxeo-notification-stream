@@ -20,9 +20,11 @@ package org.nuxeo.ecm.notification.io;
 
 import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
 import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
+import static org.nuxeo.ecm.core.schema.types.constraints.Constraint.MESSAGES_BUNDLE;
 
 import java.io.IOException;
 
+import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.resolver.Resolver;
@@ -45,6 +47,10 @@ public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {
     @Override
     protected void writeEntityBody(Resolver resolver, JsonGenerator jg) throws IOException {
         jg.writeStringField("id", resolver.getId());
+        jg.writeStringField("label",
+                I18NUtils.getMessageString(MESSAGES_BUNDLE, resolver.getLabelKey(), null, ctx.getLocale()));
+        jg.writeStringField("description",
+                I18NUtils.getMessageString(MESSAGES_BUNDLE, resolver.getDescriptionKey(), null, ctx.getLocale()));
         if (resolver instanceof SubscribableResolver) {
             jg.writeArrayFieldStart("requiredFields");
             for (String s : ((SubscribableResolver) resolver).getRequiredContextFields()) {
