@@ -20,9 +20,11 @@ package org.nuxeo.ecm.notification.io;
 
 import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;
 import static org.nuxeo.ecm.core.io.registry.reflect.Priorities.REFERENCE;
+import static org.nuxeo.ecm.core.schema.types.constraints.Constraint.MESSAGES_BUNDLE;
 
 import java.io.IOException;
 
+import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.io.marshallers.json.ExtensibleEntityJsonWriter;
 import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.notifier.Notifier;
@@ -44,5 +46,9 @@ public class NotifierJsonWriter extends ExtensibleEntityJsonWriter<Notifier> {
     @Override
     protected void writeEntityBody(Notifier notifier, JsonGenerator jg) throws IOException {
         jg.writeStringField("name", notifier.getName());
+        jg.writeStringField("label",
+                I18NUtils.getMessageString(MESSAGES_BUNDLE, notifier.getLabelKey(), null, ctx.getLocale()));
+        jg.writeStringField("description",
+                I18NUtils.getMessageString(MESSAGES_BUNDLE, notifier.getDescriptionKey(), null, ctx.getLocale()));
     }
 }

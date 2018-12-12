@@ -74,6 +74,8 @@ public class NotificationObjectTest extends BaseTest {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/complexResolver");
         assertThat(json.get("entity-type").asText()).isEqualTo(ResolverJsonWriter.ENTITY_TYPE);
         assertThat(json.get("id").asText()).isEqualTo("complexResolver");
+        assertThat(json.get("label").asText()).isEqualTo("Complex Resolver");
+        assertThat(json.get("description").asText()).isEqualTo("A really complex resolver.");
         assertThat(json.get("requiredFields").isArray()).isTrue();
 
         List<String> requiredFields = new ArrayList<>();
@@ -100,6 +102,8 @@ public class NotificationObjectTest extends BaseTest {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/notifier/log");
         assertThat(json.get("entity-type").asText()).isEqualTo(NotifierJsonWriter.ENTITY_TYPE);
         assertThat(json.get("name").asText()).isEqualTo("log");
+        assertThat(json.get("label").asText()).isEqualTo("Log Notifier");
+        assertThat(json.get("description").asText()).isEqualTo("Display notifications as logs.");
     }
 
     @Test
