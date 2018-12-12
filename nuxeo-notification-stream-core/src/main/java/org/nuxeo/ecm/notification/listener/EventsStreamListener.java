@@ -80,7 +80,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
         }
 
         String user = event.getContext().getPrincipal().getActingUser();
-        if (SYSTEM_USERNAME.equals(user)) {
+        if (StringUtils.isBlank(user) || SYSTEM_USERNAME.equals(user)) {
             return;
         }
 
