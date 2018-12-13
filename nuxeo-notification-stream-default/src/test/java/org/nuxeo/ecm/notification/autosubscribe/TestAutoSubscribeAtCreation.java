@@ -15,7 +15,6 @@ import static org.nuxeo.ecm.notification.TestNotificationHelper.withUser;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,21 +22,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CloseableCoreSession;
 import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.ACP;
 import org.nuxeo.ecm.notification.NotificationFeature;
-import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.test.PlatformFeature;
-import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
 /**
  * Test class to validate the autosubscribe to the updates of a document at its creation.
@@ -47,19 +42,7 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.notification.stream.default")
-public class TestAutoSubscribeAtCreation {
-
-    @Inject
-    protected CoreSession session;
-
-    @Inject
-    protected NotificationService ns;
-
-    @Inject
-    protected UserManager userManager;
-
-    @Inject
-    protected TransactionalFeature txFeature;
+public class TestAutoSubscribeAtCreation extends AbstractTestAutoSubscribe {
 
     @Test
     public void noSubscriptionWhenDocIsCreatedAsSystem() {
@@ -79,7 +62,6 @@ public class TestAutoSubscribeAtCreation {
         Map<String, String> ctx = new HashMap<>();
         ctx.put(DOC_ID_KEY, docId);
         assertThat(ns.getSubscriptions(RESOLVER_NAME, ctx).getUsernames()).isEmpty();
-
     }
 
     @Test

@@ -8,11 +8,14 @@
       subscribe a user after he creates a new document.
     </documentation>
 
-    <listener name="autosubscribeAtCreation" async="true" postCommit="true"
+    <listener name="autosubscribeAtCreation" async="false" postCommit="false" priority="500"
               class="org.nuxeo.ecm.notification.listener.AutoSubscribeAtCreationListener">
       <event>documentCreated</event>
       <event>documentCreatedByCopy</event>
-      <event></event>
+    </listener>
+    <listener name="autosubscribeWorkflow" async="false" postCommit="false" priority="500"
+              class="org.nuxeo.ecm.notification.listener.AutoSubscribeWorkflowListener">
+      <event>afterWorkflowStarted</event>
     </listener>
 
   </extension>
