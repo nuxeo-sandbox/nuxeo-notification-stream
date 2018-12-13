@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.CloseableCoreSession;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
@@ -81,10 +82,10 @@ public abstract class Resolver {
     /**
      * Return configured notification's message to pass to the notifier
      *
-     * @return message to display as a notification
+     * @return message to display as a notification, return an empty string if empty.
      */
     public String getMessage() {
-        return message;
+        return StringUtils.isEmpty(message) ? "" : message;
     }
 
     /**
