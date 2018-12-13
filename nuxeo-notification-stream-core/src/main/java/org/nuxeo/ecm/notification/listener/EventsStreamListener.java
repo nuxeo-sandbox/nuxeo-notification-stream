@@ -79,7 +79,12 @@ public class EventsStreamListener implements EventListener, Synchronization {
             log.debug("EventsStreamListener collecting entries for the tx");
         }
 
-        String user = event.getContext().getPrincipal().getActingUser();
+        NuxeoPrincipal principal = event.getContext().getPrincipal();
+        if (principal == null) {
+            return;
+        }
+
+        String user = principal.getActingUser();
         if (StringUtils.isBlank(user) || SYSTEM_USERNAME.equals(user)) {
             return;
         }

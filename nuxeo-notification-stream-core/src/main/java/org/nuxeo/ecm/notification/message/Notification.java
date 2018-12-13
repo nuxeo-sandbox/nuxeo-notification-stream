@@ -18,13 +18,15 @@
 
 package org.nuxeo.ecm.notification.message;
 
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_REPO;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.logging.log4j.util.Strings;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
@@ -40,10 +42,6 @@ public class Notification {
 
     public static final String ORIGINATING_EVENT = "originatingEvent";
 
-    public static final String SOURCE_DOC_ID = "sourceId";
-
-    public static final String SOURCE_DOC_REPO = "sourceRepository";
-
     public static final String CREATED_AT = "createdAt";
 
     protected String id;
@@ -52,7 +50,7 @@ public class Notification {
 
     protected String resolverId;
 
-    protected String resolverMessage = Strings.EMPTY;
+    protected String resolverMessage;
 
     protected String message;
 
@@ -76,10 +74,6 @@ public class Notification {
 
     public String getResolverId() {
         return resolverId;
-    }
-
-    public String getResolverMessage() {
-        return resolverMessage;
     }
 
     public String getMessage() {
@@ -131,12 +125,6 @@ public class Notification {
 
         public NotificationBuilder fromEvent(EventRecord eventRecord) {
             withCtx(eventRecord.getContext());
-
-            if (eventRecord.getDocumentSourceId() != null) {
-                withSourceId(eventRecord.documentSourceId);
-                withSourceRepository(eventRecord.documentSourceRepository);
-            }
-
             withCtx(ORIGINATING_EVENT, eventRecord.getEventName());
             withCtx(ORIGINATING_USER, eventRecord.getUsername());
             withCtx(CREATED_AT, String.valueOf(eventRecord.getTime()));

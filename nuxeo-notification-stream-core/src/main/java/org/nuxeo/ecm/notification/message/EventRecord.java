@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.avro.reflect.Nullable;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -44,6 +43,16 @@ public class EventRecord implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
+    public static final String SOURCE_DOC_ID = "sourceId";
+
+    public static final String SOURCE_DOC_REPO = "sourceRepository";
+
+    public static final String SOURCE_DOC_TYPE = "sourceType";
+
+    public static final String SOURCE_DOC_PATH = "sourcePath";
+
+    public static final String SOURCE_DOC_TITLE = "sourceTitle";
+
     protected EventRecord() {
         // Empty constructor for Avro decoder
     }
@@ -51,15 +60,6 @@ public class EventRecord implements Serializable {
     protected String id;
 
     protected String eventName;
-
-    @Nullable
-    protected String documentSourceId;
-
-    @Nullable
-    protected String documentSourceType;
-
-    @Nullable
-    protected String documentSourceRepository;
 
     protected String username;
 
@@ -72,15 +72,16 @@ public class EventRecord implements Serializable {
     }
 
     public DocumentRef getDocumentSourceRef() {
-        return documentSourceId.startsWith("/") ? new PathRef(documentSourceId) : new IdRef(documentSourceId);
+        String sourceId = getDocumentSourceId();
+        return sourceId.startsWith("/") ? new PathRef(sourceId) : new IdRef(sourceId);
     }
 
     public String getDocumentSourceId() {
-        return documentSourceId;
+        return context.get(SOURCE_DOC_ID);
     }
 
     public String getDocumentSourceType() {
-        return documentSourceType;
+        return context.get(SOURCE_DOC_TYPE);
     }
 
     public String getUsername() {
@@ -92,9 +93,10 @@ public class EventRecord implements Serializable {
     }
 
     public String getRepository() {
-        return StringUtils.isBlank(documentSourceRepository)
+        String repository = context.get(SOURCE_DOC_REPO);
+        return StringUtils.isBlank(repository)
                 ? Framework.getService(RepositoryManager.class).getDefaultRepositoryName()
-                : documentSourceRepository;
+                : repository;
     }
 
     public Map<String, String> getContext() {
@@ -134,21 +136,23 @@ public class EventRecord implements Serializable {
 
         public EventRecordBuilder withDocument(DocumentModel doc) {
             return withDocumentId(doc.getId()).withDocumentRepository(doc.getRepositoryName())
-                                              .withDocumentType(doc.getType());
+                                              .withDocumentType(doc.getType())
+                                              .withContext(SOURCE_DOC_PATH, doc.getPathAsString())
+                                              .withContext(SOURCE_DOC_TITLE, doc.getTitle());
         }
 
         public EventRecordBuilder withDocumentId(String docId) {
-            record.documentSourceId = docId;
+            withContext(SOURCE_DOC_ID, docId);
             return this;
         }
 
         public EventRecordBuilder withDocumentType(String docType) {
-            record.documentSourceType = docType;
+            withContext(SOURCE_DOC_TYPE, docType);
             return this;
         }
 
         public EventRecordBuilder withDocumentRepository(String repository) {
-            record.documentSourceRepository = repository;
+            withContext(SOURCE_DOC_REPO, repository);
             return this;
         }
 
@@ -159,6 +163,14 @@ public class EventRecord implements Serializable {
 
         public EventRecordBuilder withUsername(String username) {
             record.username = username;
+            return this;
+        }
+
+        public EventRecordBuilder withContext(String key, String value) {
+            // Ensure value is not null, otherwise Avro will break the map encode
+            if (value != null) {
+                record.context.put(key, value);
+            }
             return this;
         }
 
