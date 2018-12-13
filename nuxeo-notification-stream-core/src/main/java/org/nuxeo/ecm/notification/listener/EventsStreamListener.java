@@ -86,6 +86,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
 
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(event.getName())
+                                                            .withTime(event.getTime())
                                                             .withUsername(user);
         if (isDocumentEventContext(event.getContext())) {
             DocumentEventContext ctx = (DocumentEventContext) event.getContext();

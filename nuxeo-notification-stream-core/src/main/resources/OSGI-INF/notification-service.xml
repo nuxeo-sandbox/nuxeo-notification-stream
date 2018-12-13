@@ -15,12 +15,15 @@
       <code>
         Register notifications resolvers. A resolver has a name and aims to identify if a core event deserves a
         notification.
-        <p/>
+        <p />
         Label and description are handled based on an automatic properties computing following this format:
         `label.notification.resolver.RESOLVER_NAME` and `description.notification.resolver.RESOLVER_NAME`.
 
         <resolver id="deliverable"
-                  class="FileCreatedResolver" />
+                  class="FileCreatedResolver">
+          <message>Some text to describe @{contextKeyObject} modifications, because @{contextKeyUser} made changes.
+          </message>
+        </resolver>
       </code>
     </documentation>
 
@@ -47,7 +50,7 @@
       Register the default settings for notifications. For each resolver, it is possible to define the active notifiers
       and if they are available by default. If there is no entry defined, by default, the notifiers are enabled but not
       selected by default.
-      <p/>
+      <p />
       Label and description are handled based on an automatic properties computing following this format:
       `label.notification.notifier.NOTIFIER_NAME` and `description.notification.notifier.NOTIFIER_NAME`.
 
@@ -90,7 +93,7 @@
         Register Event Filters. An Event Filter has a name and aims to filter events considered to be duplicated in
         the same thread. For example, avoiding multiple edits on the same document.
         <eventFilter id="collectionEventsFilter"
-                          class="CollectionEventsFilter" />
+                     class="CollectionEventsFilter" />
       </code>
     </documentation>
 

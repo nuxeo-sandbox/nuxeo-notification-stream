@@ -15,7 +15,9 @@
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
-    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.FileCreatedResolver" />
+    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.FileCreatedResolver">
+      <message>@{user:originatingUser} created a new file @{doc:doc} at @{date:createdAt}</message>
+    </resolver>
     <resolver id="fileUpdated" class="org.nuxeo.ecm.notification.resolver.FileUpdatedResolver" />
     <resolver id="complexKey" class="org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver" />
   </extension>
