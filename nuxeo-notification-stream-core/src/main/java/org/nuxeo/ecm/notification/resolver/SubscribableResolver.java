@@ -37,7 +37,7 @@ import org.nuxeo.runtime.kv.KeyValueService;
 import org.nuxeo.runtime.kv.KeyValueStore;
 
 /**
- * Subscribable Resolver that requires an explicit user's subscription to resolve his target users (eg. When a user
+ * Subscribable Resolver that requires an explicit user's subscription to replace his target users (eg. When a user
  * wants to be notified for action on a specific document).
  * <p>
  * This abstract class stores subscriptions in a KVS based on an unique key per context.

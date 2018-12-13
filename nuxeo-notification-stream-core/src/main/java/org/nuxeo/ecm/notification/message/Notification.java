@@ -21,13 +21,14 @@ package org.nuxeo.ecm.notification.message;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.avro.reflect.Nullable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.logging.log4j.util.Strings;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
+import org.nuxeo.ecm.notification.entities.ResolverMessageReplacer;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
 /**
@@ -39,17 +40,21 @@ public class Notification {
 
     public static final String ORIGINATING_EVENT = "originatingEvent";
 
+    public static final String SOURCE_DOC_ID = "sourceId";
+
+    public static final String SOURCE_DOC_REPO = "sourceRepository";
+
+    public static final String CREATED_AT = "createdAt";
+
     protected String id;
 
     protected String username;
 
     protected String resolverId;
 
-    @Nullable
-    protected String sourceId;
+    protected String resolverMessage = Strings.EMPTY;
 
-    @Nullable
-    protected String sourceRepository;
+    protected String message;
 
     protected Map<String, String> context = new HashMap<>();
 
@@ -73,20 +78,29 @@ public class Notification {
         return resolverId;
     }
 
+    public String getResolverMessage() {
+        return resolverMessage;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
     public Map<String, String> getContext() {
         return context;
     }
 
     public DocumentRef getSourceRef() {
+        String sourceId = getSourceId();
         return sourceId.startsWith("/") ? new PathRef(sourceId) : new IdRef(sourceId);
     }
 
     public String getSourceId() {
-        return sourceId;
+        return getContext().get(SOURCE_DOC_ID);
     }
 
     public String getSourceRepository() {
-        return sourceRepository;
+        return getContext().get(SOURCE_DOC_REPO);
     }
 
     @Override
@@ -116,6 +130,8 @@ public class Notification {
         }
 
         public NotificationBuilder fromEvent(EventRecord eventRecord) {
+            withCtx(eventRecord.getContext());
+
             if (eventRecord.getDocumentSourceId() != null) {
                 withSourceId(eventRecord.documentSourceId);
                 withSourceRepository(eventRecord.documentSourceRepository);
@@ -123,12 +139,14 @@ public class Notification {
 
             withCtx(ORIGINATING_EVENT, eventRecord.getEventName());
             withCtx(ORIGINATING_USER, eventRecord.getUsername());
+            withCtx(CREATED_AT, String.valueOf(eventRecord.getTime()));
 
             return this;
         }
 
         public NotificationBuilder withResolver(Resolver resolver) {
             notif.resolverId = resolver.getId();
+            notif.resolverMessage = resolver.getMessage();
             return this;
         }
 
@@ -138,12 +156,12 @@ public class Notification {
         }
 
         public NotificationBuilder withSourceRepository(String repository) {
-            notif.sourceRepository = repository;
+            withCtx(SOURCE_DOC_REPO, repository);
             return this;
         }
 
         public NotificationBuilder withSourceId(String sourceId) {
-            notif.sourceId = sourceId;
+            withCtx(SOURCE_DOC_ID, sourceId);
             return this;
         }
 
@@ -159,6 +177,7 @@ public class Notification {
 
         public Notification build() {
             notif.id = String.format("%s:%s", notif.resolverId, notif.username);
+            notif.message = ResolverMessageReplacer.from(notif.resolverMessage, notif.getContext()).replace();
             return notif;
         }
     }

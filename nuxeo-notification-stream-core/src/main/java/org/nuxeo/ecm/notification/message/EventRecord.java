@@ -63,6 +63,8 @@ public class EventRecord implements Serializable {
 
     protected String username;
 
+    protected long time;
+
     protected Map<String, String> context = new HashMap<>();
 
     public String getEventName() {
@@ -83,6 +85,10 @@ public class EventRecord implements Serializable {
 
     public String getUsername() {
         return username;
+    }
+
+    public long getTime() {
+        return time;
     }
 
     public String getRepository() {
@@ -158,6 +164,11 @@ public class EventRecord implements Serializable {
 
         public EventRecordBuilder withContext(Map<String, String> context) {
             record.context.putAll(context);
+            return this;
+        }
+
+        public EventRecordBuilder withTime(long time) {
+            record.time = time;
             return this;
         }
 
