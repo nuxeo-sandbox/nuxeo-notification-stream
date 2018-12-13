@@ -18,5 +18,8 @@
     <settings id="taskAssigned">
       <notifier name="counter" default="true" />
     </settings>
+    <settings id="workflow">
+      <notifier name="counter" default="true" />
+    </settings>
   </extension>
 </component>

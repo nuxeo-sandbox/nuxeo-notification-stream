@@ -7,6 +7,7 @@
     <resolver id="collectionUpdates" class="org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver" />
     <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver" />
     <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver" />
+    <resolver id="workflow" class="org.nuxeo.ecm.notification.resolver.WorkflowUpdatesResolver" />
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
@@ -19,6 +20,8 @@
     <eventTransformer id="collectionTransformer"
                       class="org.nuxeo.ecm.notification.transformer.CollectionEventTransformer" />
     <eventTransformer id="taskTransformer" class="org.nuxeo.ecm.notification.transformer.TaskEventTransformer" />
+    <eventTransformer id="workflowTransformer"
+                      class="org.nuxeo.ecm.notification.transformer.WorkflowEventTransformer" />
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="filter">
