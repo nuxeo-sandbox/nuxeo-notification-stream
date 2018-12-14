@@ -20,6 +20,7 @@ package org.nuxeo.ecm.notification.computation;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.message.EventRecord;
@@ -51,16 +52,18 @@ public class EventToNotificationComputation extends AbstractComputation {
                                            .decode(record.getData());
         Framework.getService(NotificationService.class)
                  .getResolvers(eventRecord)
-                 .forEach(r -> r.resolveTargetUsers(eventRecord)
+                 .stream()
+                 .map(resolver -> Pair.of(resolver,
+                         Notification.builder()
+                                     .fromEvent(eventRecord)
+                                     .withCtx(resolver.buildNotifierContext(eventRecord))
+                                     .withResolver(resolver)))
+                 .forEach(p -> p.getLeft()
+                                .resolveTargetUsers(eventRecord)
                                 .filter(user -> !user.equals(eventRecord.getUsername()))
-                                .map(user -> Notification.builder()
-                                                         .fromEvent(eventRecord)
-                                                         .withCtx(r.buildNotifierContext(eventRecord))
-                                                         .withUsername(user)
-                                                         .withResolver(r)
-                                                         .build())
+                                .map(u -> p.getRight().withUsername(u).build())
                                 .map(this::encodeNotif)
-                                .forEach(notifRecord -> ctx.produceRecord(outputStream, notifRecord)));
+                                .forEach(notif -> ctx.produceRecord(outputStream, notif)));
 
         ctx.askForCheckpoint();
     }
