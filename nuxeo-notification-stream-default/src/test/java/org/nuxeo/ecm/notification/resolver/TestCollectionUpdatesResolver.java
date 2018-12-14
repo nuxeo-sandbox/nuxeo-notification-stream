@@ -14,8 +14,8 @@ import static org.nuxeo.ecm.collections.api.CollectionConstants.BEFORE_ADDED_TO_
 import static org.nuxeo.ecm.collections.api.CollectionConstants.BEFORE_REMOVED_FROM_COLLECTION;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.REMOVED_FROM_COLLECTION;
 import static org.nuxeo.ecm.notification.resolver.CollectionResolver.COLLECTION_DOC_ID;
-import static org.nuxeo.ecm.notification.transformer.CollectionEventTransformer.PROP_COLLECTION_REF;
-import static org.nuxeo.ecm.notification.transformer.CollectionEventTransformer.PROP_TYPE_REF;
+import static org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver.CTX_ACTION;
+import static org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver.CTX_ACTION_SUFFIX;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,27 +43,26 @@ public class TestCollectionUpdatesResolver {
     @Test
     public void resolverComputesProperKeyForSubscriptions() {
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(PROP_COLLECTION_REF, "0000-1111");
-        ctx.put(PROP_TYPE_REF, "1");
+        ctx.put(COLLECTION_DOC_ID, "0000-1111");
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(ADDED_TO_COLLECTION)
                                                             .withContext(ctx);
-        CollectionUpdatesResolver resolver = (CollectionUpdatesResolver) new CollectionUpdatesResolver().withId("collectionUpdate");
-        assertThat(resolver.computeSubscriptionsKey(resolver.buildNotifierContext(builder.build()))).isEqualTo(
-                "collection:0000-1111");
+        CollectionUpdatesResolver resolver = (CollectionUpdatesResolver) new CollectionUpdatesResolver().withId(
+                "collectionUpdate");
+        assertThat(resolver.computeSubscriptionsKey(builder.build().getContext())).isEqualTo("collection:0000-1111");
     }
 
     @Test
     public void resolverCreatesContextForNotifier() {
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(PROP_COLLECTION_REF, "0000-1111");
-        ctx.put(PROP_TYPE_REF, "1");
+        ctx.put(COLLECTION_DOC_ID, "0000-1111");
         EventRecord.EventRecordBuilder builder = EventRecord.builder()
                                                             .withEventName(ADDED_TO_COLLECTION)
                                                             .withContext(ctx);
         Resolver resolver = new CollectionUpdatesResolver().withId("collectionUpdate");
         Map<String, String> ctxNotifier = resolver.buildNotifierContext(builder.build());
-        assertThat(ctxNotifier).hasSize(1);
-        assertThat(ctxNotifier.get(COLLECTION_DOC_ID)).isEqualTo("0000-1111");
+        assertThat(ctxNotifier).hasSize(2);
+        assertThat(ctxNotifier.get(CTX_ACTION)).isEqualTo("added");
+        assertThat(ctxNotifier.get(CTX_ACTION_SUFFIX)).isEqualTo("to");
     }
 }
