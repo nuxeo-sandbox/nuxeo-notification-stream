@@ -2,8 +2,10 @@
 <component name="org.nuxeo.ecm.notification.default.config">
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
-    <resolver id="documentUpdated" class="org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver" />
     <resolver id="collection" class="org.nuxeo.ecm.notification.resolver.CollectionResolver" />
+    <resolver id="documentUpdated" class="org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver">
+      <message>@{user:originatingUser} updated document @{doc:sourceId} at @{date:createdAt}</message>
+    </resolver>
     <resolver id="collectionUpdates" class="org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver" />
     <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver" />
     <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver" />

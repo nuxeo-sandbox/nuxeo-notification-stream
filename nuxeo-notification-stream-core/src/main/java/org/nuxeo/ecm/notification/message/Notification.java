@@ -97,6 +97,10 @@ public class Notification {
         return getContext().get(SOURCE_DOC_REPO);
     }
 
+    public String getCreatedAt() {
+        return getContext().get(CREATED_AT);
+    }
+
     @Override
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
