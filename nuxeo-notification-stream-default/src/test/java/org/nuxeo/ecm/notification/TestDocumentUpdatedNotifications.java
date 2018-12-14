@@ -124,6 +124,9 @@ public class TestDocumentUpdatedNotifications {
         assertThat(notification.getUsername()).isEqualTo("user1");
         assertThat(notification.getSourceId()).isEqualTo(doc.getId());
         assertThat(notification.getSourceRepository()).isEqualTo(doc.getRepositoryName());
+        assertThat(notification.getMessage()).isEqualTo(
+                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}", doc.getId(),
+                        notification.getCreatedAt()));
     }
 
     @Test
@@ -153,6 +156,9 @@ public class TestDocumentUpdatedNotifications {
         assertThat(notification.getUsername()).isEqualTo("user1");
         assertThat(notification.getContext().get(COMMENT_ID_KEY)).isEqualTo(comment.getId());
         assertThat(notification.getContext().get(COMMENT_AUTHOR_KEY)).isEqualTo("Administrator");
+        assertThat(notification.getMessage()).isEqualTo(
+                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}", doc.getId(),
+                        notification.getCreatedAt()));
     }
 
     protected DocumentModel createDocumentAndSubscribeUsers(String user) {
