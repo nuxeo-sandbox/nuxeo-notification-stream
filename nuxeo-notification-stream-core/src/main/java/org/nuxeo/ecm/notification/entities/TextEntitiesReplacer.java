@@ -20,6 +20,9 @@ package org.nuxeo.ecm.notification.entities;
 
 import static java.util.stream.Collectors.joining;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @since XXX
  */
-public class ResolverMessageReplacer {
+public class TextEntitiesReplacer {
     public static final String DELIMITER = ":";
 
     public static final String ENTITY_VALUE_REGEX = "([\\w-@.+]+)";
@@ -44,26 +47,37 @@ public class ResolverMessageReplacer {
 
     protected final Map<String, String> ctx;
 
-    protected ResolverMessageReplacer(String message, Map<String, String> ctx) {
-        this.message = message;
+    protected TextEntitiesReplacer(String message, Map<String, String> ctx) {
+        this.message = StringUtils.isBlank(message) ? "" : message;
         this.ctx = ctx;
     }
 
-    public static ResolverMessageReplacer from(String message, Map<String, String> ctx) {
-        return new ResolverMessageReplacer(message, ctx);
+    public static TextEntitiesReplacer from(String message, Map<String, String> ctx) {
+        return new TextEntitiesReplacer(message, ctx);
     }
 
-    public String replace() {
-        if (StringUtils.isBlank(message)) {
-            return "";
+    public static TextEntitiesReplacer from(String message) {
+        return from(message, Collections.emptyMap());
+    }
+
+    public List<TextEntity> buildTextEntities() {
+        List<TextEntity> entities = new ArrayList<>();
+
+        Matcher matcher = PATTERN.matcher(message);
+        while (matcher.find()) {
+            entities.add(TextEntity.from(matcher.toMatchResult()));
         }
 
+        return entities;
+    }
+
+    public String replaceCtxKeys() {
         Matcher matcher = PATTERN.matcher(message);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String type = matcher.group(1);
-            String opts = ctx.getOrDefault(matcher.group(2), "");
-            String value = ctx.getOrDefault(matcher.group(3), "");
+            String opts = ctx.get(matcher.group(2));
+            String value = ctx.get(matcher.group(3));
 
             String entity = Stream.of(type, opts, value).filter(StringUtils::isNotBlank).collect(joining(DELIMITER));
             matcher.appendReplacement(sb, entity.contains(DELIMITER) ? "@{" + entity + "}" : entity);

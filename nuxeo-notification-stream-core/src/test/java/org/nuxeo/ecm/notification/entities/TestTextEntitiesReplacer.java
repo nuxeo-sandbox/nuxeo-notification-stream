@@ -31,18 +31,18 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
-public class TestResolverMessageReplacer {
+public class TestTextEntitiesReplacer {
     @Test
     public void testBasicString() {
         Map<String, String> ctx = Collections.singletonMap("username", "Jack");
-        String message = ResolverMessageReplacer.from("Hello @{username}!", ctx).replace();
+        String message = TextEntitiesReplacer.from("Hello @{username}!", ctx).replaceCtxKeys();
         assertThat(message).isEqualTo("Hello Jack!");
     }
 
     @Test
     public void testWithKey() {
         Map<String, String> ctx = Collections.singletonMap("key", "value");
-        String message = ResolverMessageReplacer.from("Hello @{user:key}!", ctx).replace();
+        String message = TextEntitiesReplacer.from("Hello @{user:key}!", ctx).replaceCtxKeys();
         assertThat(message).isEqualTo("Hello @{user:value}!");
     }
 
@@ -51,7 +51,7 @@ public class TestResolverMessageReplacer {
         Map<String, String> ctx = new HashMap<>();
         ctx.put("repository", "default");
         ctx.put("docId", "0000-000-00-00-000");
-        String message = ResolverMessageReplacer.from("Document @{doc:repository:docId} modified!", ctx).replace();
+        String message = TextEntitiesReplacer.from("Document @{doc:repository:docId} modified!", ctx).replaceCtxKeys();
         assertThat(message).isEqualTo("Document @{doc:default:0000-000-00-00-000} modified!");
     }
 
@@ -71,6 +71,8 @@ public class TestResolverMessageReplacer {
         Notification notif = Notification.builder() //
                                          .fromEvent(eventRecord)
                                          .withResolver(resolver)
+                                         .computeMessage()
+                                         .prepareEntities()
                                          .build();
 
         assertThat(notif.getMessage()).isEqualTo("Doc @{doc:test:0000-0000} updated by @{user:johndoe} at @{date:5}");

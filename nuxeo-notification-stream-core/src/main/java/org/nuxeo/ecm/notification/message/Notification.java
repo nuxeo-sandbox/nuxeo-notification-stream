@@ -22,6 +22,7 @@ import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_REPO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -30,7 +31,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
-import org.nuxeo.ecm.notification.entities.ResolverMessageReplacer;
+import org.nuxeo.ecm.notification.entities.TextEntitiesReplacer;
+import org.nuxeo.ecm.notification.entities.TextEntitiesSupplier;
+import org.nuxeo.ecm.notification.entities.TextEntity;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
 /**
@@ -80,8 +83,18 @@ public class Notification {
         return message;
     }
 
+    public String getOriginatingUser() {
+        return getContext().get(ORIGINATING_USER);
+    }
+
+    public List<TextEntity> entities;
+
     public Map<String, String> getContext() {
         return context;
+    }
+
+    public List<TextEntity> getEntities() {
+        return entities;
     }
 
     public DocumentRef getSourceRef() {
@@ -138,7 +151,11 @@ public class Notification {
 
         public NotificationBuilder withResolver(Resolver resolver) {
             notif.resolverId = resolver.getId();
-            notif.resolverMessage = resolver.getMessage();
+            return withResolverMessage(resolver.getMessage());
+        }
+
+        public NotificationBuilder withResolverMessage(String message) {
+            notif.resolverMessage = message;
             return this;
         }
 
@@ -167,9 +184,25 @@ public class Notification {
             return this;
         }
 
+        public NotificationBuilder computeMessage() {
+            TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.resolverMessage, notif.getContext());
+            notif.message = replacer.replaceCtxKeys();
+            return this;
+        }
+
+        public NotificationBuilder prepareEntities() {
+            TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.message);
+            notif.entities = replacer.buildTextEntities();
+            return this;
+        }
+
+        public NotificationBuilder resolveEntities() {
+            TextEntitiesSupplier.resolve(notif);
+            return this;
+        }
+
         public Notification build() {
             notif.id = String.format("%s:%s", notif.resolverId, notif.username);
-            notif.message = ResolverMessageReplacer.from(notif.resolverMessage, notif.getContext()).replace();
             return notif;
         }
     }
