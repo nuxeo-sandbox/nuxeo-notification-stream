@@ -170,6 +170,44 @@ public class TestCollectionNotifications {
         assertThat(last).isNotNull();
         assertThat(last.getUsername()).isEqualTo("dummyUser");
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
+        assertThat(last.getMessage()).isEqualTo(
+                String.format("@{user:Administrator} added document @{doc:%s} to collection @{doc:%s}", newDoc.getId(),
+                        collectionId));
+    }
+
+    @Test
+    public void testDocumentRemovedFromCollection() {
+        // Create a new Doc and add it to the Collection
+        DocumentModel newDoc = session.createDocumentModel("/", "my-file-2", "File");
+        newDoc = session.createDocument(newDoc);
+        DocumentModel collection = session.getDocument(new IdRef(collectionId));
+        collectionManager.addToCollection(collection, newDoc, session);
+        // Wait for the end the notification process
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+
+        // Subscribe a dummy user to the updates of a collection and on the updates on the children
+        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_UPDATES_ID, getCtx());
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+        assertThat(CounterNotifier.processed).isEqualTo(0);
+
+        // Remove the document from the collection
+        collectionManager.removeFromCollection(collection, newDoc, session);
+        // Wait for the end the notification process
+        txFeature.nextTransaction();
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+
+        // Only one notification sent because the filter skipped the update on the documentModified event
+        assertThat(CounterNotifier.processed).isEqualTo(1);
+        Notification last = CounterNotifier.getLast();
+
+        assertThat(last).isNotNull();
+        assertThat(last.getUsername()).isEqualTo("dummyUser");
+        assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
+        assertThat(last.getMessage()).isEqualTo(
+                String.format("@{user:Administrator} removed document @{doc:%s} from collection @{doc:%s}",
+                        newDoc.getId(), collectionId));
     }
 
     protected void updateDocAndWait() {
