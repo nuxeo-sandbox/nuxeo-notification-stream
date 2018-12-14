@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 import static org.nuxeo.ecm.notification.TestNotificationHelper.waitProcessorsCompletion;
 import static org.nuxeo.ecm.notification.TestNotificationHelper.withUser;
-import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
 
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public class TestAutoSubscribeAtCreation extends AbstractTestAutoSubscribe {
 
         // Check if there is a subscription for the created doc
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, docId);
+        ctx.put(SOURCE_DOC_ID, docId);
         assertThat(ns.getSubscriptions(RESOLVER_NAME, ctx).getUsernames()).isEmpty();
     }
 
@@ -75,7 +75,7 @@ public class TestAutoSubscribeAtCreation extends AbstractTestAutoSubscribe {
 
         // Check if there is a subscription for the created doc
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, doc.getId());
+        ctx.put(SOURCE_DOC_ID, doc.getId());
         assertThat(ns.getSubscriptions(RESOLVER_NAME, ctx).getUsernames()).isEmpty();
     }
 
@@ -95,7 +95,7 @@ public class TestAutoSubscribeAtCreation extends AbstractTestAutoSubscribe {
         // Check if there is a subscription created for "user1"
         DocumentModel createdDoc = session.getDocument(new PathRef("/TestDoc"));
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, createdDoc.getId());
+        ctx.put(SOURCE_DOC_ID, createdDoc.getId());
         Subscribers subscribers = ns.getSubscriptions(RESOLVER_NAME, ctx);
         assertThat(subscribers.getUsernames()).hasSize(1);
         assertThat(subscribers.getUsernames()).containsOnly("user1");
@@ -110,7 +110,7 @@ public class TestAutoSubscribeAtCreation extends AbstractTestAutoSubscribe {
         // Check if there is a subscription created for the copied document
         DocumentModel copiedDoc = session.getDocument(new PathRef("/CopyDoc"));
         ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, copiedDoc.getId());
+        ctx.put(SOURCE_DOC_ID, copiedDoc.getId());
         subscribers = ns.getSubscriptions(RESOLVER_NAME, ctx);
         assertThat(subscribers.getUsernames()).hasSize(1);
         assertThat(subscribers.getUsernames()).containsOnly("user1");

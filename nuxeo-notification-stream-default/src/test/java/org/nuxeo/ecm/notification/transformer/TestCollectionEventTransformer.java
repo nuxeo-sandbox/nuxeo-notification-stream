@@ -15,18 +15,14 @@ import static org.nuxeo.ecm.collections.api.CollectionConstants.BEFORE_REMOVED_F
 import static org.nuxeo.ecm.collections.api.CollectionConstants.COLLECTION_REF_EVENT_CTX_PROP;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.REMOVED_FROM_COLLECTION;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
-import static org.nuxeo.ecm.notification.transformer.CollectionEventTransformer.PROP_COLLECTION_REF;
-import static org.nuxeo.ecm.notification.transformer.CollectionEventTransformer.PROP_TYPE_REF;
+import static org.nuxeo.ecm.notification.resolver.AbstractCollectionResolver.COLLECTION_DOC_ID;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.nuxeo.ecm.collections.api.CollectionConstants;
-import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
-import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.event.EventContext;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.ecm.core.event.impl.EventImpl;
@@ -59,20 +55,7 @@ public class TestCollectionEventTransformer {
         eventCtx.setProperties(props);
         // Check the built context
         Map<String, String> ctx = transformer.buildEventRecordContext(new EventImpl(ADDED_TO_COLLECTION, eventCtx));
-        assertThat(ctx).hasSize(2);
-        assertThat(ctx).containsKeys(PROP_COLLECTION_REF, PROP_TYPE_REF);
-        assertThat(ctx.get(PROP_COLLECTION_REF)).isEqualTo("0000-1111-2222");
-        assertThat(ctx.get(PROP_TYPE_REF)).isEqualTo(String.valueOf(DocumentRef.ID));
-
-        // Test the context builder with an PathRef of a Collection
-        props.put(COLLECTION_REF_EVENT_CTX_PROP, new PathRef("/default/test/document"));
-        eventCtx = new EventContextImpl();
-        eventCtx.setProperties(props);
-        // Check the built context
-        ctx = transformer.buildEventRecordContext(new EventImpl(ADDED_TO_COLLECTION, eventCtx));
-        assertThat(ctx).hasSize(2);
-        assertThat(ctx).containsKeys(PROP_COLLECTION_REF, PROP_TYPE_REF);
-        assertThat(ctx.get(PROP_COLLECTION_REF)).isEqualTo("/default/test/document");
-        assertThat(ctx.get(PROP_TYPE_REF)).isEqualTo(String.valueOf(DocumentRef.PATH));
+        assertThat(ctx).hasSize(1);
+        assertThat(ctx.get(COLLECTION_DOC_ID)).isEqualTo("0000-1111-2222");
     }
 }

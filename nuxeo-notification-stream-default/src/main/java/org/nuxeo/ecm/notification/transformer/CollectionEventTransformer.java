@@ -11,6 +11,7 @@ package org.nuxeo.ecm.notification.transformer;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.ADDED_TO_COLLECTION;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.COLLECTION_REF_EVENT_CTX_PROP;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.REMOVED_FROM_COLLECTION;
+import static org.nuxeo.ecm.notification.resolver.AbstractCollectionResolver.COLLECTION_DOC_ID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.InstanceRef;
+import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.event.Event;
 
 /**
@@ -26,10 +28,6 @@ import org.nuxeo.ecm.core.event.Event;
  * @since XXX
  */
 public class CollectionEventTransformer extends EventTransformer {
-
-    public static final String PROP_COLLECTION_REF = "collectionRef";
-
-    public static final String PROP_TYPE_REF = "typeRef";
 
     @Override
     public boolean accept(Event event) {
@@ -42,11 +40,15 @@ public class CollectionEventTransformer extends EventTransformer {
         // Extract the id of the collection
         DocumentRef collectionRef = (DocumentRef) event.getContext().getProperty(COLLECTION_REF_EVENT_CTX_PROP);
         if (collectionRef instanceof InstanceRef) {
-            ctx.put(PROP_COLLECTION_REF, ((DocumentModel) collectionRef.reference()).getId());
-        } else {
-            ctx.put(PROP_COLLECTION_REF, collectionRef.toString());
+            ctx.put(COLLECTION_DOC_ID, ((DocumentModel) collectionRef.reference()).getId());
+        } else if (collectionRef instanceof PathRef) {
+            // Fetch the document to get the id
+            DocumentModel collection = event.getContext().getCoreSession().getDocument(collectionRef);
+            ctx.put(COLLECTION_DOC_ID, collection.getId());
+        }else {
+            // The ref is an IdRef
+            ctx.put(COLLECTION_DOC_ID, collectionRef.toString());
         }
-        ctx.put(PROP_TYPE_REF, String.valueOf(collectionRef.type()));
         return ctx;
     }
 }

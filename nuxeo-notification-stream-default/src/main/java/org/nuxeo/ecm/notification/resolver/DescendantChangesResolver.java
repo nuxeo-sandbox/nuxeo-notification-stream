@@ -20,6 +20,7 @@ package org.nuxeo.ecm.notification.resolver;
 
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,11 +41,9 @@ public class DescendantChangesResolver extends SubscribableResolver {
 
     private static Logger log = LogManager.getLogger(DescendantChangesResolver.class);
 
-    public static final String FOLDERISH_ID_FIELD = "folderishId";
-
     @Override
     public List<String> getRequiredContextFields() {
-        return Arrays.asList(FOLDERISH_ID_FIELD);
+        return Arrays.asList(SOURCE_DOC_ID);
     }
 
     @Override
@@ -70,14 +69,14 @@ public class DescendantChangesResolver extends SubscribableResolver {
 
     @Override
     public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
-        return Collections.singletonMap(FOLDERISH_ID_FIELD, eventRecord.getDocumentSourceId());
+        return Collections.emptyMap();
     }
 
     @Override
     public void subscribe(String username, Map<String, String> ctx) {
         EventRecord tmpRecord = EventRecord.builder()
                                            .withUsername(username)
-                                           .withDocumentId(ctx.get(FOLDERISH_ID_FIELD))
+                                           .withDocumentId(ctx.get(SOURCE_DOC_ID))
                                            .build();
         boolean isFolder = withDocument(tmpRecord, DocumentModel::isFolder);
         if (!isFolder) {

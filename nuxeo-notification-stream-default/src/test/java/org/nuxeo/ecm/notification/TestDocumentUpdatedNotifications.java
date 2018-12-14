@@ -10,9 +10,9 @@ package org.nuxeo.ecm.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.notification.TestNotificationHelper.readRecord;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_AUTHOR_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.COMMENT_ID_KEY;
-import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
@@ -76,7 +76,7 @@ public class TestDocumentUpdatedNotifications {
 
         // Context for checking the subscriptions
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, doc.getId());
+        ctx.put(SOURCE_DOC_ID, doc.getId());
 
         // Check if the user has properly subscribed to the resolver
         assertThat(notificationService.hasSubscribe("user1", RESOLVER_NAME, ctx)).isTrue();
@@ -92,7 +92,7 @@ public class TestDocumentUpdatedNotifications {
     public void resolverReturnsListTargetUsers() {
         // Subscribe a few users to the resolver for a fake document
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, "0000");
+        ctx.put(SOURCE_DOC_ID, "0000");
         scb.doSubscribe("user1", RESOLVER_NAME, ctx);
         scb.doSubscribe("user2", RESOLVER_NAME, ctx);
         scb.doSubscribe("user3", RESOLVER_NAME, ctx);
@@ -148,10 +148,9 @@ public class TestDocumentUpdatedNotifications {
                                              .getCodec(DEFAULT_CODEC, Notification.class);
         Notification notification = codec.decode(record.getData());
         assertThat(notification.getUsername()).isEqualTo("user1");
-        assertThat(notification.getSourceId()).isEqualTo(comment.getId());
+        assertThat(notification.getSourceId()).isEqualTo(doc.getId());
         assertThat(notification.getSourceRepository()).isEqualTo(doc.getRepositoryName());
         assertThat(notification.getUsername()).isEqualTo("user1");
-        assertThat(notification.getContext().get(DOC_ID_KEY)).isEqualTo(doc.getId());
         assertThat(notification.getContext().get(COMMENT_ID_KEY)).isEqualTo(comment.getId());
         assertThat(notification.getContext().get(COMMENT_AUTHOR_KEY)).isEqualTo("Administrator");
     }
@@ -166,7 +165,7 @@ public class TestDocumentUpdatedNotifications {
 
         // User subscribe to the new document
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, doc.getId());
+        ctx.put(SOURCE_DOC_ID, doc.getId());
         scb.doSubscribe(user, RESOLVER_NAME, ctx);
         TestNotificationHelper.waitProcessorsCompletion();
 

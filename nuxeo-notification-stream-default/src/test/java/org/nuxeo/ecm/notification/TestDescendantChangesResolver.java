@@ -21,16 +21,14 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
-import static org.nuxeo.ecm.notification.resolver.DescendantChangesResolver.FOLDERISH_ID_FIELD;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +92,7 @@ public class TestDescendantChangesResolver {
 
         try {
             ncs.doSubscribe("Administrator", "descendantChanges",
-                    Collections.singletonMap(FOLDERISH_ID_FIELD, file.getId()));
+                    Collections.singletonMap(SOURCE_DOC_ID, file.getId()));
             failBecauseExceptionWasNotThrown(NuxeoException.class);
         } catch (NuxeoException e) {
             assertThat(e).hasMessageStartingWith("Unable to subscribe to this resolver with a non-folderish");
@@ -106,7 +104,7 @@ public class TestDescendantChangesResolver {
         DocumentModel folder = session.createDocumentModel("/", "foobar", "Folder");
         folder = session.createDocument(folder);
 
-        Map<String, String> ctx = Collections.singletonMap(FOLDERISH_ID_FIELD, folder.getId());
+        Map<String, String> ctx = Collections.singletonMap(SOURCE_DOC_ID, folder.getId());
         ncs.doSubscribe("Administrator", "descendantChanges", ctx);
 
         assertThat(ns.getSubscriptions("descendantChanges", ctx).getUsernames()).containsExactly("Administrator");
@@ -117,7 +115,7 @@ public class TestDescendantChangesResolver {
         DocumentModel folder = session.createDocumentModel("/", "foobar", "Folder");
         folder = session.createDocument(folder);
 
-        Map<String, String> ctx = Collections.singletonMap(FOLDERISH_ID_FIELD, folder.getId());
+        Map<String, String> ctx = Collections.singletonMap(SOURCE_DOC_ID, folder.getId());
         ncs.doSubscribe(USER_ID, "descendantChanges", ctx);
 
         assertThat(CounterNotifier.processed).isEqualTo(0);
@@ -150,7 +148,7 @@ public class TestDescendantChangesResolver {
 
         waitAllAsync();
 
-        Map<String, String> ctx = Collections.singletonMap(FOLDERISH_ID_FIELD, folderRoot.getId());
+        Map<String, String> ctx = Collections.singletonMap(SOURCE_DOC_ID, folderRoot.getId());
         ncs.doSubscribe(USER_ID, "descendantChanges", ctx);
 
         assertThat(CounterNotifier.processed).isEqualTo(0);
