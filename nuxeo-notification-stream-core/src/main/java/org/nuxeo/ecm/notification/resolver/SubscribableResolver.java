@@ -17,15 +17,6 @@
  */
 package org.nuxeo.ecm.notification.resolver;
 
-import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.notification.message.EventRecord;
@@ -35,6 +26,15 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 import org.nuxeo.runtime.kv.KeyValueService;
 import org.nuxeo.runtime.kv.KeyValueStore;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 /**
  * Subscribable Resolver that requires an explicit user's subscription to replace his target users (eg. When a user
@@ -63,15 +63,21 @@ public abstract class SubscribableResolver extends Resolver {
 
     /**
      * List require fields in order to be able to subscribe to the Resolver
-     * 
+     *
      * @return list of String, should not return null value.
      */
     public abstract List<String> getRequiredContextFields();
 
-    protected boolean hasRequiredFields(Map<String, String> ctx) {
+    public boolean hasRequiredFields(Map<String, String> ctx) {
         return getRequiredContextFields().stream()
-                                         .map(s -> ctx.getOrDefault(s, null))
-                                         .allMatch(StringUtils::isNotEmpty);
+                .map(s -> ctx.getOrDefault(s, null))
+                .allMatch(StringUtils::isNotEmpty);
+    }
+
+    public List<String> getMissingFields(Map<String, String> ctx) {
+        List<String> retained = new ArrayList<>(getRequiredContextFields());
+        retained.removeAll(ctx.keySet());
+        return retained;
     }
 
     @Override
@@ -102,11 +108,9 @@ public abstract class SubscribableResolver extends Resolver {
     }
 
     protected Subscribers resolveSubscriptions(Map<String, String> ctx, Function<Subscribers, Subscribers> func,
-            Boolean updateStorage) {
+                                               Boolean updateStorage) {
         if (!hasRequiredFields(ctx)) {
-            List<String> retained = new ArrayList<>(getRequiredContextFields());
-            retained.removeAll(ctx.keySet());
-            throw new NuxeoException("Missing required context fields: " + StringUtils.join(retained, ", "));
+            throw new NuxeoException("Missing required context fields: " + StringUtils.join(getMissingFields(ctx), ", "));
         }
 
         KeyValueStore kvs = Framework.getService(KeyValueService.class).getKeyValueStore(KVS_SUBSCRIPTIONS);
