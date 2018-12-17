@@ -111,10 +111,11 @@ public abstract class Resolver {
     /**
      * Return some contextual informations needed to passed to the Notifier
      * 
+     * @param targetUsername user that will receive the notification
      * @param eventRecord that generates the notification
      * @return a map with contextual informations like document title, document path, document url, ...
      */
-    public abstract Map<String, String> buildNotifierContext(EventRecord eventRecord);
+    public abstract Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord);
 
     protected static <T> T withDocument(EventRecord eventRecord, Function<DocumentModel, T> func) {
         return withSession(eventRecord, session -> func.apply(session.getDocument(eventRecord.getDocumentSourceRef())));

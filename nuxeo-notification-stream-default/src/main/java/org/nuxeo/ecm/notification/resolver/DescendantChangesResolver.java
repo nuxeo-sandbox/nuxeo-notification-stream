@@ -35,11 +35,15 @@ import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.message.EventRecord;
+import org.nuxeo.runtime.api.Framework;
 
 public class DescendantChangesResolver extends SubscribableResolver {
 
     private static Logger log = LogManager.getLogger(DescendantChangesResolver.class);
+
+    public static final String ANCESTOR_ID = "ancestorId";
 
     @Override
     public List<String> getRequiredContextFields() {
@@ -68,8 +72,22 @@ public class DescendantChangesResolver extends SubscribableResolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
-        return Collections.emptyMap();
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
+        DocumentRef[] parent = withSession(eventRecord,
+                session -> session.getParentDocumentRefs(eventRecord.getDocumentSourceRef()));
+        String ancestorId = Arrays.stream(parent)
+                                  .map(DocumentRef::toString)
+                                  .filter(s -> Framework.getService(NotificationService.class)
+                                                        .hasSubscribe(targetUsername, getId(),
+                                                                Collections.singletonMap(SOURCE_DOC_ID, s)))
+                                  .findFirst()
+                                  .orElse(null);
+
+        if (ancestorId != null) {
+            return Collections.singletonMap(ANCESTOR_ID, ancestorId);
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     @Override

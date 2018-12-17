@@ -14,7 +14,9 @@
       <message>@{user:originatingUser} @{action} document @{doc:sourceId} @{actionSuffix} collection @{doc:collectionDocId}
       </message>
     </resolver>
-    <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver" />
+    <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver">
+      <message>@{user:originatingUser} updated document @{doc:sourceId} descendant of @{doc:ancestorId}</message>
+    </resolver>
     <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver" />
     <resolver id="workflow" class="org.nuxeo.ecm.notification.resolver.WorkflowUpdatesResolver" />
   </extension>

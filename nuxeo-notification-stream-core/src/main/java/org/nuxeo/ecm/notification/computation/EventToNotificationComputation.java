@@ -20,7 +20,6 @@ package org.nuxeo.ecm.notification.computation;
 
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.message.EventRecord;
@@ -52,19 +51,17 @@ public class EventToNotificationComputation extends AbstractComputation {
                                            .decode(record.getData());
         Framework.getService(NotificationService.class)
                  .getResolvers(eventRecord)
-                 .stream()
-                 .map(resolver -> Pair.of(resolver,
-                         Notification.builder()
-                                     .fromEvent(eventRecord)
-                                     .withCtx(resolver.buildNotifierContext(eventRecord))
-                                     .withResolver(resolver)
-                                     .computeMessage()
-                                     .prepareEntities()
-                                     .resolveEntities()))
-                 .forEach(p -> p.getLeft()
-                                .resolveTargetUsers(eventRecord)
+                 .forEach(r -> r.resolveTargetUsers(eventRecord)
                                 .filter(user -> !user.equals(eventRecord.getUsername()))
-                                .map(u -> p.getRight().withUsername(u).build())
+                                .map(u -> Notification.builder()
+                                                      .fromEvent(eventRecord)
+                                                      .withResolver(r)
+                                                      .withUsername(u)
+                                                      .withCtx(r.buildNotifierContext(u, eventRecord))
+                                                      .computeMessage()
+                                                      .prepareEntities()
+                                                      .resolveEntities()
+                                                      .build())
                                 .map(this::encodeNotif)
                                 .forEach(notif -> ctx.produceRecord(outputStream, notif)));
 

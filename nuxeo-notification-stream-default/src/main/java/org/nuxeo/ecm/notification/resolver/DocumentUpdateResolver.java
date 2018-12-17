@@ -54,7 +54,7 @@ public class DocumentUpdateResolver extends SubscribableResolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         Map<String, String> ctx = new HashMap<>();
         // Handle differently if the document is a comment or if it's another type of document
         if (COMMENT_DOC_TYPE.equals(eventRecord.getDocumentSourceType())) {

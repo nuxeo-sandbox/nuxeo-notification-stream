@@ -39,7 +39,7 @@ public class ContributorsResolver extends Resolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         return Collections.emptyMap();
     }
 }

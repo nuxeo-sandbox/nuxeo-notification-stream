@@ -60,7 +60,7 @@ public class TestCollectionUpdatesResolver {
                                                             .withEventName(ADDED_TO_COLLECTION)
                                                             .withContext(ctx);
         Resolver resolver = new CollectionUpdatesResolver().withId("collectionUpdate");
-        Map<String, String> ctxNotifier = resolver.buildNotifierContext(builder.build());
+        Map<String, String> ctxNotifier = resolver.buildNotifierContext(null, builder.build());
         assertThat(ctxNotifier).hasSize(2);
         assertThat(ctxNotifier.get(CTX_ACTION)).isEqualTo("added");
         assertThat(ctxNotifier.get(CTX_ACTION_SUFFIX)).isEqualTo("to");
