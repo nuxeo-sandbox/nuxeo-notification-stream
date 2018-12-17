@@ -18,18 +18,8 @@
 
 package org.nuxeo.ecm.restapi.server.jaxrs.notification;
 
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.NAME_FIELD;
-import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.SUFFIX_FIELD;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.notification.NotificationFeature;
@@ -46,10 +36,22 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.ServletContainer;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.NAME_FIELD;
+import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.SUFFIX_FIELD;
 
 @RunWith(FeaturesRunner.class)
-@Features({ RestServerFeature.class, NotificationFeature.class })
+@Features({RestServerFeature.class, NotificationFeature.class})
 @ServletContainer(port = 18090)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest.test")
@@ -143,5 +145,48 @@ public class NotificationObjectTest extends BaseTest {
                 "/notification/resolver/fileCreated/unsubscribe", "{}")) {
             assertThat(res.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
         }
+    }
+
+    @Test
+    public void testSubscribeWithException() {
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/complexResolver/subscribe",
+                "{}")) {
+            assertThat(res.getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
+        }
+    }
+
+    @Test
+    public void testUnsubscribeWithException() {
+        try (CloseableClientResponse res = getResponse(RequestType.POST,
+                "/notification/resolver/complexResolver/unsubscribe", "{}")) {
+            assertThat(res.getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
+        }
+    }
+
+    @Test
+    public void testUnsubscribeWithGet() {
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/complexResolver/subscribe",
+                "{\"name\":\"Waldo\",\"suffix\":\"Doh\"}")) {
+            assertThat(res.getStatus()).isEqualTo(CREATED.getStatusCode());
+        }
+
+        // Wait until computations are processed
+        assertThat(StreamHelper.drainAndStop()).isTrue();
+
+        MultivaluedMap<String, String> qs = new MultivaluedMapImpl();
+        qs.add("name", "Waldo");
+
+        try (CloseableClientResponse res = getResponse(RequestType.GET,
+                "/notification/resolver/complexResolver/unsubscribe", qs)) {
+            assertThat(res.getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
+        }
+
+        qs.add("suffix", "Doh");
+        try (CloseableClientResponse res = getResponse(RequestType.GET,
+                "/notification/resolver/complexResolver/unsubscribe", qs)) {
+            assertThat(res.getStatus()).isEqualTo(ACCEPTED.getStatusCode());
+        }
+
+        assertThat(StreamHelper.drainAndStop()).isTrue();
     }
 }
