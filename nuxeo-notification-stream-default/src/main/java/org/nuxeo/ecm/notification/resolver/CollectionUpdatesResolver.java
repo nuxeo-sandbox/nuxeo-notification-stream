@@ -38,7 +38,7 @@ public class CollectionUpdatesResolver extends AbstractCollectionResolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         Map<String, String> ctx = new HashMap<>();
         // Add the context variables for the text of the notification message
         if (eventRecord.getEventName().equals(ADDED_TO_COLLECTION)) {

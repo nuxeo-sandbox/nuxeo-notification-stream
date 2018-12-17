@@ -46,7 +46,7 @@ public class CollectionResolver extends AbstractCollectionResolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         return Collections.emptyMap();
     }
 

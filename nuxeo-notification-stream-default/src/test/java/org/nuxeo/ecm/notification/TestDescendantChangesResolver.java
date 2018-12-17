@@ -23,11 +23,12 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.READ;
 import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
+
+import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -158,6 +159,9 @@ public class TestDescendantChangesResolver {
 
         waitAllAsync();
         assertThat(CounterNotifier.processed).isEqualTo(1);
+        assertThat(CounterNotifier.getLast().getMessage()).isEqualTo(
+                String.format("@{user:%s} updated document @{doc:%s} descendant of @{doc:%s}",
+                        session.getPrincipal().getActingUser(), file.getId(), folderRoot.getId()));
     }
 
     protected void waitAllAsync() {

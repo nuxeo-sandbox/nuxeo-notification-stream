@@ -45,7 +45,7 @@ public class WorkflowUpdatesResolver extends SubscribableResolver {
     }
 
     @Override
-    public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
+    public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         return Collections.singletonMap(WORKFLOW_ID_KEY, eventRecord.getContext().get(WORKFLOW_ID_KEY));
     }
 }

@@ -13,7 +13,6 @@ import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.BEFORE_DOC_UPDATE;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_REMOVED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
 import static org.nuxeo.ecm.platform.comment.workflow.utils.CommentsConstants.COMMENT_DOC_TYPE;
 
@@ -65,7 +64,7 @@ public class TestDocumentUpdateResolver {
                                                             .withDocumentId("0000-1111")
                                                             .withEventName(DOCUMENT_UPDATED);
         DocumentUpdateResolver resolver = (DocumentUpdateResolver) new DocumentUpdateResolver().withId(RESOLVER_NAME);
-        Map<String, String> ctx = resolver.buildNotifierContext(builder.build());
+        Map<String, String> ctx = resolver.buildNotifierContext(null, builder.build());
         assertThat(ctx).isEmpty();
     }
 }
