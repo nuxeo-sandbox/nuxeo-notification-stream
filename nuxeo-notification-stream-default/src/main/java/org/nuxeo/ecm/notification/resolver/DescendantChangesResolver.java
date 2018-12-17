@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.NuxeoException;
@@ -40,8 +38,6 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.runtime.api.Framework;
 
 public class DescendantChangesResolver extends SubscribableResolver {
-
-    private static Logger log = LogManager.getLogger(DescendantChangesResolver.class);
 
     public static final String ANCESTOR_ID = "ancestorId";
 
