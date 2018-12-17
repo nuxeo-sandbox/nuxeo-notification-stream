@@ -17,7 +17,9 @@
     <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver">
       <message>@{user:originatingUser} updated document @{doc:sourceId} descendant of @{doc:ancestorId}</message>
     </resolver>
-    <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver" />
+    <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver">
+      <message>The task @{doc:taskId} on document @{doc:sourceId} has been assigned to you.</message>
+    </resolver>
     <resolver id="workflow" class="org.nuxeo.ecm.notification.resolver.WorkflowUpdatesResolver" />
   </extension>
 

@@ -11,9 +11,8 @@ package org.nuxeo.ecm.notification.autosubscribe;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 
-import java.util.Map;
-
 import javax.inject.Inject;
+import java.util.Map;
 
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;

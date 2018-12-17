@@ -49,7 +49,7 @@ public class TestTaskAssignedNotifications {
         // Create a new document and a new task on the document
         DocumentModel doc = createDocument();
         // Create a task on the document
-        createTask(doc, Arrays.asList("user1"));
+        String taskId = createTask(doc, Arrays.asList("user1")).get(0).getId();
 
         // Check the notifications created
         assertThat(CounterNotifier.processed).isEqualTo(1);
@@ -57,6 +57,8 @@ public class TestTaskAssignedNotifications {
         assertThat(notification.getSourceId()).isEqualTo(doc.getId());
         assertThat(notification.getUsername()).isEqualTo("user1");
         assertThat(notification.getResolverId()).isEqualTo("taskAssigned");
+        assertThat(notification.getMessage()).isEqualTo(String.format(
+                "The task @{doc:%s} on document @{doc:%s} has been assigned to you.", taskId, doc.getId()));
     }
 
     @Test
@@ -70,7 +72,8 @@ public class TestTaskAssignedNotifications {
         CounterNotifier.reset();
 
         // Reassign the task
-        taskService.reassignTask(session, tasks.get(0).getId(), Arrays.asList("user2", "user3"), "Comment");
+        String taskId = tasks.get(0).getId();
+        taskService.reassignTask(session, taskId, Arrays.asList("user2", "user3"), "Comment");
         session.save();
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
@@ -82,6 +85,9 @@ public class TestTaskAssignedNotifications {
                              .allMatch(n -> n.getUsername().equals("user2") || n.getUsername().equals("user3")))
                                                                                                                 .isTrue();
         assertThat(notifications.stream().allMatch(n -> n.getSourceId().equals(doc.getId()))).isTrue();
+        String expectedMessage = String.format("The task @{doc:%s} on document @{doc:%s} has been assigned to you.",
+                taskId, doc.getId());
+        assertThat(notifications.stream().allMatch(n -> n.getMessage().equals(expectedMessage))).isTrue();
     }
 
     @Test
@@ -95,7 +101,8 @@ public class TestTaskAssignedNotifications {
         CounterNotifier.reset();
 
         // Delegate the task
-        taskService.delegateTask(session, tasks.get(0).getId(), Arrays.asList("user2", "user3"), "Comment");
+        String taskId = tasks.get(0).getId();
+        taskService.delegateTask(session, taskId, Arrays.asList("user2", "user3"), "Comment");
         session.save();
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
@@ -107,6 +114,9 @@ public class TestTaskAssignedNotifications {
                              .allMatch(n -> n.getUsername().equals("user2") || n.getUsername().equals("user3")))
                                                                                                                 .isTrue();
         assertThat(notifications.stream().allMatch(n -> n.getSourceId().equals(doc.getId()))).isTrue();
+        String expectedMessage = String.format("The task @{doc:%s} on document @{doc:%s} has been assigned to you.",
+                taskId, doc.getId());
+        assertThat(notifications.stream().allMatch(n -> n.getMessage().equals(expectedMessage))).isTrue();
 
     }
 
