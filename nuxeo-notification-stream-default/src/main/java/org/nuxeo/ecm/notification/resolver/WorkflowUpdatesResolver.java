@@ -9,11 +9,13 @@
 package org.nuxeo.ecm.notification.resolver;
 
 import static org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants.Events.afterWorkflowFinish;
+import static org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants.Events.afterWorkflowTaskDelegated;
 import static org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants.Events.afterWorkflowTaskEnded;
 import static org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants.Events.workflowCanceled;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +36,12 @@ public class WorkflowUpdatesResolver extends SubscribableResolver {
 
     public static final String WORKFLOW_ID_KEY = "wfId";
 
+    public static final String CTX_ACTION = "action";
+
+    public static final String CTX_TARGET = "target";
+
+    public static final String CTX_TARGET_ID = "targetId";
+
     @Override
     public List<String> getRequiredContextFields() {
         return Collections.singletonList(WORKFLOW_ID_KEY);
@@ -46,6 +54,18 @@ public class WorkflowUpdatesResolver extends SubscribableResolver {
 
     @Override
     public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
-        return Collections.singletonMap(WORKFLOW_ID_KEY, eventRecord.getContext().get(WORKFLOW_ID_KEY));
+        Map<String, String> ctx =  new HashMap<>();
+        ctx.put(WORKFLOW_ID_KEY, eventRecord.getContext().get(WORKFLOW_ID_KEY));
+        // Add the context info for the message
+        if (eventRecord.getEventName().equals(afterWorkflowTaskEnded.name())) {
+            ctx.put(CTX_TARGET, "task");
+            ctx.put(CTX_ACTION, "completed");
+            ctx.put(CTX_TARGET_ID, eventRecord.getDocumentSourceId());
+        } else {
+            ctx.put(CTX_TARGET, "workflow");
+            ctx.put(CTX_TARGET_ID, eventRecord.getContext().get(WORKFLOW_ID_KEY));
+            ctx.put(CTX_ACTION, eventRecord.getEventName().equals(workflowCanceled.name()) ? "canceled" : "completed");
+        }
+        return ctx;
     }
 }
