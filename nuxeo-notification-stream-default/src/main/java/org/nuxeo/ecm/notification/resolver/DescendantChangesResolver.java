@@ -37,6 +37,11 @@ import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.runtime.api.Framework;
 
+/**
+ * Allow users to be notified on updates through documents below a Folderish.
+ *
+ * @since XXX
+ */
 public class DescendantChangesResolver extends SubscribableResolver {
 
     public static final String ANCESTOR_ID = "ancestorId";

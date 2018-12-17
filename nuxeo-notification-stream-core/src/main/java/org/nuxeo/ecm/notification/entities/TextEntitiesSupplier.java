@@ -18,14 +18,6 @@
 
 package org.nuxeo.ecm.notification.entities;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.CloseableCoreSession;
@@ -44,7 +36,15 @@ import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
+ * Resolve every entities from a Notification object; fetch Document from session, get user's metadata, ...
+ *
  * @since XXX
  */
 public class TextEntitiesSupplier {
@@ -70,9 +70,21 @@ public class TextEntitiesSupplier {
         if (!requiresSession()) {
             resolveEntities();
         } else {
-            withSession(notif, s -> {
-                setSession(s);
-                resolveEntities();
+            TransactionHelper.runInTransaction(() -> {
+                try {
+                    LoginContext loginContext = Framework.loginAsUser(notif.getOriginatingUser());
+                    String repository = notif.getSourceRepository();
+                    try (CloseableCoreSession session = CoreInstance.openCoreSession(repository)) {
+                        setSession(session);
+
+                        resolveEntities();
+                    } finally {
+                        setSession(null);
+                        loginContext.logout();
+                    }
+                } catch (LoginException e) {
+                    throw new NuxeoException(e);
+                }
             });
         }
     }
@@ -85,28 +97,12 @@ public class TextEntitiesSupplier {
         notif.entities.forEach(e -> e.values = resolve(e));
     }
 
-    protected static void withSession(Notification notif, Consumer<CoreSession> cons) {
-        TransactionHelper.runInTransaction(() -> {
-            try {
-                LoginContext loginContext = Framework.loginAsUser(notif.getOriginatingUser());
-                String repository = notif.getSourceRepository();
-                try (CloseableCoreSession session = CoreInstance.openCoreSession(repository)) {
-                    cons.accept(session);
-                } finally {
-                    loginContext.logout();
-                }
-            } catch (LoginException e) {
-                throw new NuxeoException(e);
-            }
-        });
-    }
-
     public Map<String, String> resolve(TextEntity textEntity) {
         switch (textEntity.getType()) {
-        case TextEntity.DOCUMENT:
-            return resolveDocument(textEntity);
-        case TextEntity.USERNAME:
-            return resolverUsername(textEntity);
+            case TextEntity.DOCUMENT:
+                return resolveDocument(textEntity);
+            case TextEntity.USERNAME:
+                return resolverUsername(textEntity);
         }
         return Collections.emptyMap();
     }
