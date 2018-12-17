@@ -171,7 +171,7 @@ public class TestCollectionNotifications {
         assertThat(last.getUsername()).isEqualTo("dummyUser");
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
         assertThat(last.getMessage()).isEqualTo(
-                String.format("@{user:Administrator} added document @{doc:%s} to collection @{doc:%s}", newDoc.getId(),
+                String.format("@{user:Administrator} added document @{doc:%s} to collection @{doc:%s}.", newDoc.getId(),
                         collectionId));
     }
 
@@ -206,7 +206,7 @@ public class TestCollectionNotifications {
         assertThat(last.getUsername()).isEqualTo("dummyUser");
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
         assertThat(last.getMessage()).isEqualTo(
-                String.format("@{user:Administrator} removed document @{doc:%s} from collection @{doc:%s}",
+                String.format("@{user:Administrator} removed document @{doc:%s} from collection @{doc:%s}.",
                         newDoc.getId(), collectionId));
     }
 

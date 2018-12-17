@@ -160,7 +160,7 @@ public class TestDescendantChangesResolver {
         waitAllAsync();
         assertThat(CounterNotifier.processed).isEqualTo(1);
         assertThat(CounterNotifier.getLast().getMessage()).isEqualTo(
-                String.format("@{user:%s} updated document @{doc:%s} descendant of @{doc:%s}",
+                String.format("@{user:%s} updated document @{doc:%s} descendant of @{doc:%s}.",
                         session.getPrincipal().getActingUser(), file.getId(), folderRoot.getId()));
     }
 

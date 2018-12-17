@@ -3,19 +3,19 @@
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
     <resolver id="documentUpdated" class="org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver">
-      <message>@{user:originatingUser} updated document @{doc:sourceId} at @{date:createdAt}</message>
+      <message>@{user:originatingUser} updated document @{doc:sourceId} at @{date:createdAt}.</message>
     </resolver>
     <resolver id="collection" class="org.nuxeo.ecm.notification.resolver.CollectionResolver">
       <message>@{user:originatingUser} updated document @{doc:sourceId} in collection @{doc:collectionDocId} at
-        @{date:createdAt}
+        @{date:createdAt}.
       </message>
     </resolver>
     <resolver id="collectionUpdates" class="org.nuxeo.ecm.notification.resolver.CollectionUpdatesResolver">
-      <message>@{user:originatingUser} @{action} document @{doc:sourceId} @{actionSuffix} collection @{doc:collectionDocId}
+      <message>@{user:originatingUser} @{action} document @{doc:sourceId} @{actionSuffix} collection @{doc:collectionDocId}.
       </message>
     </resolver>
     <resolver id="descendantChanges" class="org.nuxeo.ecm.notification.resolver.DescendantChangesResolver">
-      <message>@{user:originatingUser} updated document @{doc:sourceId} descendant of @{doc:ancestorId}</message>
+      <message>@{user:originatingUser} updated document @{doc:sourceId} descendant of @{doc:ancestorId}.</message>
     </resolver>
     <resolver id="taskAssigned" class="org.nuxeo.ecm.notification.resolver.TaskAssignedResolver">
       <message>The task @{doc:taskId} on document @{doc:sourceId} has been assigned to you.</message>

@@ -125,7 +125,7 @@ public class TestDocumentUpdatedNotifications {
         assertThat(notification.getSourceId()).isEqualTo(doc.getId());
         assertThat(notification.getSourceRepository()).isEqualTo(doc.getRepositoryName());
         assertThat(notification.getMessage()).isEqualTo(
-                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}", doc.getId(),
+                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}.", doc.getId(),
                         notification.getCreatedAt()));
     }
 
@@ -157,7 +157,7 @@ public class TestDocumentUpdatedNotifications {
         assertThat(notification.getContext().get(COMMENT_ID_KEY)).isEqualTo(comment.getId());
         assertThat(notification.getContext().get(COMMENT_AUTHOR_KEY)).isEqualTo("Administrator");
         assertThat(notification.getMessage()).isEqualTo(
-                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}", doc.getId(),
+                String.format("@{user:Administrator} updated document @{doc:%s} at @{date:%s}.", doc.getId(),
                         notification.getCreatedAt()));
     }
 
