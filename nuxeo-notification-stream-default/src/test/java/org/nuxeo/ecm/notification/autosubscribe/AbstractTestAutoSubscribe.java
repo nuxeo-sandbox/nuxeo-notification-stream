@@ -10,13 +10,10 @@ package org.nuxeo.ecm.notification.autosubscribe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
-import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.DOC_ID_KEY;
-import static org.nuxeo.ecm.notification.resolver.DocumentUpdateResolver.RESOLVER_NAME;
+
+import java.util.Map;
 
 import javax.inject.Inject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -46,14 +43,14 @@ public class AbstractTestAutoSubscribe {
     protected void createUserAndAddPermissionsToCreateDocuments(String username) {
         // Create a new user
         DocumentModel newUser = userManager.getBareUserModel();
-        newUser.setPropertyValue(userManager.getUserIdField(), "user1");
+        newUser.setPropertyValue(userManager.getUserIdField(), username);
         userManager.createUser(newUser);
 
         // Add permission to the user to create a new document
         PathRef rootRef = new PathRef("/");
         ACP acp = session.getACP(rootRef);
         ACL existingACL = acp.getOrCreateACL();
-        existingACL.add(new ACE("user1", EVERYTHING, true));
+        existingACL.add(new ACE(username, EVERYTHING, true));
         session.setACP(new PathRef("/"), acp, true);
     }
 

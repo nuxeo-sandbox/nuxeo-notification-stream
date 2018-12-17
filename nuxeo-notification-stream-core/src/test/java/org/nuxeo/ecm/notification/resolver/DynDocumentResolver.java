@@ -18,19 +18,18 @@
 
 package org.nuxeo.ecm.notification.resolver;
 
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_EVENT;
+
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.notification.message.EventRecord;
-import org.nuxeo.ecm.notification.resolver.impl.SimpleSubscribableResolver;
 
 public class DynDocumentResolver extends SubscribableResolver {
-    public static final String DOC_ID_KEY = "docId";
-
-    public static final String EVENT_KEY = "event";
 
     @Override
     public boolean accept(EventRecord eventRecord) {
@@ -39,19 +38,16 @@ public class DynDocumentResolver extends SubscribableResolver {
 
     @Override
     public String computeSubscriptionsKey(Map<String, String> ctx) {
-        return String.format("%s:%s:%s", getId(), ctx.get(DOC_ID_KEY), ctx.get(EVENT_KEY));
+        return String.format("%s:%s:%s", getId(), ctx.get(SOURCE_DOC_ID), ctx.get(SOURCE_EVENT));
     }
 
     @Override
     public List<String> getRequiredContextFields() {
-        return Arrays.asList(DOC_ID_KEY, EVENT_KEY);
+        return Arrays.asList(SOURCE_DOC_ID, SOURCE_EVENT);
     }
 
     @Override
     public Map<String, String> buildNotifierContext(EventRecord eventRecord) {
-        Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, eventRecord.getDocumentSourceId());
-        ctx.put(EVENT_KEY, eventRecord.getEventName());
-        return ctx;
+        return Collections.emptyMap();
     }
 }
