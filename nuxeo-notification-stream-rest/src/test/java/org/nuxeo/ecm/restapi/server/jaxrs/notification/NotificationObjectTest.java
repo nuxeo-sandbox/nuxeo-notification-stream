@@ -67,6 +67,7 @@ public class NotificationObjectTest extends BaseTest {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/fileCreated");
         assertThat(json.get("entity-type").asText()).isEqualTo(ResolverJsonWriter.ENTITY_TYPE);
         assertThat(json.get("id").asText()).isEqualTo("fileCreated");
+        assertThat(json.get("message").asText()).isEqualTo("Hello World!");
     }
 
     @Test
