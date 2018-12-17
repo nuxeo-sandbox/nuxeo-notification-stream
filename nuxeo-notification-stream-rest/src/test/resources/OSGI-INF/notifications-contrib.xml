@@ -7,7 +7,9 @@
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="resolver">
-    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.FileCreatedResolver" />
+    <resolver id="fileCreated" class="org.nuxeo.ecm.notification.resolver.FileCreatedResolver">
+      <message>Hello World!</message>
+    </resolver>
     <resolver id="fileUpdated" class="org.nuxeo.ecm.notification.resolver.FileUpdatedResolver" />
     <resolver id="complexResolver" class="org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver" />
   </extension>

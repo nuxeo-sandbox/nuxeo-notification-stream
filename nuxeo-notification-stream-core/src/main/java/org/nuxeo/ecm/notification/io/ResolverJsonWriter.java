@@ -51,6 +51,7 @@ public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {
                 I18NUtils.getMessageString(MESSAGES_BUNDLE, resolver.getLabelKey(), null, ctx.getLocale()));
         jg.writeStringField("description",
                 I18NUtils.getMessageString(MESSAGES_BUNDLE, resolver.getDescriptionKey(), null, ctx.getLocale()));
+        jg.writeStringField("message", resolver.getMessage());
         if (resolver instanceof SubscribableResolver) {
             jg.writeArrayFieldStart("requiredFields");
             for (String s : ((SubscribableResolver) resolver).getRequiredContextFields()) {
