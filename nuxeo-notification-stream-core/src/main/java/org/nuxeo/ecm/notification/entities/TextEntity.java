@@ -18,13 +18,15 @@
 
 package org.nuxeo.ecm.notification.entities;
 
+import org.apache.avro.reflect.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
-import org.apache.avro.reflect.Nullable;
-
 /**
+ * Simple POJO to store MatchResult information (start, end, id...) and entity resolved information (for instance; username, lastname, ...)
+ *
  * @since XXX
  */
 public class TextEntity {
@@ -66,24 +68,12 @@ public class TextEntity {
         return id;
     }
 
-    public String getOpts() {
-        return opts;
-    }
-
     public String getValue(String key) {
         return values.get(key);
     }
 
     public Boolean isComputed() {
         return !values.isEmpty();
-    }
-
-    public void resolveEntity(TextEntitiesSupplier supplier) {
-        values.putAll(supplier.resolve(this));
-    }
-
-    public String getValueOrDefault(String key, String defaultValue) {
-        return values.getOrDefault(key, defaultValue);
     }
 
     public static TextEntity from(MatchResult match) {

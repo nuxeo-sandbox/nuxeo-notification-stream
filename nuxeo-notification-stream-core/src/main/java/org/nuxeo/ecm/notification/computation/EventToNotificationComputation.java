@@ -18,8 +18,6 @@
 
 package org.nuxeo.ecm.notification.computation;
 
-import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
-
 import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
 import org.nuxeo.ecm.notification.message.EventRecord;
@@ -30,7 +28,11 @@ import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 
+import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
+
 /**
+ * Computation that process an EventRecord to a Notification record.
+ *
  * @since XXX
  */
 public class EventToNotificationComputation extends AbstractComputation {
@@ -47,30 +49,30 @@ public class EventToNotificationComputation extends AbstractComputation {
 
         // Extract the EventRecord from the input Record
         EventRecord eventRecord = Framework.getService(CodecService.class) //
-                                           .getCodec(DEFAULT_CODEC, EventRecord.class)
-                                           .decode(record.getData());
+                .getCodec(DEFAULT_CODEC, EventRecord.class)
+                .decode(record.getData());
         Framework.getService(NotificationService.class)
-                 .getResolvers(eventRecord)
-                 .forEach(r -> r.resolveTargetUsers(eventRecord)
-                                .filter(user -> !user.equals(eventRecord.getUsername()))
-                                .map(u -> Notification.builder()
-                                                      .fromEvent(eventRecord)
-                                                      .withResolver(r)
-                                                      .withUsername(u)
-                                                      .withCtx(r.buildNotifierContext(u, eventRecord))
-                                                      .computeMessage()
-                                                      .prepareEntities()
-                                                      .resolveEntities()
-                                                      .build())
-                                .map(this::encodeNotif)
-                                .forEach(notif -> ctx.produceRecord(outputStream, notif)));
+                .getResolvers(eventRecord)
+                .forEach(r -> r.resolveTargetUsers(eventRecord)
+                        .filter(user -> !user.equals(eventRecord.getUsername()))
+                        .map(u -> Notification.builder()
+                                .fromEvent(eventRecord)
+                                .withResolver(r)
+                                .withUsername(u)
+                                .withCtx(r.buildNotifierContext(u, eventRecord))
+                                .computeMessage()
+                                .prepareEntities()
+                                .resolveEntities()
+                                .build())
+                        .map(this::encodeNotif)
+                        .forEach(notif -> ctx.produceRecord(outputStream, notif)));
 
         ctx.askForCheckpoint();
     }
 
     protected Record encodeNotif(Notification notif) {
         return Record.of(notif.getId(), Framework.getService(CodecService.class) //
-                                                 .getCodec(DEFAULT_CODEC, Notification.class)
-                                                 .encode(notif));
+                .getCodec(DEFAULT_CODEC, Notification.class)
+                .encode(notif));
     }
 }
