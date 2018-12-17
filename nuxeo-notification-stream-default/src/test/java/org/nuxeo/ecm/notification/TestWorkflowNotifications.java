@@ -11,9 +11,11 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.security.SecurityConstants.EVERYTHING;
 import static org.nuxeo.ecm.notification.TestNotificationHelper.waitProcessorsCompletion;
+import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_EVENT;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 import static org.nuxeo.ecm.notification.resolver.WorkflowUpdatesResolver.RESOLVER_NAME;
 import static org.nuxeo.ecm.notification.resolver.WorkflowUpdatesResolver.WORKFLOW_ID_KEY;
+import static org.nuxeo.ecm.platform.routing.api.DocumentRoutingConstants.Events.afterWorkflowFinish;
 import static org.nuxeo.runtime.stream.StreamHelper.drainAndStop;
 
 import javax.inject.Inject;
@@ -132,8 +134,11 @@ public class TestWorkflowNotifications {
         waitEndAsyncProcesses();
 
         assertThat(CounterNotifier.processed).isEqualTo(1);
-        assertThat(CounterNotifier.getLast().getResolverId()).isEqualTo(RESOLVER_NAME);
-        assertThat(CounterNotifier.getLast().getUsername()).isEqualTo(USER_ID);
+        Notification notif = CounterNotifier.getLast();
+        assertThat(notif.getResolverId()).isEqualTo(RESOLVER_NAME);
+        assertThat(notif.getUsername()).isEqualTo(USER_ID);
+        assertThat(notif.getMessage()).isEqualTo(
+                String.format("The workflow @{doc:%s} has been canceled by @{user:Administrator}.", routeId));
     }
 
     @Test
@@ -148,10 +153,19 @@ public class TestWorkflowNotifications {
 
         // Two notifications are sent, one for the completed task and another for the end of the workflow
         assertThat(CounterNotifier.processed).isEqualTo(2);
-        Notification notification = CounterNotifier.getLast();
+        // Check only the notification on the completed workflow
+        List<Notification> listNotifsWf = CounterNotifier.fullCtx.stream()
+                                                                 .filter(n -> n.getContext()
+                                                                               .get(ORIGINATING_EVENT)
+                                                                               .equals(afterWorkflowFinish.name()))
+                                                                 .collect(Collectors.toList());
+        assertThat(listNotifsWf).hasSize(1);
+        Notification notification = listNotifsWf.get(0);
         assertThat(notification.getResolverId()).isEqualTo(RESOLVER_NAME);
         assertThat(notification.getUsername()).isEqualTo(USER_ID);
         assertThat(notification.getContext().get(ORIGINATING_USER)).isEqualTo("Administrator");
+        assertThat(notification.getMessage()).isEqualTo(
+                String.format("The workflow @{doc:%s} has been completed by @{user:Administrator}.", routeId));
     }
 
     @Test
@@ -163,21 +177,27 @@ public class TestWorkflowNotifications {
         DocumentModel workflowInstance = session.getDocument(new IdRef(routeId));
         GraphRoute graph = workflowInstance.getAdapter(GraphRoute.class);
         Map<String, Serializable> vars = graph.getVariables();
-        vars.put("participants",  (Serializable) Arrays.asList("user2"));
+        vars.put("participants", (Serializable) Arrays.asList("user2"));
         graph.setVariables(vars);
 
         // Complete a task that will not end the workflow
         List<Task> listTasks = taskService.getCurrentTaskInstances(session);
-        routingService.endTask(session, listTasks.get(0), Collections.emptyMap(), "start_review");
+        Task endedTask = listTasks.get(0);
+        routingService.endTask(session, endedTask, Collections.emptyMap(), "start_review");
         waitEndAsyncProcesses();
 
         // Check that a notification is sent to user1
-        List<Notification> notifUser1 = CounterNotifier.fullCtx.stream().filter(n -> n.getUsername().equals("user1")).collect(Collectors.toList());
+        List<Notification> notifUser1 = CounterNotifier.fullCtx.stream()
+                                                               .filter(n -> n.getUsername().equals("user1"))
+                                                               .collect(Collectors.toList());
         assertThat(notifUser1).hasSize(1);
         Notification notification = notifUser1.get(0);
         assertThat(notification.getResolverId()).isEqualTo(RESOLVER_NAME);
         assertThat(notification.getUsername()).isEqualTo(USER_ID);
         assertThat(notification.getContext().get(ORIGINATING_USER)).isEqualTo("Administrator");
+        assertThat(notification.getSourceId()).isEqualTo(endedTask.getId());
+        assertThat(notification.getMessage()).isEqualTo(
+                String.format("The task @{doc:%s} has been completed by @{user:Administrator}.", endedTask.getId()));
     }
 
     protected void waitEndAsyncProcesses() {
