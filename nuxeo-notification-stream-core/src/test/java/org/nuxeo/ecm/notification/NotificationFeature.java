@@ -30,6 +30,9 @@ import org.nuxeo.runtime.test.runner.RunnerFeature;
  */
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")
+@Deploy("org.nuxeo.ecm.platform.types.api")
+@Deploy("org.nuxeo.ecm.platform.types.core")
+@Deploy("org.nuxeo.ecm.platform.url.core")
 public class NotificationFeature implements RunnerFeature {
     @Override
     public void beforeMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {

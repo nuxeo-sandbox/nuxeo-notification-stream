@@ -21,8 +21,8 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_CREATED;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
-import static org.nuxeo.ecm.notification.resolver.DynDocumentResolver.DOC_ID_KEY;
-import static org.nuxeo.ecm.notification.resolver.DynDocumentResolver.EVENT_KEY;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
+import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_EVENT;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.message.EventRecord.EventRecordBuilder;
 import org.nuxeo.ecm.notification.resolver.Resolver;
@@ -94,8 +93,8 @@ public class TestComplexResolvers {
         assertThat(resolver.resolveTargetUsers(builder.build())).hasSize(0);
 
         Map<String, String> ctx = new HashMap<>();
-        ctx.put(DOC_ID_KEY, file.getId());
-        ctx.put(EVENT_KEY, DOCUMENT_CREATED);
+        ctx.put(SOURCE_DOC_ID, file.getId());
+        ctx.put(SOURCE_EVENT, DOCUMENT_CREATED);
         nsc.doSubscribe("Administrator", resolver.getId(), ctx);
 
         builder.withEventName(DOCUMENT_UPDATED);

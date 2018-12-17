@@ -43,6 +43,8 @@ public class EventRecord implements Serializable {
 
     private static final long serialVersionUID = 0L;
 
+    public static final String SOURCE_EVENT = "sourceEvent";
+
     public static final String SOURCE_DOC_ID = "sourceId";
 
     public static final String SOURCE_DOC_REPO = "sourceRepository";
@@ -59,8 +61,6 @@ public class EventRecord implements Serializable {
 
     protected String id;
 
-    protected String eventName;
-
     protected String username;
 
     protected long time;
@@ -68,7 +68,7 @@ public class EventRecord implements Serializable {
     protected Map<String, String> context = new HashMap<>();
 
     public String getEventName() {
-        return eventName;
+        return getContext().get(SOURCE_EVENT);
     }
 
     public DocumentRef getDocumentSourceRef() {
@@ -157,7 +157,7 @@ public class EventRecord implements Serializable {
         }
 
         public EventRecordBuilder withEventName(String eventName) {
-            record.eventName = eventName;
+            withContext(SOURCE_EVENT, eventName);
             return this;
         }
 

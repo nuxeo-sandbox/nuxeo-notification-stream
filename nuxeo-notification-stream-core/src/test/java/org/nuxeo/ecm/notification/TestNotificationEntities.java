@@ -41,9 +41,6 @@ import com.google.inject.Inject;
 
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, PlatformFeature.class })
-@Deploy("org.nuxeo.ecm.platform.types.api")
-@Deploy("org.nuxeo.ecm.platform.types.core")
-@Deploy("org.nuxeo.ecm.platform.url.core")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationEntities {
