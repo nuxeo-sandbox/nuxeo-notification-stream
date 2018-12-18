@@ -26,6 +26,10 @@
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="notifier">
+    <notifier id="mail" class="org.nuxeo.ecm.notification.notifier.MailNotifier">
+      <property name="template-default">templates/defaultTemplate.ftl</property>
+      <!--property name="template-collection">templates/collectionTemplate.ftl</property-->
+    </notifier>
   </extension>
 
   <extension target="org.nuxeo.ecm.notification.NotificationComponent" point="settings">

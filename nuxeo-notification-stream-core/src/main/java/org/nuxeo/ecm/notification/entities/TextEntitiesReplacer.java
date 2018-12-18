@@ -18,7 +18,7 @@
 
 package org.nuxeo.ecm.notification.entities;
 
-import org.apache.commons.lang3.StringUtils;
+import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,15 +28,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.joining;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Manipulate text entities (format: @{type:value}) from a String.
  * <p>
- * Two manipulations available:
- * <br>
- * - #replaceCtxKeys: transpose entity's value to the corresponding context's value
- * - #buildTextEntities: build a list of TextEntity obj that corresponds to matching entities.
+ * Two manipulations available: <br>
+ * - #replaceCtxKeys: transpose entity's value to the corresponding context's value - #buildTextEntities: build a list
+ * of TextEntity obj that corresponds to matching entities.
  *
  * @since XXX
  */

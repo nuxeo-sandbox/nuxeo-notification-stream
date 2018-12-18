@@ -18,6 +18,16 @@
 
 package org.nuxeo.ecm.notification.entities;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.ecm.core.api.CloseableCoreSession;
@@ -35,12 +45,6 @@ import org.nuxeo.ecm.platform.url.api.DocumentViewCodecManager;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.transaction.TransactionHelper;
-
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Resolve every entities from a Notification object; fetch Document from session, get user's metadata, ...
@@ -99,10 +103,10 @@ public class TextEntitiesSupplier {
 
     public Map<String, String> resolve(TextEntity textEntity) {
         switch (textEntity.getType()) {
-            case TextEntity.DOCUMENT:
-                return resolveDocument(textEntity);
-            case TextEntity.USERNAME:
-                return resolverUsername(textEntity);
+        case TextEntity.DOCUMENT:
+            return resolveDocument(textEntity);
+        case TextEntity.USERNAME:
+            return resolverUsername(textEntity);
         }
         return Collections.emptyMap();
     }
@@ -146,8 +150,12 @@ public class TextEntitiesSupplier {
         Map<String, String> values = new HashMap<>();
         values.put("username", principal.getName());
         values.put("firstName", principal.getFirstName());
-        values.put("firstLame", principal.getLastName());
+        values.put("lastName", principal.getLastName());
         values.put("email", principal.getEmail());
+        String fullName = Stream.of(principal.getFirstName(), principal.getLastName())
+                                .filter(StringUtils::isNotBlank)
+                                .collect(Collectors.joining(" "));
+        values.put("title", StringUtils.isBlank(fullName) ? principal.getName() : fullName);
         return values;
     }
 }
