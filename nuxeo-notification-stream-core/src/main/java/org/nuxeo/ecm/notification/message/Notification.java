@@ -159,6 +159,11 @@ public class Notification {
             return this;
         }
 
+        public NotificationBuilder withMessage(String message) {
+            notif.message = message;
+            return this;
+        }
+
         public NotificationBuilder withUsername(String username) {
             notif.addTargetUsername(username);
             return this;

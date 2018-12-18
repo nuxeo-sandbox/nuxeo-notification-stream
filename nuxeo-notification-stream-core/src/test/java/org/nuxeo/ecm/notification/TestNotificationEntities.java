@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.notification.entities.TextEntity;
+import org.nuxeo.ecm.notification.entities.formatter.DefaultTextEntityFormatter;
 import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.notification.message.Notification.NotificationBuilder;
 import org.nuxeo.ecm.platform.test.PlatformFeature;
@@ -116,5 +117,26 @@ public class TestNotificationEntities {
         entity = notif.getEntities().get(1);
         assertThat(entity.getId()).isEqualTo(doc.getId());
         assertThat(entity.getValue("title")).isEqualTo("Hello My Title");
+    }
+
+    @Test
+    public void testDefaultTextEntityFormatter() {
+        DocumentModel doc = session.createDocumentModel("/", "fooBar", "File");
+        doc.setPropertyValue("dc:title", "Hello My Title");
+        doc = session.createDocument(doc);
+        session.save();
+
+        String message = "Hello @{user:Administrator}! @{doc:" + doc.getId() + "} pings you!";
+
+        Notification notif = Notification.builder()
+                                         .withCtx(ORIGINATING_USER, "Administrator")
+                                         .withMessage(message)
+                                         .prepareEntities()
+                                         .resolveEntities()
+                                         .build();
+        assertThat(notif.getEntities()).hasSize(2);
+
+        String formatted = new DefaultTextEntityFormatter().format(notif.getMessage(), notif.getEntities());
+        assertThat(formatted).isEqualTo("Hello Administrator! Hello My Title pings you!");
     }
 }
