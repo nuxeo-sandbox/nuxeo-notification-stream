@@ -32,7 +32,7 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 
 /**
- * A message representing the notification user settings.
+ * A messageKey representing the notification user settings.
  *
  * @since XXX
  */

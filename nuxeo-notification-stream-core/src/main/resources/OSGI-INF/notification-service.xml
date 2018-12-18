@@ -21,8 +21,8 @@
 
         <resolver id="deliverable"
                   class="FileCreatedResolver">
-          <message>Some text to describe @{contextKeyObject} modifications, because @{contextKeyUser} made changes.
-          </message>
+          <messageKey>Some text to describe @{contextKeyObject} modifications, because @{contextKeyUser} made changes.
+          </messageKey>
         </resolver>
       </code>
     </documentation>

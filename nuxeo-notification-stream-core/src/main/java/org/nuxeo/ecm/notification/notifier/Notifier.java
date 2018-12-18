@@ -46,18 +46,18 @@ public abstract class Notifier extends AbstractComputation {
     }
 
     /**
-     * Compute Notifier message property key following the pattern: label.notification.notifier.RESOLVER_NAME
+     * Compute Notifier messageKey property key following the pattern: label.notification.notifier.RESOLVER_NAME
      *
-     * @return notifier's label message property entry key
+     * @return notifier's label messageKey property entry key
      */
     public String getLabelKey() {
         return String.format("label.notification.notifier.%s", getName());
     }
 
     /**
-     * Compute Notifier message property key following the pattern: description.notification.notifier.RESOLVER_NAME
+     * Compute Notifier messageKey property key following the pattern: description.notification.notifier.RESOLVER_NAME
      *
-     * @return notifier's description message property entry key
+     * @return notifier's description messageKey property entry key
      */
     public String getDescriptionKey() {
         return String.format("description.notification.notifier.%s", getName());

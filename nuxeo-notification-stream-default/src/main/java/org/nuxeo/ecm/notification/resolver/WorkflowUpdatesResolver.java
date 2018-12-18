@@ -56,7 +56,7 @@ public class WorkflowUpdatesResolver extends SubscribableResolver {
     public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
         Map<String, String> ctx =  new HashMap<>();
         ctx.put(WORKFLOW_ID_KEY, eventRecord.getContext().get(WORKFLOW_ID_KEY));
-        // Add the context info for the message
+        // Add the context info for the messageKey
         if (eventRecord.getEventName().equals(afterWorkflowTaskEnded.name())) {
             ctx.put(CTX_TARGET, "task");
             ctx.put(CTX_ACTION, "completed");

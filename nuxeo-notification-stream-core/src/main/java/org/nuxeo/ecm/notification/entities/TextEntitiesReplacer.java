@@ -19,16 +19,19 @@
 package org.nuxeo.ecm.notification.entities;
 
 import static java.util.stream.Collectors.joining;
+import static org.nuxeo.ecm.core.schema.types.constraints.Constraint.MESSAGES_BUNDLE;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nuxeo.common.utils.i18n.I18NUtils;
 
 /**
  * Manipulate text entities (format: @{type:value}) from a String.
@@ -49,12 +52,12 @@ public class TextEntitiesReplacer {
 
     protected static final Pattern PATTERN = Pattern.compile(ENTITY_REGEX, Pattern.MULTILINE);
 
-    protected final String message;
+    protected final String messageKey;
 
     protected final Map<String, String> ctx;
 
-    protected TextEntitiesReplacer(String message, Map<String, String> ctx) {
-        this.message = StringUtils.isBlank(message) ? "" : message;
+    protected TextEntitiesReplacer(String messageKey, Map<String, String> ctx) {
+        this.messageKey = StringUtils.isBlank(messageKey) ? "" : messageKey;
         this.ctx = ctx;
     }
 
@@ -66,10 +69,13 @@ public class TextEntitiesReplacer {
         return from(message, Collections.emptyMap());
     }
 
-    public List<TextEntity> buildTextEntities() {
+    public List<TextEntity> buildTextEntities(Locale locale) {
         List<TextEntity> entities = new ArrayList<>();
 
-        Matcher matcher = PATTERN.matcher(message);
+        // Extract the internalized messageKey using the provided key and the local of the user
+        String messageI18n = getI18nMessage(locale);
+
+        Matcher matcher = PATTERN.matcher(messageI18n);
         while (matcher.find()) {
             entities.add(TextEntity.from(matcher.toMatchResult()));
         }
@@ -77,8 +83,11 @@ public class TextEntitiesReplacer {
         return entities;
     }
 
-    public String replaceCtxKeys() {
-        Matcher matcher = PATTERN.matcher(message);
+    public String replaceCtxKeys(Locale locale) {
+        // Extract the internalized messageKey using the provided key and the local of the user
+        String messageI18n = getI18nMessage(locale);
+
+        Matcher matcher = PATTERN.matcher(messageI18n);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String type = matcher.group(1);
@@ -90,5 +99,13 @@ public class TextEntitiesReplacer {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    protected String getI18nMessage(Locale locale) {
+        String messageI18n = I18NUtils.getMessageString(MESSAGES_BUNDLE, messageKey, null, locale);
+        if (StringUtils.isEmpty(messageI18n)) {
+            messageI18n = messageKey;
+        }
+        return messageI18n;
     }
 }

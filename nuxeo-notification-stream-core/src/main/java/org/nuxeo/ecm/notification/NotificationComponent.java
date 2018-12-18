@@ -98,6 +98,10 @@ public class NotificationComponent extends DefaultComponent implements Notificat
 
     public static final String KVS_SETTINGS = "notificationSettings";
 
+    public static final String REPOSITORY_USER_PROFILE_PROP = "nuxeo.stream.notification.useprofile.repository";
+
+    public static final String DEFAULT_REPOSITORY_USER_PROFILE = "default";
+
     protected Map<String, Notifier> notifiers = new ConcurrentHashMap<>();
 
     protected Map<String, Resolver> resolvers = new ConcurrentHashMap<>();
@@ -285,6 +289,11 @@ public class NotificationComponent extends DefaultComponent implements Notificat
     @Override
     public String getNotificationSettingsInputStream() {
         return Framework.getProperty(STREAM_SETTINGS_PROP, DEFAULT_STREAM_SETTINGS);
+    }
+
+    @Override
+    public String getRepositoryForUserLocale() {
+        return Framework.getProperty(REPOSITORY_USER_PROFILE_PROP, DEFAULT_REPOSITORY_USER_PROFILE);
     }
 
     @Override

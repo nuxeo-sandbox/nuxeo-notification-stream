@@ -25,6 +25,9 @@ import org.nuxeo.ecm.notification.model.Subscribers;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
+/**
+ * @since XXX
+ */
 public class AbstractTestAutoSubscribe {
 
     @Inject
