@@ -23,6 +23,7 @@ import static org.nuxeo.ecm.notification.entities.TextEntity.USERNAME;
 import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
@@ -63,8 +64,8 @@ public class TestNotificationEntities {
         NotificationBuilder builder = Notification.builder()
                                                   .withCtx(ctx)
                                                   .withResolverMessage(message)
-                                                  .computeMessage()
-                                                  .prepareEntities();
+                                                  .computeMessage(Locale.getDefault())
+                                                  .prepareEntities(Locale.getDefault());
 
         Notification notif = builder.build();
         assertThat(notif.getMessage()).isEqualTo("Hello @{user:Administrator}! @{user:Administrator} pings you!");
@@ -103,8 +104,8 @@ public class TestNotificationEntities {
                                          .withCtx(ORIGINATING_USER, "Administrator")
                                          .withSourceRepository(doc.getRepositoryName())
                                          .withResolverMessage(message)
-                                         .computeMessage()
-                                         .prepareEntities()
+                                         .computeMessage(Locale.getDefault())
+                                         .prepareEntities(Locale.getDefault())
                                          .resolveEntities()
                                          .build();
 

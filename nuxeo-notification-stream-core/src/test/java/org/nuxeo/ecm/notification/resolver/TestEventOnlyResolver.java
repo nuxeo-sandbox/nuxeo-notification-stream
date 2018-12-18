@@ -44,7 +44,7 @@ public class TestEventOnlyResolver extends Resolver {
     public Stream<String> resolveTargetUsers(EventRecord eventRecord) {
         return IntStream.range(0, TARGET_USERS) //
                         .boxed()
-                        .map(s -> RandomStringUtils.randomAlphabetic(10));
+                        .map(s -> "user" + s);
     }
 
     @Test

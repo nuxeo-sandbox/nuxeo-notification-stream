@@ -55,4 +55,9 @@ public interface NotificationStreamConfig extends StreamProcessorTopology {
      * @return the log config name for the notification processor.
      */
     String getLogConfigNotification();
+
+    /**
+     * @return The name of the repository where the user locale must be fetched to resolve the notification messages.
+     */
+    String getRepositoryForUserLocale();
 }

@@ -23,6 +23,7 @@ import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_REPO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -151,7 +152,7 @@ public class Notification {
 
         public NotificationBuilder withResolver(Resolver resolver) {
             notif.resolverId = resolver.getId();
-            return withResolverMessage(resolver.getMessage());
+            return withResolverMessage(resolver.getMessageKey());
         }
 
         public NotificationBuilder withResolverMessage(String message) {
@@ -189,15 +190,15 @@ public class Notification {
             return this;
         }
 
-        public NotificationBuilder computeMessage() {
+        public NotificationBuilder computeMessage(Locale locale) {
             TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.resolverMessage, notif.getContext());
-            notif.message = replacer.replaceCtxKeys();
+            notif.message = replacer.replaceCtxKeys(locale);
             return this;
         }
 
-        public NotificationBuilder prepareEntities() {
+        public NotificationBuilder prepareEntities(Locale locale) {
             TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.message);
-            notif.entities = replacer.buildTextEntities();
+            notif.entities = replacer.buildTextEntities(locale);
             return this;
         }
 

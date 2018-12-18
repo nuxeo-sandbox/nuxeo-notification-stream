@@ -34,9 +34,6 @@ public class ResolverDescriptor implements Descriptor {
     @XNode("@class")
     protected Class<? extends Resolver> resolverClass;
 
-    @XNode("message")
-    protected String message;
-
     @Override
     public String getId() {
         return id;
@@ -44,7 +41,7 @@ public class ResolverDescriptor implements Descriptor {
 
     public Resolver newInstance() {
         try {
-            return resolverClass.newInstance().withId(id).withMessage(message);
+            return resolverClass.newInstance().withId(id);
         } catch (ReflectiveOperationException e) {
             throw new NuxeoException(e);
         }

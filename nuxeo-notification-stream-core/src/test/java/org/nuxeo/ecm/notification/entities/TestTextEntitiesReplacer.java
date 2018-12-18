@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
@@ -35,14 +36,14 @@ public class TestTextEntitiesReplacer {
     @Test
     public void testBasicString() {
         Map<String, String> ctx = Collections.singletonMap("username", "Jack");
-        String message = TextEntitiesReplacer.from("Hello @{username}!", ctx).replaceCtxKeys();
+        String message = TextEntitiesReplacer.from("Hello @{username}!", ctx).replaceCtxKeys(Locale.getDefault());
         assertThat(message).isEqualTo("Hello Jack!");
     }
 
     @Test
     public void testWithKey() {
         Map<String, String> ctx = Collections.singletonMap("key", "value");
-        String message = TextEntitiesReplacer.from("Hello @{user:key}!", ctx).replaceCtxKeys();
+        String message = TextEntitiesReplacer.from("Hello @{user:key}!", ctx).replaceCtxKeys(Locale.getDefault());
         assertThat(message).isEqualTo("Hello @{user:value}!");
     }
 
@@ -51,7 +52,7 @@ public class TestTextEntitiesReplacer {
         Map<String, String> ctx = new HashMap<>();
         ctx.put("repository", "default");
         ctx.put("docId", "0000-000-00-00-000");
-        String message = TextEntitiesReplacer.from("Document @{doc:repository:docId} modified!", ctx).replaceCtxKeys();
+        String message = TextEntitiesReplacer.from("Document @{doc:repository:docId} modified!", ctx).replaceCtxKeys(Locale.getDefault());
         assertThat(message).isEqualTo("Document @{doc:default:0000-000-00-00-000} modified!");
     }
 
@@ -65,14 +66,14 @@ public class TestTextEntitiesReplacer {
                                              .build();
 
         Resolver resolver = mock(Resolver.class);
-        when(resolver.getMessage()).thenReturn(
+        when(resolver.getMessageKey()).thenReturn(
                 "Doc @{doc:sourceRepository:sourceId} updated by @{user:originatingUser} at @{date:createdAt}");
 
         Notification notif = Notification.builder() //
                                          .fromEvent(eventRecord)
                                          .withResolver(resolver)
-                                         .computeMessage()
-                                         .prepareEntities()
+                                         .computeMessage(Locale.getDefault())
+                                         .prepareEntities(Locale.getDefault())
                                          .build();
 
         assertThat(notif.getMessage()).isEqualTo("Doc @{doc:test:0000-0000} updated by @{user:johndoe} at @{date:5}");

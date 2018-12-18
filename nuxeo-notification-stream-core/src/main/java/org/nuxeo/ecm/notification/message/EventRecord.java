@@ -35,7 +35,7 @@ import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * A message representing an Event.
+ * A messageKey representing an Event.
  *
  * @since XXX
  */

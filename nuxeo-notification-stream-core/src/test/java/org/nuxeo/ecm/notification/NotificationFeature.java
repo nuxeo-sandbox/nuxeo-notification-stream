@@ -17,9 +17,12 @@
  */
 package org.nuxeo.ecm.notification;
 
+import static org.nuxeo.ecm.notification.NotificationComponent.REPOSITORY_USER_PROFILE_PROP;
+
 import org.junit.runners.model.FrameworkMethod;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -33,9 +36,20 @@ import org.nuxeo.runtime.test.runner.RunnerFeature;
 @Deploy("org.nuxeo.ecm.platform.types.api")
 @Deploy("org.nuxeo.ecm.platform.types.core")
 @Deploy("org.nuxeo.ecm.platform.url.core")
+@Deploy("org.nuxeo.ecm.user.center.profile")
+@Deploy("org.nuxeo.ecm.platform.userworkspace.api")
+@Deploy("org.nuxeo.ecm.platform.userworkspace.core")
+@Deploy("org.nuxeo.ecm.platform.userworkspace.types")
+@Deploy("org.nuxeo.ecm.platform.web.common")
 public class NotificationFeature implements RunnerFeature {
     @Override
     public void beforeMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {
         CounterNotifier.reset();
+    }
+
+    @Override
+    public void start(FeaturesRunner runner) {
+        // Configure the repository name to fetch the user locale
+        Framework.getProperties().setProperty(REPOSITORY_USER_PROFILE_PROP, "test");
     }
 }

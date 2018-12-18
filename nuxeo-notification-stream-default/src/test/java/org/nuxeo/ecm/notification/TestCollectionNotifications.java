@@ -37,6 +37,8 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
+import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.stream.StreamHelper;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -47,11 +49,17 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
  * @since XXX
  */
 @RunWith(FeaturesRunner.class)
-@Features(NotificationFeature.class)
+@Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.notification.stream.default")
 @Deploy("org.nuxeo.ecm.platform.collections.core")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.default:OSGI-INF/default-contrib.xml")
 public class TestCollectionNotifications {
+    protected static final String RESOLVER_COLLECTION_ID = "collection";
+
+    protected static final String RESOLVER_COLLECTION_UPDATES_ID = "collectionUpdates";
+
+    protected static final String USER_ID = "dummyUser";
+
     @Inject
     protected CoreSession session;
 
@@ -67,16 +75,20 @@ public class TestCollectionNotifications {
     @Inject
     protected NotificationService ns;
 
+    @Inject
+    protected UserManager userManager;
+
     protected DocumentModel doc;
 
     protected String collectionId;
 
-    protected static final String RESOLVER_COLLECTION_ID = "collection";
-
-    protected static final String RESOLVER_COLLECTION_UPDATES_ID = "collectionUpdates";
-
     @Before
     public void before() {
+        // Create the test user
+        DocumentModel user = userManager.getBareUserModel();
+        user.setPropertyValue(userManager.getUserIdField(), USER_ID);
+        userManager.createUser(user);
+
         // Clean KVS
         TestNotificationHelper.clearKVS(SubscribableResolver.KVS_SUBSCRIPTIONS);
 
@@ -102,7 +114,7 @@ public class TestCollectionNotifications {
     public void testSubscription() {
         assertThat(ns.getSubscriptions(RESOLVER_COLLECTION_ID, getCtx()).getUsernames()).isEmpty();
 
-        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID, getCtx());
+        nsc.doSubscribe(USER_ID, RESOLVER_COLLECTION_ID, getCtx());
         assertThat(ns.getSubscriptions(RESOLVER_COLLECTION_ID, getCtx()).getUsernames()).hasSize(1);
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
@@ -112,12 +124,21 @@ public class TestCollectionNotifications {
         Notification last = CounterNotifier.getLast();
 
         assertThat(last).isNotNull();
-        assertThat(last.getUsername()).isEqualTo("dummyUser");
+        assertThat(last.getUsername()).isEqualTo(USER_ID);
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_ID);
+        assertThat(last.getContext().get(COLLECTION_DOC_ID)).isEqualTo(collectionId);
+        assertThat(last.getMessage()).isEqualTo(
+                String.format("@{user:Administrator} updated document @{doc:%s} in collection @{doc:%s} at @{date:%s}.",
+                        doc.getId(), collectionId, last.getCreatedAt()));
     }
 
     @Test
     public void testDocInMultipleCollection() {
+        // Create a second user
+        DocumentModel user = userManager.getBareUserModel();
+        user.setPropertyValue(userManager.getUserIdField(), "dummyOtherUser");
+        userManager.createUser(user);
+
         DocumentModel collection = collectionManager.createCollection(session, "My Other Collection", "Rly -nd- ?!",
                 "/");
         collectionManager.addToCollection(collection, doc, session);
@@ -127,10 +148,10 @@ public class TestCollectionNotifications {
         assertThat(CounterNotifier.processed).isEqualTo(0);
 
         // Subscribe different user to two collections, and dummyUser to both
-        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID, getCtx());
+        nsc.doSubscribe(USER_ID, RESOLVER_COLLECTION_ID, getCtx());
         nsc.doSubscribe("dummyOtherUser", RESOLVER_COLLECTION_ID,
                 Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
-        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_ID,
+        nsc.doSubscribe(USER_ID, RESOLVER_COLLECTION_ID,
                 Collections.singletonMap(COLLECTION_DOC_ID, collection.getId()));
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
@@ -142,13 +163,13 @@ public class TestCollectionNotifications {
         // Ensure dummyUser is only notified 1 time
         assertThat(CounterNotifier.processed).isEqualTo(2);
         assertThat(CounterNotifier.fullCtx.stream().map(Notification::getUsername)).containsExactlyInAnyOrder(
-                "dummyOtherUser", "dummyUser");
+                "dummyOtherUser", USER_ID);
     }
 
     @Test
     public void testDocumentAddedToCollection() {
         // Subscribe a dummy user to the updates of a collection and on the updates on the children
-        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_UPDATES_ID, getCtx());
+        nsc.doSubscribe(USER_ID, RESOLVER_COLLECTION_UPDATES_ID, getCtx());
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
         assertThat(CounterNotifier.processed).isEqualTo(0);
@@ -168,7 +189,7 @@ public class TestCollectionNotifications {
         Notification last = CounterNotifier.getLast();
 
         assertThat(last).isNotNull();
-        assertThat(last.getUsername()).isEqualTo("dummyUser");
+        assertThat(last.getUsername()).isEqualTo(USER_ID);
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
         assertThat(last.getMessage()).isEqualTo(
                 String.format("@{user:Administrator} added document @{doc:%s} to collection @{doc:%s}.", newDoc.getId(),
@@ -187,7 +208,7 @@ public class TestCollectionNotifications {
         assertThat(StreamHelper.drainAndStop()).isTrue();
 
         // Subscribe a dummy user to the updates of a collection and on the updates on the children
-        nsc.doSubscribe("dummyUser", RESOLVER_COLLECTION_UPDATES_ID, getCtx());
+        nsc.doSubscribe(USER_ID, RESOLVER_COLLECTION_UPDATES_ID, getCtx());
         txFeature.nextTransaction();
         assertThat(StreamHelper.drainAndStop()).isTrue();
         assertThat(CounterNotifier.processed).isEqualTo(0);
@@ -203,7 +224,7 @@ public class TestCollectionNotifications {
         Notification last = CounterNotifier.getLast();
 
         assertThat(last).isNotNull();
-        assertThat(last.getUsername()).isEqualTo("dummyUser");
+        assertThat(last.getUsername()).isEqualTo(USER_ID);
         assertThat(last.getResolverId()).isEqualTo(RESOLVER_COLLECTION_UPDATES_ID);
         assertThat(last.getMessage()).isEqualTo(
                 String.format("@{user:Administrator} removed document @{doc:%s} from collection @{doc:%s}.",

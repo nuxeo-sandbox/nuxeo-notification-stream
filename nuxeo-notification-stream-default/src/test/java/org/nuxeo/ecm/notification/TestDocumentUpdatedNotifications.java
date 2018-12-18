@@ -28,6 +28,8 @@ import org.nuxeo.ecm.notification.message.Notification;
 import org.nuxeo.ecm.platform.comment.api.Comment;
 import org.nuxeo.ecm.platform.comment.api.CommentImpl;
 import org.nuxeo.ecm.platform.comment.api.CommentManager;
+import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.runtime.api.Framework;
@@ -43,7 +45,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  * @since XXX
  */
 @RunWith(FeaturesRunner.class)
-@Features(NotificationFeature.class)
+@Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.comment.api")
 @Deploy("org.nuxeo.ecm.platform.comment")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.default")
@@ -63,6 +65,9 @@ public class TestDocumentUpdatedNotifications {
 
     @Inject
     protected CommentManager commentManager;
+
+    @Inject
+    protected UserManager userManager;
 
     @Test
     public void resolverIsAvailable() {
@@ -161,7 +166,7 @@ public class TestDocumentUpdatedNotifications {
                         notification.getCreatedAt()));
     }
 
-    protected DocumentModel createDocumentAndSubscribeUsers(String user) {
+    protected DocumentModel createDocumentAndSubscribeUsers(String username) {
         DocumentModel doc = session.createDocumentModel("/", "Test", "File");
         doc = session.createDocument(doc);
         session.save();
@@ -169,10 +174,15 @@ public class TestDocumentUpdatedNotifications {
         TransactionHelper.startTransaction();
         TestNotificationHelper.waitProcessorsCompletion();
 
+        // Create user
+        DocumentModel user = userManager.getBareUserModel();
+        user.setPropertyValue(userManager.getUserIdField(), username);
+        userManager.createUser(user);
+
         // User subscribe to the new document
         Map<String, String> ctx = new HashMap<>();
         ctx.put(SOURCE_DOC_ID, doc.getId());
-        scb.doSubscribe(user, RESOLVER_NAME, ctx);
+        scb.doSubscribe(username, RESOLVER_NAME, ctx);
         TestNotificationHelper.waitProcessorsCompletion();
 
         return doc;

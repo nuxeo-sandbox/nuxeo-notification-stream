@@ -20,9 +20,8 @@ package org.nuxeo.ecm.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
-
 import javax.inject.Inject;
+import java.util.Collections;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
@@ -34,13 +33,15 @@ import org.nuxeo.ecm.notification.message.UserSettings;
 import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
+import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
 @RunWith(FeaturesRunner.class)
-@Features(NotificationFeature.class)
+@Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/basic-contrib.xml")
 public class TestNotificationsFlow {
 
@@ -51,6 +52,9 @@ public class TestNotificationsFlow {
     protected NotificationSettingsService nss;
 
     @Inject
+    protected UserManager userManager;
+
+    @Inject
     protected CoreSession session;
 
     @Before
@@ -58,6 +62,11 @@ public class TestNotificationsFlow {
         // Clean KVS
         TestNotificationHelper.clearKVS(SubscribableResolver.KVS_SUBSCRIPTIONS);
         TestNotificationHelper.clearKVS(NotificationComponent.KVS_SETTINGS);
+
+        // Create test user
+        DocumentModel user = userManager.getBareUserModel();
+        user.setPropertyValue(userManager.getUserIdField(), "myUser");
+        userManager.createUser(user);
     }
 
     @Test

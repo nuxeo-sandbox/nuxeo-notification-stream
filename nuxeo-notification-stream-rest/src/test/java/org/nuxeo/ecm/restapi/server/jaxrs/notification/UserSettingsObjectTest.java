@@ -58,8 +58,8 @@ public class UserSettingsObjectTest extends BaseTest {
     public void testGetSettings() throws IOException {
         JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings");
         assertThat(json).isNotNull();
-        assertThat(json.get("fileCreated").get("log").booleanValue()).isFalse();
-        assertThat(json.get("fileCreated").get("inApp").booleanValue()).isFalse();
+        assertThat(json.get("fileIsCreated").get("log").booleanValue()).isFalse();
+        assertThat(json.get("fileIsCreated").get("inApp").booleanValue()).isFalse();
     }
 
     @Test
@@ -68,26 +68,26 @@ public class UserSettingsObjectTest extends BaseTest {
             assertThat(res.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
         }
 
-        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings/fileCreated");
+        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings/fileIsCreated");
         assertThat(json.get("log").booleanValue()).isFalse();
         assertThat(json.get("inApp").booleanValue()).isFalse();
     }
 
     @Test
     public void testUpdateSettings() throws IOException {
-        assertThat(nss.getSelectedNotifiers("Administrator", "fileCreated")).isEmpty();
+        assertThat(nss.getSelectedNotifiers("Administrator", "fileIsCreated")).isEmpty();
 
-        try (CloseableClientResponse res = getResponse(RequestType.PUT, "/notification/settings/fileCreated",
+        try (CloseableClientResponse res = getResponse(RequestType.PUT, "/notification/settings/fileIsCreated",
                 "{\"log\": true, \"entity-type\": \"" + UserNotifierSettingsJsonWriter.ENTITY_TYPE + "\"}")) {
             assertThat(res.getStatus()).isEqualTo(ACCEPTED.getStatusCode());
         }
 
         StreamHelper.drainAndStop();
 
-        UserNotifierSettings settings = nss.getResolverSettings("Administrator").getSettings("fileCreated");
+        UserNotifierSettings settings = nss.getResolverSettings("Administrator").getSettings("fileIsCreated");
         assertThat(settings.getSelectedNotifiers()).hasSize(1).contains("log");
 
-        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings/fileCreated/selected");
+        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/settings/fileIsCreated/selected");
         assertThat(json.get("entity-type").asText()).isEqualTo(NotifierListJsonWriter.ENTITY_TYPE);
         assertThat(json.get("entries").isArray()).isTrue();
         assertThat(json.get("entries").get(0).get("name").asText()).isEqualTo("log");

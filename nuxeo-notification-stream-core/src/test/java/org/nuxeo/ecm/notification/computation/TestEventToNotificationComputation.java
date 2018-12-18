@@ -13,14 +13,24 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.notification.NotificationComponent;
 import org.nuxeo.ecm.notification.NotificationFeature;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
+import org.nuxeo.ecm.notification.TestNotificationHelper;
 import org.nuxeo.ecm.notification.message.EventRecord;
+import org.nuxeo.ecm.notification.resolver.BasicResolver;
+import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
+import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.ComputationMetadataMapping;
 import org.nuxeo.lib.stream.computation.Record;
@@ -36,7 +46,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
  * @since XXX
  */
 @RunWith(FeaturesRunner.class)
-@Features(NotificationFeature.class)
+@Features({NotificationFeature.class, PlatformFeature.class})
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/test-computations-contrib.xml")
 public class TestEventToNotificationComputation {
 
@@ -45,6 +55,19 @@ public class TestEventToNotificationComputation {
 
     @Inject
     protected NotificationStreamConfig nsc;
+
+    @Inject
+    protected UserManager userManager;
+
+    @Before
+    public void before() {
+        // Create the test users
+        IntStream.range(0, BasicResolver.TARGET_USERS).forEach(i -> {
+            DocumentModel user = userManager.getBareUserModel();
+            user.setPropertyValue(userManager.getUserIdField(), "user" + i);
+            userManager.createUser(user);
+        });
+    }
 
     @Test
     public void testComputation() {

@@ -45,19 +45,12 @@ public abstract class Resolver {
 
     protected String id;
 
-    protected String message;
-
     public String getId() {
         return id == null ? this.getClass().getSimpleName() : id;
     }
 
     protected Resolver withId(String id) {
         this.id = id;
-        return this;
-    }
-
-    protected Resolver withMessage(String message) {
-        this.message = message;
         return this;
     }
 
@@ -80,12 +73,12 @@ public abstract class Resolver {
     }
 
     /**
-     * Return configured notification's message to pass to the notifier
+     * Return configured notification's message key to pass to the notifier
      *
      * @return message to display as a notification, return an empty string if empty.
      */
-    public String getMessage() {
-        return StringUtils.isEmpty(message) ? "" : message;
+    public String getMessageKey() {
+        return String.format("message.notification.resolver.%s", getId());
     }
 
     /**

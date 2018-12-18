@@ -20,18 +20,21 @@ package org.nuxeo.ecm.notification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
 
-import java.util.Collections;
-
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.notification.computation.EventToNotificationComputation;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
+import org.nuxeo.ecm.notification.resolver.BasicResolver;
 import org.nuxeo.ecm.notification.resolver.TestEventOnlyResolver;
+import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.computation.Topology;
 import org.nuxeo.lib.stream.log.LogAppender;
@@ -46,7 +49,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
  * @since XXX
  */
 @RunWith(FeaturesRunner.class)
-@Features(NotificationFeature.class)
+@Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/count-executions-contrib.xml")
 public class TestNotificationProcessor {
 
@@ -55,6 +58,9 @@ public class TestNotificationProcessor {
 
     @Inject
     protected CodecService codecService;
+
+    @Inject
+    protected UserManager userManager;
 
     @Test
     public void testTopologyDefinition() {
@@ -67,6 +73,12 @@ public class TestNotificationProcessor {
 
     @Test
     public void testTopologyExecution() {
+        // Create the test users
+        IntStream.range(0, TestEventOnlyResolver.TARGET_USERS).forEach(i -> {
+            DocumentModel user = userManager.getBareUserModel();
+            user.setPropertyValue(userManager.getUserIdField(), "user" + i);
+            userManager.createUser(user);
+        });
         // Create a record in the stream in input of the notification processor
         LogManager logManager = nsc.getLogManager(nsc.getLogConfigNotification());
         assertThat(logManager.getAppender(nsc.getEventInputStream())).isNotNull();

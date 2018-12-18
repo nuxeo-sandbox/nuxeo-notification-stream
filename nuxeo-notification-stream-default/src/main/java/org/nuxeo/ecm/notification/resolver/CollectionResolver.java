@@ -18,18 +18,22 @@
 
 package org.nuxeo.ecm.notification.resolver;
 
+import static java.util.Collections.singletonMap;
 import static org.nuxeo.ecm.collections.api.CollectionConstants.COLLECTION_MEMBER_SCHEMA_NAME;
 import static org.nuxeo.ecm.core.api.event.DocumentEventTypes.DOCUMENT_UPDATED;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.nuxeo.ecm.collections.core.adapter.CollectionMember;
+import org.nuxeo.ecm.notification.NotificationService;
 import org.nuxeo.ecm.notification.message.EventRecord;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Resolver to be able to be notified when a document in a collection is updated.
@@ -47,7 +51,22 @@ public class CollectionResolver extends AbstractCollectionResolver {
 
     @Override
     public Map<String, String> buildNotifierContext(String targetUsername, EventRecord eventRecord) {
-        return Collections.emptyMap();
+        // Look for the collection the user has subscribed to that triggers the notification. For that, fetch all the
+        // collections the updated document is part of and check if the user followed the collection. If several
+        // collections match, the first one is returned.
+        List<String> collectionsId = withDocument(eventRecord,
+                doc -> doc.getAdapter(CollectionMember.class).getCollectionIds());
+        NotificationService ns = Framework.getService(NotificationService.class);
+        String collectionId = collectionsId.stream()
+                                           .filter(id -> ns.hasSubscribe(targetUsername, getId(),
+                                                   singletonMap(COLLECTION_DOC_ID, id)))
+                                           .findFirst()
+                                           .orElse(null);
+        if (collectionId != null) {
+            return Collections.singletonMap(COLLECTION_DOC_ID, collectionId);
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     @Override

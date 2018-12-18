@@ -66,9 +66,9 @@ public class NotificationObjectTest extends BaseTest {
 
     @Test
     public void testResolverWriter() throws IOException {
-        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/fileCreated");
+        JsonNode json = getResponseAsJson(RequestType.GET, "/notification/resolver/fileIsCreated");
         assertThat(json.get("entity-type").asText()).isEqualTo(ResolverJsonWriter.ENTITY_TYPE);
-        assertThat(json.get("id").asText()).isEqualTo("fileCreated");
+        assertThat(json.get("id").asText()).isEqualTo("fileIsCreated");
         assertThat(json.get("message").asText()).isEqualTo("Hello World!");
     }
 
@@ -118,7 +118,7 @@ public class NotificationObjectTest extends BaseTest {
 
     @Test
     public void testSubscribeAndUnsubscribe() {
-        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated/subscribe",
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileIsCreated/subscribe",
                 "{}")) {
             assertThat(res.getStatus()).isEqualTo(CREATED.getStatusCode());
         }
@@ -127,13 +127,13 @@ public class NotificationObjectTest extends BaseTest {
         assertThat(StreamHelper.drainAndStop()).isTrue();
 
         // Second call should not modify existing registration
-        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileCreated/subscribe",
+        try (CloseableClientResponse res = getResponse(RequestType.POST, "/notification/resolver/fileIsCreated/subscribe",
                 "{}")) {
             assertThat(res.getStatus()).isEqualTo(NOT_MODIFIED.getStatusCode());
         }
 
         try (CloseableClientResponse res = getResponse(RequestType.POST,
-                "/notification/resolver/fileCreated/unsubscribe", "{}")) {
+                "/notification/resolver/fileIsCreated/unsubscribe", "{}")) {
             assertThat(res.getStatus()).isEqualTo(ACCEPTED.getStatusCode());
         }
 
@@ -142,7 +142,7 @@ public class NotificationObjectTest extends BaseTest {
 
         // Second call should response not found
         try (CloseableClientResponse res = getResponse(RequestType.POST,
-                "/notification/resolver/fileCreated/unsubscribe", "{}")) {
+                "/notification/resolver/fileIsCreated/unsubscribe", "{}")) {
             assertThat(res.getStatus()).isEqualTo(NOT_FOUND.getStatusCode());
         }
     }
