@@ -5,7 +5,7 @@ build:
     envTemplate:
       template: "{{.DOCKER_REGISTRY}}/nuxeo-sandbox/nuxeo-notification-stream:{{.VERSION}}"
   artifacts:
-  - imageName: changeme
+  - imageName: nuxeo-notification-stream
     workspace: .
     docker: {}
   local: {}
