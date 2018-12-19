@@ -18,6 +18,7 @@
 
 package org.nuxeo.ecm.notification.message;
 
+import static org.nuxeo.ecm.core.schema.types.constraints.Constraint.MESSAGES_BUNDLE;
 import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_ID;
 import static org.nuxeo.ecm.notification.message.EventRecord.SOURCE_DOC_REPO;
 
@@ -26,9 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.nuxeo.common.utils.i18n.I18NUtils;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.api.PathRef;
@@ -150,13 +153,14 @@ public class Notification {
             return this;
         }
 
-        public NotificationBuilder withResolver(Resolver resolver) {
+        public NotificationBuilder withResolver(Resolver resolver, Locale locale) {
             notif.resolverId = resolver.getId();
-            return withResolverMessage(resolver.getMessageKey());
+            return withResolverMessage(resolver.getMessageKey(), locale);
         }
 
-        public NotificationBuilder withResolverMessage(String message) {
-            notif.resolverMessage = message;
+        public NotificationBuilder withResolverMessage(String messageKey, Locale locale) {
+            // Fetch the message using the key
+            notif.resolverMessage = getI18nMessage(locale, messageKey);
             return this;
         }
 
@@ -190,15 +194,15 @@ public class Notification {
             return this;
         }
 
-        public NotificationBuilder computeMessage(Locale locale) {
+        public NotificationBuilder computeMessage() {
             TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.resolverMessage, notif.getContext());
-            notif.message = replacer.replaceCtxKeys(locale);
+            notif.message = replacer.replaceCtxKeys();
             return this;
         }
 
-        public NotificationBuilder prepareEntities(Locale locale) {
+        public NotificationBuilder prepareEntities() {
             TextEntitiesReplacer replacer = TextEntitiesReplacer.from(notif.message);
-            notif.entities = replacer.buildTextEntities(locale);
+            notif.entities = replacer.buildTextEntities();
             return this;
         }
 
@@ -210,6 +214,14 @@ public class Notification {
         public Notification build() {
             notif.id = String.format("%s:%s", notif.resolverId, notif.username);
             return notif;
+        }
+
+        protected String getI18nMessage(Locale locale, String messageKey) {
+            String messageI18n = I18NUtils.getMessageString(MESSAGES_BUNDLE, messageKey, null, locale);
+            if (StringUtils.isEmpty(messageI18n)) {
+                messageI18n = messageKey;
+            }
+            return messageI18n;
         }
     }
 }

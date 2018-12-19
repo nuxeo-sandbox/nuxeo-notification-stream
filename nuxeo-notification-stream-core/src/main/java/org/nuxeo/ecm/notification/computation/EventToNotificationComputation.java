@@ -74,11 +74,11 @@ public class EventToNotificationComputation extends AbstractComputation {
                                     Locale userLocale = getUserLocale(u, notificationStreamConfig.getRepositoryForUserLocale());
                                     return Notification.builder()
                                                        .fromEvent(eventRecord)
-                                                       .withResolver(r)
+                                                       .withResolver(r, userLocale)
                                                        .withUsername(u)
                                                        .withCtx(r.buildNotifierContext(u, eventRecord))
-                                                       .computeMessage(userLocale)
-                                                       .prepareEntities(userLocale)
+                                                       .computeMessage()
+                                                       .prepareEntities()
                                                        .resolveEntities()
                                                        .build();
                                 })

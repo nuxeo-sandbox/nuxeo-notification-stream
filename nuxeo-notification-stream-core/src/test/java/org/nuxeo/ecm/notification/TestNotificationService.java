@@ -33,6 +33,7 @@ import static org.nuxeo.ecm.notification.transformer.BasicTransformer.KEY_EVENT_
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -271,6 +272,7 @@ public class TestNotificationService {
 
         Resolver resolver = mock(Resolver.class);
         when(resolver.getId()).thenReturn("klaxon");
+        when(resolver.getMessageKey()).thenReturn("klaxon");
 
         EventRecord eventRecord = EventRecord.builder()
                                              .withEventName("test")
@@ -283,7 +285,7 @@ public class TestNotificationService {
         Notification notif = Notification.builder()
                                          .fromEvent(eventRecord)
                                          .withUsername("bobby")
-                                         .withResolver(resolver)
+                                         .withResolver(resolver, Locale.getDefault())
                                          .build();
 
         assertThat(notif.getSourceId()).isEqualTo("0000-0000-0000");

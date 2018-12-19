@@ -6,6 +6,8 @@ import static org.nuxeo.ecm.notification.message.Notification.ORIGINATING_USER;
 
 import javax.inject.Inject;
 
+import java.util.Locale;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +49,7 @@ public class TestNotificationWithMailEnabled {
 
         Notification notif = Notification.builder()
                                          .withUsername("Administrator")
-                                         .withResolver(ns.getResolver("documentUpdated"))
+                                         .withResolver(ns.getResolver("documentUpdated"), Locale.getDefault())
                                          .withMessage(
                                                  "User @{user:Administrator} updated doc @{doc:" + doc.getId() + "}")
                                          .withCtx(ORIGINATING_USER, "Administrator")

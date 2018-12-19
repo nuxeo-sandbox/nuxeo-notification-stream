@@ -59,13 +59,13 @@ public class TestNotificationEntities {
         ctx.put("primary", "Administrator");
         ctx.put("other", "Administrator");
 
-        String message = "Hello @{user:primary}! @{user:other} pings you!";
+        String messageKey = "message.notification.test.entities.user";
 
         NotificationBuilder builder = Notification.builder()
                                                   .withCtx(ctx)
-                                                  .withResolverMessage(message)
-                                                  .computeMessage(Locale.getDefault())
-                                                  .prepareEntities(Locale.getDefault());
+                                                  .withResolverMessage(messageKey, Locale.getDefault())
+                                                  .computeMessage()
+                                                  .prepareEntities();
 
         Notification notif = builder.build();
         assertThat(notif.getMessage()).isEqualTo("Hello @{user:Administrator}! @{user:Administrator} pings you!");
@@ -97,15 +97,15 @@ public class TestNotificationEntities {
         ctx.put("author", "Administrator");
         ctx.put("myFile", doc.getId());
 
-        String message = "Hello @{user:author}! @{doc:myFile} pings you!";
+        String messageKey = "message.notification.test.entities.doc";
 
         Notification notif = Notification.builder()
                                          .withCtx(ctx)
                                          .withCtx(ORIGINATING_USER, "Administrator")
                                          .withSourceRepository(doc.getRepositoryName())
-                                         .withResolverMessage(message)
-                                         .computeMessage(Locale.getDefault())
-                                         .prepareEntities(Locale.getDefault())
+                                         .withResolverMessage(messageKey, Locale.getDefault())
+                                         .computeMessage()
+                                         .prepareEntities()
                                          .resolveEntities()
                                          .build();
 
