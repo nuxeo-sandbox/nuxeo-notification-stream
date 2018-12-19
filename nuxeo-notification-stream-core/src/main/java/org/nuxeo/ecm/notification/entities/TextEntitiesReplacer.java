@@ -52,12 +52,12 @@ public class TextEntitiesReplacer {
 
     protected static final Pattern PATTERN = Pattern.compile(ENTITY_REGEX, Pattern.MULTILINE);
 
-    protected final String messageKey;
+    protected final String message;
 
     protected final Map<String, String> ctx;
 
-    protected TextEntitiesReplacer(String messageKey, Map<String, String> ctx) {
-        this.messageKey = StringUtils.isBlank(messageKey) ? "" : messageKey;
+    protected TextEntitiesReplacer(String message, Map<String, String> ctx) {
+        this.message = StringUtils.isBlank(message) ? "" : message;
         this.ctx = ctx;
     }
 
@@ -69,13 +69,10 @@ public class TextEntitiesReplacer {
         return from(message, Collections.emptyMap());
     }
 
-    public List<TextEntity> buildTextEntities(Locale locale) {
+    public List<TextEntity> buildTextEntities() {
         List<TextEntity> entities = new ArrayList<>();
 
-        // Extract the internalized messageKey using the provided key and the local of the user
-        String messageI18n = getI18nMessage(locale);
-
-        Matcher matcher = PATTERN.matcher(messageI18n);
+        Matcher matcher = PATTERN.matcher(message);
         while (matcher.find()) {
             entities.add(TextEntity.from(matcher.toMatchResult()));
         }
@@ -83,11 +80,8 @@ public class TextEntitiesReplacer {
         return entities;
     }
 
-    public String replaceCtxKeys(Locale locale) {
-        // Extract the internalized messageKey using the provided key and the local of the user
-        String messageI18n = getI18nMessage(locale);
-
-        Matcher matcher = PATTERN.matcher(messageI18n);
+    public String replaceCtxKeys() {
+        Matcher matcher = PATTERN.matcher(message);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String type = matcher.group(1);
@@ -99,13 +93,5 @@ public class TextEntitiesReplacer {
         }
         matcher.appendTail(sb);
         return sb.toString();
-    }
-
-    protected String getI18nMessage(Locale locale) {
-        String messageI18n = I18NUtils.getMessageString(MESSAGES_BUNDLE, messageKey, null, locale);
-        if (StringUtils.isEmpty(messageI18n)) {
-            messageI18n = messageKey;
-        }
-        return messageI18n;
     }
 }
