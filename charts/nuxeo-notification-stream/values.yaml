@@ -16,14 +16,14 @@ service:
     fabric8.io/ingress.annotations: "kubernetes.io/ingress.class: nginx"
 resources:
   limits:
-    cpu: 500m
-    memory: 512Mi
+    cpu: 2000m
+    memory: 3Gi
   requests:
-    cpu: 400m
-    memory: 512Mi
-probePath: /actuator/health
+    cpu: 500m
+    memory: 1Gi
+probePath: /nuxeo/runningstatus
 livenessProbe:
-  initialDelaySeconds: 60
+  initialDelaySeconds: 180
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 1
@@ -32,3 +32,7 @@ readinessProbe:
   successThreshold: 1
   timeoutSeconds: 1
 terminationGracePeriodSeconds: 10
+nuxeo:
+  #clid: XXX
+  packages: nuxeo-web-ui
+  templates: default

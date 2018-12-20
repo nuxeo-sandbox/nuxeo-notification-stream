@@ -21,6 +21,11 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+          - name: NUXEO_PACKAGES
+            value: {{ .Values.nuxeo.packages }}
+          - name: NUXEO_TEMPLATES
+            value: {{ .Values.nuxeo.templates }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
         livenessProbe:
