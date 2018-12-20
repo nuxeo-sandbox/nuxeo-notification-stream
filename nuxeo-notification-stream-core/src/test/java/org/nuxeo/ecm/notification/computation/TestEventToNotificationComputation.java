@@ -20,15 +20,11 @@ import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.ecm.notification.NotificationComponent;
 import org.nuxeo.ecm.notification.NotificationFeature;
 import org.nuxeo.ecm.notification.NotificationStreamConfig;
-import org.nuxeo.ecm.notification.TestNotificationHelper;
 import org.nuxeo.ecm.notification.message.EventRecord;
 import org.nuxeo.ecm.notification.resolver.BasicResolver;
-import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 import org.nuxeo.ecm.platform.test.PlatformFeature;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.lib.stream.codec.Codec;
@@ -46,7 +42,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
  * @since XXX
  */
 @RunWith(FeaturesRunner.class)
-@Features({NotificationFeature.class, PlatformFeature.class})
+@Features({ NotificationFeature.class, PlatformFeature.class })
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core:OSGI-INF/test-computations-contrib.xml")
 public class TestEventToNotificationComputation {
 

@@ -23,6 +23,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.notification.notifier.CounterNotifier;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.stream.StreamHelper;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -51,5 +52,10 @@ public class NotificationFeature implements RunnerFeature {
     public void start(FeaturesRunner runner) {
         // Configure the repository name to fetch the user locale
         Framework.getProperties().setProperty(REPOSITORY_USER_PROFILE_PROP, "test");
+    }
+
+    @Override
+    public void afterMethodRun(FeaturesRunner runner, FrameworkMethod method, Object test) throws Exception {
+        StreamHelper.drainAndStop();
     }
 }
