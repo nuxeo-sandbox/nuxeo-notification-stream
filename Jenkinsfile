@@ -6,6 +6,8 @@ pipeline {
     ORG = 'nuxeo-sandbox'
     APP_NAME = 'nuxeo-notification-stream'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
+    KS_CLUSTER = 'l2it'
+    TRICK_SHOT = 'l2it-nuxeo-sandbox-nuxeo-notification-stream-pr-test-ak-jx'
   }
   stages {
     stage('CI Build and push snapshot') {
@@ -19,6 +21,9 @@ pipeline {
       }
       steps {
         container('maven') {
+          sh "jx step helm delete $HELM_RELEASE-mongo --namespace $TRICK_SHOT --purge || true"
+          sh "helm init --client-only"
+          sh "jx step helm install --name $HELM_RELEASE-mongo stable/mongodb --set persistence.enabled=false --set usePassword=false --namespace $TRICK_SHOT"
           // XXX Not possible to set a version when inherited
           // sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
           sh "mvn install"
