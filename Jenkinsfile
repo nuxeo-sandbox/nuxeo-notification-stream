@@ -44,7 +44,7 @@ pipeline {
               sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
               sh "helm init --client-only"
               sh "jx step helm install --name $TEST_NAMESPACE stable/mongodb --set persistence.enabled=false --set usePassword=false --namespace $TEST_NAMESPACE"
-              sh "mvn test -o -Dalt.build.dir=target-mongo"
+              sh "mvn test -DskipTests=true -o -Dalt.build.dir=target-mongo"
             }
           }
           post {
@@ -85,8 +85,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        container('maven') {
-
+        container('maven-nuxeo') {
           // ensure we're not on a detached head
           sh "git checkout master"
           sh "git config --global credential.helper store"
