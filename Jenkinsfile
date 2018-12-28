@@ -13,7 +13,7 @@ pipeline {
       steps {
         container('maven-nuxeo') {
           // Load local Maven repository
-          sh "mvn package process-test-resources -DskipTests"
+//          sh "mvn package process-test-resources -DskipTests"
         }
       }
     }
@@ -30,7 +30,7 @@ pipeline {
         stage('JUnit - Default') {
           steps {
             container('maven-nuxeo') {
-              sh "mvn test -o -Dalt.build.dir=target-default"
+              sh "mvn test -DskipTests=true -o -Dalt.build.dir=target-default"
             }
           }
         }
@@ -41,17 +41,18 @@ pipeline {
           steps {
             container('maven-nuxeo') {
               sh "kubectl create ns $TEST_NAMESPACE || true"
-              sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
+//              sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
               sh "helm init --client-only"
-              sh "jx step helm install --name $TEST_NAMESPACE stable/mongodb --set persistence.enabled=false --set usePassword=false --namespace $TEST_NAMESPACE"
+              sh "helm repo add jenkins-x-l2it http://chartmuseum.l2it.35.231.200.170.nip.io"
+              sh "jx step helm install --name $TEST_NAMESPACE --namespace $TEST_NAMESPACE jenkins-x-l2it/nuxeo-tests-mongo"
               sh "mvn test -DskipTests=true -o -Dalt.build.dir=target-mongo"
             }
           }
           post {
             always {
               container('maven-nuxeo') {
-                sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
-                sh "kubectl delete ns $TEST_NAMESPACE"
+//                sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
+//                sh "kubectl delete ns $TEST_NAMESPACE"
               }
             }
           }
