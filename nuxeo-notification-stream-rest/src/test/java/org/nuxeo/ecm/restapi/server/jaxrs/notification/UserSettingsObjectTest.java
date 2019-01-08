@@ -46,7 +46,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @RunWith(FeaturesRunner.class)
 @Features({ RestServerFeature.class, NotificationFeature.class })
-@ServletContainer(port = 18090)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest.test")
 public class UserSettingsObjectTest extends BaseTest {
