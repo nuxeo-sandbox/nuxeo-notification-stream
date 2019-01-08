@@ -52,7 +52,6 @@ import static org.nuxeo.ecm.notification.resolver.ComplexSubsKeyResolver.SUFFIX_
 
 @RunWith(FeaturesRunner.class)
 @Features({RestServerFeature.class, NotificationFeature.class})
-@ServletContainer(port = 18090)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest")
 @Deploy("org.nuxeo.ecm.platform.notification.stream.rest.test")
 public class NotificationObjectTest extends BaseTest {
