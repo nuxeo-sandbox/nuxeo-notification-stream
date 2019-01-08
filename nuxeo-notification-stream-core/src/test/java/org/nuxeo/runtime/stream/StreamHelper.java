@@ -33,7 +33,7 @@ public class StreamHelper {
         }
 
         try {
-            return np.drainAndStop(Duration.ofSeconds(2));
+            return np.drainAndStop(Duration.ofSeconds(5));
         } finally {
             np.start();
         }
