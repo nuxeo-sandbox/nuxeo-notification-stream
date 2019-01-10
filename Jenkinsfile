@@ -29,6 +29,7 @@ pipeline {
       steps {
         script {
           println env.BRANCH_NAME
+          println env
           List DB = [DB_h2, DB_MONGO, DB_PGSQL]
 
           String testdbs = env.BRANCH_NAME.split("/").find({ it.startsWith("testdb") })
