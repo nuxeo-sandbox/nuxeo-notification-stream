@@ -1,3 +1,11 @@
+def DB_MONGO = "mongodb"
+def DB_h2 = "h2"
+def DB_PGSQL = "postgresql"
+def DB_DEFAULT = "default"
+def DB_ALL = "all"
+
+List dbs = [DB_DEFAULT]
+
 pipeline {
   agent {
     label "builder-maven-nuxeo"
@@ -13,13 +21,34 @@ pipeline {
       steps {
         container('maven-nuxeo') {
           // Load local Maven repository
-          sh "mvn package process-test-resources -DskipTests"
+//          sh "mvn package process-test-resources -DskipTests"
+        }
+      }
+    }
+    stage('Prepare CI') {
+      steps {
+        script {
+          println env.BRANCH_NAME
+          List DB = [DB_h2, DB_MONGO, DB_PGSQL]
+
+          String testdbs = env.BRANCH_NAME.split("/").find({ it.startsWith("testdb") })
+          if (testdbs) {
+            dbs = testdbs.substring("testdb-".length()).split("-")
+          }
+
+          if (dbs.contains(DB_ALL)) {
+            dbs = DB
+          }
+
+          println dbs
         }
       }
     }
     stage('CI Build') {
       when {
-        branch 'test-*'
+        expression {
+          return env.BRANCH_NAME.startsWith('test-')
+        }
       }
       environment {
         PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
@@ -28,13 +57,23 @@ pipeline {
       }
       parallel {
         stage('JUnit - Default') {
+          when {
+            expression {
+              return dbs.contains(DB_DEFAULT) || dbs.contains(DB_h2)
+            }
+          }
           steps {
             container('maven-nuxeo') {
-              sh "mvn test -o -Dalt.build.dir=target-default"
+//                sh "mvn test -o -Dalt.build.dir=target-default"
             }
           }
         }
         stage('JUnit - MongoDB') {
+          when {
+            expression {
+              return dbs.contains(DB_MONGO)
+            }
+          }
           environment {
             TEST_NAMESPACE = "$HELM_RELEASE-mongo"
           }
@@ -45,7 +84,7 @@ pipeline {
               sh "helm init --client-only"
               sh "helm repo add jenkins-x-l2it http://chartmuseum.l2it.35.231.200.170.nip.io"
               sh "jx step helm install --name $TEST_NAMESPACE --namespace $TEST_NAMESPACE jenkins-x-l2it/nuxeo-tests-mongo"
-              sh "mvn test -o -Dalt.build.dir=target-mongo"
+//                sh "mvn test -o -Dalt.build.dir=target-mongo"
             }
           }
           post {
@@ -54,6 +93,18 @@ pipeline {
                 sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
                 sh "kubectl delete ns $TEST_NAMESPACE"
               }
+            }
+          }
+        }
+        stage('JUnit - PostgreSQL') {
+          when {
+            expression {
+              return dbs.contains(DB_PGSQL)
+            }
+          }
+          steps {
+            container('maven-nuxeo') {
+//                sh "mvn test -o -Dalt.build.dir=target-postgres"
             }
           }
         }
