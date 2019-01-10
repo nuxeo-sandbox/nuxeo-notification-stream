@@ -1,3 +1,4 @@
+Test
 # Nuxeo Notifcation Stream
 
 The Nuxeo Notification Stream module defines a new notification infrastructure using Nuxeo Stream and enabling the configuration of different channels to dispatch the notifications.
