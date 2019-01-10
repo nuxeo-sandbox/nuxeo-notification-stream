@@ -27,7 +27,7 @@ pipeline {
     }
     stage('Prepare CI') {
       steps {
-        node {
+        container('maven-nuxeo') {
           sh 'env | sort'
         }
         script {
