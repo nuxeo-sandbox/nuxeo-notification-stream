@@ -6,6 +6,41 @@ def DB_ALL = "all"
 
 List dbs = [DB_DEFAULT]
 
+class ModuleFinder {
+  def roots = [] as HashSet
+
+  void addModuleOf(String file) {
+    def moduleRoot = this.findModuleRoot(file)
+    if (moduleRoot != null) {
+      roots.add(moduleRoot)
+    }
+  }
+
+  protected String findModuleRoot(file) {
+    def segments = file.split(File.separator) as List
+    if (segments.size() <= 1) {
+      segments = [".", file]
+    }
+
+    for (int i = segments.size() - 1; i >= 0; i--) {
+      String folder = segments.subList(0, i).join(File.separator)
+      if (new File(folder, "pom.xml").exists()) {
+        return folder
+      }
+    }
+
+    return null
+  }
+
+  String mavenArgs() {
+    if (roots.size() == 0) {
+      return ""
+    }
+    " -pl ${(roots.toArray() as List).join(",")} -amd"
+  }
+}
+ModuleFinder mf = new ModuleFinder()
+
 pipeline {
   agent {
     label "builder-maven-nuxeo"
@@ -17,15 +52,7 @@ pipeline {
     KS_CLUSTER = 'l2it'
   }
   stages {
-    stage('Prepare test compile') {
-      steps {
-        container('maven-nuxeo') {
-          // Load local Maven repository
-//          sh "mvn package process-test-resources -DskipTests"
-        }
-      }
-    }
-    stage('Prepare CI') {
+    stage('Prepare Build') {
       steps {
         container('maven-nuxeo') {
           sh 'env | sort'
@@ -44,6 +71,17 @@ pipeline {
           }
 
           println dbs
+          (sh(returnStdout: true, script: "git log master..${env.BRANCH_NAME} --format=\"%H\" | tail -1")).split("/").forEach({ mf.addModuleOf(it) })
+          println mf.roots
+        }
+
+      }
+    }
+    stage('Prepare test compile') {
+      steps {
+        container('maven-nuxeo') {
+          // Load local Maven repository
+//          sh "mvn package process-test-resources -DskipTests"
         }
       }
     }
