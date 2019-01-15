@@ -50,11 +50,12 @@ pipeline {
             script {
               def regex = /^- \[x\] (\w+)$/
               def splitBody = pullRequest.body.split("\n")
-              def list = []
               for (line in splitBody) {
                 def group = (line =~ regex)
                 if (group) {
-                  targetTestEnvironments.add(group[0][1].toLowerCase())
+                  def env = group[0][1].toLowerCase()
+                  targetTestEnvironments.add(env)
+                  targetPreviewEnvironments.add(env)
                 }
               }
             }
@@ -69,7 +70,7 @@ pipeline {
           steps{
             script {
               // Add origin/master as ref to compare both branch
-              sh script: "git fetch --no-tags --progress https://github.com/$ORG/$APP_NAME.git +refs/heads/master:refs/remotes/origin/master"
+              sh script: "git fetch --no-tags --progress https://github.com/${ORG}/${APP_NAME}.git +refs/heads/master:refs/remotes/origin/master"
               def roots = [] as List
               def masterPoint = (sh(returnStdout: true, script: "git log --format=%H origin/master..origin/${env.BRANCH_NAME} --format=\"%H\" | tail -1")).trim()
               (sh(returnStdout: true, script: "git diff ${masterPoint} --name-only")).split("\n").each({
@@ -151,8 +152,7 @@ pipeline {
           }
         }
       }
-    }
-    stage('Deploy Preview') {
+      stage('Deploy Preview') {
       parallel {
         stage('Preview - H2') {
           when{
@@ -206,9 +206,10 @@ pipeline {
         }
       }
     }
-    post {
-      always {
-        cleanWs()
-      }
+  }
+  post {
+    always {
+      cleanWs()
     }
+  }
 }
