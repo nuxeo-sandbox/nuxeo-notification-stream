@@ -157,7 +157,7 @@ pipeline {
         stage('Preview - H2') {
           when{
             expression {
-              targetPreviewEnvironments.contains("default") || targetPreviewEnvironments.size() == 0 || targetPreviewEnvironments.contains(DB_ALL)
+              targetPreviewEnvironments.contains("default") || !env.BRANCH.startsWith("work") || targetPreviewEnvironments.contains(DB_ALL)
             }
           }
           steps {
