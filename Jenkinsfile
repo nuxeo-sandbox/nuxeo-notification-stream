@@ -8,6 +8,7 @@ def targetPreviewEnvironments = [] as Set
 def mvnOpts = ""
 
 def findBranchName() {
+  // in case of PR-*, we need to lookup to the CHANGE_BRANCH var to find original branch
   env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
 }
 
@@ -98,6 +99,15 @@ pipeline {
               }
             }
           }
+        }
+      }
+    }
+    stage('Summary') {
+      steps {
+        script {
+          println("Test environments: ${(targetTestEnvironments as List).join(' ')}")
+          println("Preview environments: ${(targetPreviewEnvironments as List).join(' ')}")
+          println("Maven Args: ${mvnOpts}")
         }
       }
     }
