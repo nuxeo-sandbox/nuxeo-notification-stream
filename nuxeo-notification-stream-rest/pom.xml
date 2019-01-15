@@ -9,7 +9,7 @@
     <version>10.10-SNAPSHOT</version>
   </parent>
   <artifactId>nuxeo-notification-stream-rest</artifactId>
-  <name>Nuxeo Notification Stream - REST</name>
+  <name>Nuxeo Notification Stream - REST - modif</name>
   <description>Nuxeo Notification Stream - REST</description>
 
   <dependencies>
