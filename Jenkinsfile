@@ -1,3 +1,19 @@
+def DB_MONGO = "mongodb"
+def DB_h2 = "h2"
+def DB_PGSQL = "postgresql"
+def DB_DEFAULT = "default"
+def DB_ALL = "all"
+def work = "work"
+def targetTestEnvironments = [] as Set
+def targetPreviewEnvironments = [] as Set
+def mvnOpts = ""
+ 
+List dbs = []
+
+def findBranchName() {
+  env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
+}
+
 pipeline {
   agent {
     label "builder-maven-nuxeo"
@@ -7,52 +23,129 @@ pipeline {
     APP_NAME = 'nuxeo-notification-stream'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
     KS_CLUSTER = 'l2it'
+    BRANCH = findBranchName()
   }
   stages {
+    stage('Setup'){
+      parallel {
+        stage('Branch Naming') {
+          steps{
+            script {
+              String testDef = env.BRANCH.split("/").find({ it.startsWith("test-") })
+              if (testDef) {
+                targetTestEnvironments.addAll(testDef.substring("test-".length()).split("-"))
+              }
+              testDef = env.BRANCH.split("/").find({ it.startsWith("preview-") })
+              if (testDef) {
+                targetPreviewEnvironments.addAll(testDef.substring("preview-".length()).split("-"))
+              }
+            }
+          }
+        }
+        stage('PR Comment') {
+          when{
+            branch 'PR-*'
+          }
+          steps{
+            script {
+              def regex = /^- \[x\] (\w+)$/
+              def splitBody = pullRequest.body.split("\n")
+              def list = []
+              for (line in splitBody) {
+                def group = (line =~ regex)
+                if (group) {
+                  targetTestEnvironments.add(group[0][1].toLowerCase())
+                }
+              }
+            }
+          }
+        }
+        stage('Changeset Speedup'){
+          when {
+            expression {
+              return env.BRANCH_NAME.startsWith('work/')
+            }
+          }
+          steps{
+            script {
+              // Add origin/master as ref to compare both branch
+              sh script: "git fetch --no-tags --progress https://github.com/$ORG/$APP_NAME.git +refs/heads/master:refs/remotes/origin/master"
+              def roots = [] as List
+              def masterPoint = (sh(returnStdout: true, script: "git log --format=%H origin/master..origin/${env.BRANCH_NAME} --format=\"%H\" | tail -1")).trim()
+              (sh(returnStdout: true, script: "git diff ${masterPoint} --name-only")).split("\n").each({
+                def segments = it.split("/") as List
+                if (segments.size() <= 1) {
+                  segments = [".", it]
+                }
+                // Loop through child directory to find first pom.xml file
+                for (int i = segments.size() - 1; i >= 0; i--) {
+                  // Cannot use `List#sublist` due to Iterator uses is not allowed: JENKINS-27421
+                  String folder = ""
+                  for (int j = 0; j < i; j++) {
+                    if (j > 0) {
+                      folder += "/"
+                    }
+                    folder += segments.get(j)
+                  }
+                  if (fileExists("${folder}/pom.xml")) {
+                    if (!roots.contains(folder)) {
+                      roots.add(folder)
+                    }
+                    return
+                  }
+                }
+              })
+              if (roots.size() > 0) {
+                mvnOpts = " -pl ${roots.join(",")} -amd "
+              }
+            }
+          }
+        }
+      }
+    }
     stage('Prepare test compile') {
       steps {
         container('maven-nuxeo') {
           // Load local Maven repository
-          sh "mvn package process-test-resources -DskipTests"
+          sh "mvn package process-test-resources -DskipTests ${mvnOpts}"
         }
       }
     }
     stage('CI Build') {
-      when {
-        branch 'test-*'
-      }
-      environment {
-        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-        PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
-        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
-      }
       parallel {
         stage('JUnit - Default') {
+          when{
+            expression {
+              targetTestEnvironments.contains("default") || targetTestEnvironments.size() == 0 || targetTestEnvironments.contains(DB_ALL)
+            }
+          }
           steps {
             container('maven-nuxeo') {
-              sh "mvn test -o -Dalt.build.dir=target-default"
+              //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
             }
           }
         }
         stage('JUnit - MongoDB') {
-          environment {
-            TEST_NAMESPACE = "$HELM_RELEASE-mongo"
+          when {
+            expression {
+              targetTestEnvironments.contains(DB_MONGO) || targetTestEnvironments.contains(DB_ALL)
+            }
           }
           steps {
             container('maven-nuxeo') {
-              sh "kubectl create ns $TEST_NAMESPACE || true"
-              sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
-              sh "helm init --client-only"
-              sh "helm repo add jenkins-x-l2it http://chartmuseum.l2it.35.231.200.170.nip.io"
-              sh "jx step helm install --name $TEST_NAMESPACE --namespace $TEST_NAMESPACE jenkins-x-l2it/nuxeo-tests-mongo"
-              sh "mvn test -o -Dalt.build.dir=target-mongo"
+              //sh "mvn test -o -Dalt.build.dir=target-mongo ${mvnOpts}"
             }
           }
-          post {
-            always {
+        }
+        stage('JUnit - PostgreSQL') {
+            when {
+              expression {
+                targetTestEnvironments.contains(DB_PGSQL) || targetTestEnvironments.contains(DB_ALL)
+              }
+            }
+            steps {
               container('maven-nuxeo') {
-                sh "jx step helm delete $TEST_NAMESPACE --namespace $TEST_NAMESPACE --purge || true"
-                sh "kubectl delete ns $TEST_NAMESPACE"
+                //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
               }
             }
           }
@@ -60,70 +153,62 @@ pipeline {
       }
     }
     stage('Deploy Preview') {
-      when {
-        branch 'test-*'
-      }
-      environment {
-        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-        PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
-        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
-      }
-      steps {
-        container('maven-nuxeo') {
-          // XXX Not possible to set a version when inherited
-          // sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
-          sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-          sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-          dir('charts/preview') {
-            sh "make preview"
-            sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+      parallel {
+        stage('Preview - H2') {
+          when{
+            expression {
+              targetPreviewEnvironments.contains("default") || targetPreviewEnvironments.size() == 0 || targetPreviewEnvironments.contains(DB_ALL)
+            }
+          }
+          steps {
+            container('maven-nuxeo') {
+              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
+              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+              //   sh "make preview"
+              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+              // }
+            }
+          }
+        }
+        stage('Preview - MongoDB') {
+          when {
+            expression {
+              targetPreviewEnvironments.contains(DB_MONGO) || targetPreviewEnvironments.contains(DB_ALL)
+            }
+          }
+          steps {
+            container('maven-nuxeo') {
+              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
+              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+              // dir('charts/preview') {
+              //   sh "make preview"
+              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+              // }
+            }
+          }
+        }
+        stage('Preview - PostgreSQL') {
+          when {
+            expression {
+              targetPreviewEnvironments.contains(DB_PGSQL) || targetPreviewEnvironments.contains(DB_ALL)
+            }
+          }
+          steps {
+            container('maven-nuxeo') {
+              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
+              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+              // dir('charts/preview') {
+              //   sh "make preview"
+              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+              // }
+            }
           }
         }
       }
     }
-    stage('Build Release') {
-      when {
-        branch 'master'
-      }
-      steps {
-        container('maven-nuxeo') {
-          // ensure we're not on a detached head
-          sh "git checkout master"
-          sh "git config --global credential.helper store"
-          sh "jx step git credentials"
-
-          // so we can retrieve the version in later steps
-          sh "echo \$(jx-release-version) > VERSION"
-          sh "mvn versions:set -DnewVersion=\$(cat VERSION)"
-          sh "jx step tag --version \$(cat VERSION)"
-          sh "mvn clean deploy"
-          sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
-          sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
-        }
+    post {
+      always {
+        cleanWs()
       }
     }
-    stage('Promote to Environments') {
-      when {
-        branch 'master'
-      }
-      steps {
-        container('maven') {
-          dir('charts/nuxeo-notification-stream') {
-            sh "jx step changelog --version v\$(cat ../../VERSION)"
-
-            // release the helm chart
-            sh "jx step helm release"
-
-            // promote through all 'Auto' promotion Environments
-            sh "jx promote -b --all-auto --timeout 1h --version \$(cat ../../VERSION)"
-          }
-        }
-      }
-    }
-  }
-  post {
-    always {
-      cleanWs()
-    }
-  }
 }
