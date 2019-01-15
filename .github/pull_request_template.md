@@ -1,12 +1,9 @@
 # <Update title here>
 
-## Select Additional Test environments, each environment will add as well a dedicated preview environment
+Select on which environment you would like to deploy preview. 
 
+- [ ] All
+- [ ] H2
 - [ ] MongoDB
-- [ ] Elasticsearch
 - [ ] PostgreSQL
-- [ ] REDIS
-- [ ] Kafka
-- [ ] MariaDB
-- [ ] Oracle
  

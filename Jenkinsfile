@@ -1,14 +1,11 @@
 def DB_MONGO = "mongodb"
-def DB_h2 = "h2"
+def DB_H2 = "h2"
 def DB_PGSQL = "postgresql"
-def DB_DEFAULT = "default"
 def DB_ALL = "all"
-def work = "work"
+def WORK = "work"
 def targetTestEnvironments = [] as Set
 def targetPreviewEnvironments = [] as Set
 def mvnOpts = ""
- 
-List dbs = []
 
 def findBranchName() {
   env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
@@ -26,10 +23,10 @@ pipeline {
     BRANCH = findBranchName()
   }
   stages {
-    stage('Setup'){
+    stage('Setup') {
       parallel {
         stage('Branch Naming') {
-          steps{
+          steps {
             script {
               String testDef = env.BRANCH.split("/").find({ it.startsWith("test-") })
               if (testDef) {
@@ -43,10 +40,10 @@ pipeline {
           }
         }
         stage('PR Comment') {
-          when{
+          when {
             branch 'PR-*'
           }
-          steps{
+          steps {
             script {
               def regex = /^- \[x\] (\w+)$/
               def splitBody = pullRequest.body.split("\n")
@@ -61,13 +58,13 @@ pipeline {
             }
           }
         }
-        stage('Changeset Speedup'){
+        stage('Changeset Speedup') {
           when {
             expression {
               return env.BRANCH_NAME.startsWith('work/')
             }
           }
-          steps{
+          steps {
             script {
               // Add origin/master as ref to compare both branch
               sh script: "git fetch --no-tags --progress https://github.com/${ORG}/${APP_NAME}.git +refs/heads/master:refs/remotes/origin/master"
@@ -114,10 +111,10 @@ pipeline {
     }
     stage('CI Build') {
       parallel {
-        stage('JUnit - Default') {
-          when{
+        stage('JUnit - H2') {
+          when {
             expression {
-              targetTestEnvironments.contains("default") || targetTestEnvironments.size() == 0 || targetTestEnvironments.contains(DB_ALL)
+              targetTestEnvironments.contains(DB_H2) || targetTestEnvironments.size() == 0 || targetTestEnvironments.contains(DB_ALL)
             }
           }
           steps {
@@ -139,25 +136,25 @@ pipeline {
           }
         }
         stage('JUnit - PostgreSQL') {
-            when {
-              expression {
-                targetTestEnvironments.contains(DB_PGSQL) || targetTestEnvironments.contains(DB_ALL)
-              }
+          when {
+            expression {
+              targetTestEnvironments.contains(DB_PGSQL) || targetTestEnvironments.contains(DB_ALL)
             }
-            steps {
-              container('maven-nuxeo') {
-                //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
-              }
+          }
+          steps {
+            container('maven-nuxeo') {
+              //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
             }
           }
         }
       }
-      stage('Deploy Preview') {
+    }
+    stage('Deploy Preview') {
       parallel {
         stage('Preview - H2') {
-          when{
+          when {
             expression {
-              targetPreviewEnvironments.contains("default") || !env.BRANCH.startsWith("work") || targetPreviewEnvironments.contains(DB_ALL)
+              targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL)
             }
           }
           steps {
