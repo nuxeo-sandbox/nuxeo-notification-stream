@@ -17,12 +17,15 @@ cleanup:
 
 ## Modified from Makefile by jx to point to the current docker image built
 nuxeo:
-  image:
+  image: 
     repository:  
-    tag:  
+    tag: 
     pullPolicy: IfNotPresent
-  packages: nuxeo-web-ui
+  replicaCount: 2  
   mongodb:
-    deploy: true 
+    deploy: false 
   elasticsearch:
-    deploy: false        
+    deploy: false
+  postgresql:
+    deploy: false
+

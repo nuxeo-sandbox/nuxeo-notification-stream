@@ -6,8 +6,3 @@ nuxeo:
     pullPolicy: IfNotPresent   
   #clid: XXX
   packages: nuxeo-web-ui
-    replicaCount: 2
-  mongodb:
-    deploy: true 
-  elasticsearch:
-    deploy: false 

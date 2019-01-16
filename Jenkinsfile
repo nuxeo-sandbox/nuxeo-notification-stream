@@ -22,6 +22,7 @@ pipeline {
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
     KS_CLUSTER = 'l2it'
     BRANCH = findBranchName()
+    PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
   }
   stages {
     stage('Setup') {
@@ -169,11 +170,11 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
+                sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+                dir('charts/preview') {
+                sh "make preview"
+                sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+                }
             }
           }
         }
@@ -185,12 +186,12 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              // dir('charts/preview') {
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
+                sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+                dir('charts/preview') {
+                  sh "make mongodb"
+                  sh "make preview"
+                  sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+               }
             }
           }
         }
@@ -202,12 +203,12 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              // dir('charts/preview') {
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
+                sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+                dir('charts/preview') {
+                  sh "make postgresql"
+                  sh "make preview"
+                  sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
+               }
             }
           }
         }
