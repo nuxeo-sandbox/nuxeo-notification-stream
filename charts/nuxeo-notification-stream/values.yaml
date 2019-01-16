@@ -1,8 +1,0 @@
-## Modified from Makefile by jx to point to the current docker image built
-nuxeo:
-  image:
-    repository:  
-    tag:  
-    pullPolicy: IfNotPresent   
-  #clid: XXX
-  packages: nuxeo-web-ui
