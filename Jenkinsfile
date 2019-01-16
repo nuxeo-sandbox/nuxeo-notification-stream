@@ -170,6 +170,7 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
+                sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
                 sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
                 dir('charts/preview') {
                 sh "make preview"
@@ -186,6 +187,7 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
+                sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
                 sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
                 dir('charts/preview') {
                   sh "make mongodb"
@@ -203,6 +205,7 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
+                sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
                 sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
                 dir('charts/preview') {
                   sh "make postgresql"

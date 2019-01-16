@@ -17,11 +17,11 @@ cleanup:
 
 ## Modified from Makefile by jx to point to the current docker image built
 nuxeo:
-  image: 
-    repository:  
-    tag: 
-    pullPolicy: IfNotPresent
-  replicaCount: 2  
+  nuxeo:
+    image: 
+      repository:  
+      tag: 
+      pullPolicy: IfNotPresent
   mongodb:
     deploy: false 
   elasticsearch:
@@ -29,3 +29,10 @@ nuxeo:
   postgresql:
     deploy: false
 
+## Conditions in requirments.yaml of subchart do not seem to apply to subchart??
+mongodb:
+  deploy: false 
+elasticsearch:
+  deploy: false
+postgresql:
+  deploy: false

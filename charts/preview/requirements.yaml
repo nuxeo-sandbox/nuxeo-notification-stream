@@ -10,4 +10,4 @@ dependencies:
   - name: nuxeo
     version: 0.1.0
     repository: http://jenkins-x-chartmuseum:8080
-    alias: nuxeo 
+    alias: nuxeo
