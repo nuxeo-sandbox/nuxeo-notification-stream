@@ -22,6 +22,7 @@ pipeline {
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
     KS_CLUSTER = 'l2it'
     BRANCH = findBranchName()
+    PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
   }
   stages {
     stage('Setup') {
@@ -159,60 +160,76 @@ pipeline {
         }
       }
     }
-    stage('Deploy Preview') {
-      parallel {
-        stage('Preview - H2') {
-          when {
-            expression {
-              targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL)
-            }
-          }
-          steps {
-            container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
-            }
-          }
+    stage('Build Docker Image') {
+      when {
+        expression {
+          targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL) || targetPreviewEnvironments.contains(DB_MONGO) || targetPreviewEnvironments.contains(DB_PGSQL) 
         }
-        stage('Preview - MongoDB') {
-          when {
-            expression {
-              targetPreviewEnvironments.contains(DB_MONGO) || targetPreviewEnvironments.contains(DB_ALL)
-            }
-          }
-          steps {
-            container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              // dir('charts/preview') {
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
-            }
-          }
-        }
-        stage('Preview - PostgreSQL') {
-          when {
-            expression {
-              targetPreviewEnvironments.contains(DB_PGSQL) || targetPreviewEnvironments.contains(DB_ALL)
-            }
-          }
-          steps {
-            container('maven-nuxeo') {
-              // sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-              // sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-              // dir('charts/preview') {
-              //   sh "make preview"
-              //   sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --dir ../.."
-              // }
-            }
-          }
+      }
+      steps {
+        container('maven-nuxeo') {
+         sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
+         sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
         }
       }
     }
+    stage('Preview - H2') {
+      environment {
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER"
+      }   
+      when {
+        expression {
+          targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL)
+        }
+      }
+      steps {
+        container('maven-nuxeo') {
+            dir('charts/preview') {
+            sh "make preview"
+            sh "jx preview --log-level debug --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+            }
+        }
+      }
+    }
+    stage('Preview - MongoDB') {
+      environment {
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-mongo"
+      }
+      when {
+        expression {
+          targetPreviewEnvironments.contains(DB_MONGO) || targetPreviewEnvironments.contains(DB_ALL)
+        }
+      }
+      steps {
+        container('maven-nuxeo') {
+            dir('charts/preview') {
+              sh "make mongodb"
+              sh "make preview"
+              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+           }
+        }
+      }
+    }
+    stage('Preview - PostgreSQL') {
+      environment {
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-postgresql"
+      }
+      when {
+        expression {
+          targetPreviewEnvironments.contains(DB_PGSQL) || targetPreviewEnvironments.contains(DB_ALL)
+        }
+      }
+      steps {
+        container('maven-nuxeo') {
+            dir('charts/preview') {
+              sh "make postgresql"
+              sh "make preview"
+              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+           }
+        }
+      }
+    }
+    
   }
   post {
     always {

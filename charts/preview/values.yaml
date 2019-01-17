@@ -15,8 +15,20 @@ cleanup:
     helm.sh/hook: pre-delete
     helm.sh/hook-delete-policy: hook-succeeded
 
-preview:
-  image:
-    repository:
-    tag:
-    pullPolicy: Always
+## Modified from Makefile by jx to point to the current docker image built
+nuxeo:
+  nuxeo:
+    image: 
+      repository:  
+      tag: 
+      pullPolicy: IfNotPresent
+  mongodb:
+    deploy: false 
+  postgresql:
+    deploy: false
+
+## Conditions in requirments.yaml of subchart do not seem to apply to subchart??
+mongodb:
+  deploy: false 
+postgresql:
+  deploy: false
