@@ -175,7 +175,7 @@ pipeline {
     }
     stage('Preview - H2') {
       environment {
-        NAMESPACE = "$PP_NAME-$BRANCH_NAME-$BUILD_NUMBER"
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER"
       }   
       when {
         expression {
@@ -193,7 +193,7 @@ pipeline {
     }
     stage('Preview - MongoDB') {
       environment {
-        NAMESPACE = "$PP_NAME-$BRANCH_NAME-$BUILD_NUMBER-mongo"
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-mongo"
       }
       when {
         expression {
@@ -206,14 +206,13 @@ pipeline {
               sh "make mongodb"
               sh "make preview"
               sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-              sh "sleep 3000000"
            }
         }
       }
     }
     stage('Preview - PostgreSQL') {
       environment {
-        NAMESPACE = "$PP_NAME-$BRANCH_NAME-$BUILD_NUMBER-postgresql"
+        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-postgresql"
       }
       when {
         expression {

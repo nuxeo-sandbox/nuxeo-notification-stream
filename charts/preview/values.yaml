@@ -24,15 +24,11 @@ nuxeo:
       pullPolicy: IfNotPresent
   mongodb:
     deploy: false 
-  elasticsearch:
-    deploy: false
   postgresql:
     deploy: false
 
 ## Conditions in requirments.yaml of subchart do not seem to apply to subchart??
 mongodb:
   deploy: false 
-elasticsearch:
-  deploy: false
 postgresql:
   deploy: false
