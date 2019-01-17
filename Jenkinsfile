@@ -163,7 +163,7 @@ pipeline {
     stage('Build Docker Image') {
       when {
         expression {
-          targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL) || targetPreviewEnvironments.contains(DB_MONGO) || targetPreviewEnvironments.contains(DB_PGSQL) 
+          targetPreviewEnvironments.size() > 0
         }
       }
       steps {
