@@ -12,6 +12,10 @@ def findBranchName() {
   env.CHANGE_BRANCH ? env.CHANGE_BRANCH : env.BRANCH_NAME
 }
 
+def formatNamespace(String ns) {
+  ns.replaceAll(/\//, "-").toLowerCase()
+}
+
 pipeline {
   agent {
     label "builder-maven-nuxeo"
@@ -115,8 +119,13 @@ pipeline {
     stage('Prepare test compile') {
       steps {
         container('maven-nuxeo') {
+          // Prepare Helm
+          sh "helm init --client-only"
+          sh "helm repo add jenkins-x http://jenkins-x-chartmuseum:8080"
+
           // Load local Maven repository
-          sh "mvn package process-test-resources -DskipTests ${mvnOpts}"
+          sh "echo foo=bar > /root/nuxeo-test-vcs.properties"
+          sh "mvn package process-test-resources -Pcustomdb -DskipTests ${mvnOpts}"
         }
       }
     }
@@ -130,7 +139,7 @@ pipeline {
           }
           steps {
             container('maven-nuxeo') {
-              //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
+              sh "mvn test -o -Dalt.build.dir=${DB_H2} ${mvnOpts}"
             }
           }
         }
@@ -140,9 +149,28 @@ pipeline {
               targetTestEnvironments.contains(DB_MONGO) || targetTestEnvironments.contains(DB_ALL)
             }
           }
+          environment {
+            NAMESPACE = formatNamespace "nss-${BRANCH_NAME}-${DB_MONGO}-${BUILD_NUMBER}"
+            APP_NAME = "nss-${DB_MONGO}-${BUILD_NUMBER}"
+          }
           steps {
             container('maven-nuxeo') {
-              //sh "mvn test -o -Dalt.build.dir=target-mongo ${mvnOpts}"
+              // Prepare nuxeo-test-vcs.properties
+              sh "echo nuxeo.test.core=mongodb > /root/nuxeo-test-vcs-${DB_MONGO}.properties"
+              sh "echo nuxeo.test.mongodb.server=mongodb://${APP_NAME}.${NAMESPACE}.svc.cluster.local >> /root/nuxeo-test-vcs-${DB_MONGO}.properties"
+              sh "echo nuxeo.test.mongodb.dbname=vcstest >> /root/nuxeo-test-vcs-${DB_MONGO}.properties"
+
+              sh "helm install --name ${APP_NAME} --namespace ${NAMESPACE} jenkins-x/nuxeo-mongodb"
+
+              sh "mvn test -Pcustomdb,mongodb -o -Dalt.build.dir=${DB_MONGO} ${mvnOpts}"
+            }
+          }
+          post {
+            always {
+              container('maven-nuxeo') {
+                sh "helm delete $APP_NAME --purge || true"
+                sh "kubectl delete ns $NAMESPACE || true"
+              }
             }
           }
         }
@@ -152,9 +180,30 @@ pipeline {
               targetTestEnvironments.contains(DB_PGSQL) || targetTestEnvironments.contains(DB_ALL)
             }
           }
+          environment {
+            NAMESPACE = formatNamespace "nss-${BRANCH_NAME}-${DB_PGSQL}-${BUILD_NUMBER}"
+            APP_NAME = "nss-${DB_PGSQL}-${BUILD_NUMBER}"
+          }
           steps {
             container('maven-nuxeo') {
-              //sh "mvn test -o -Dalt.build.dir=target-default ${mvnOpts}"
+              // Prepare nuxeo-test-vcs.properties
+              sh "echo nuxeo.test.vcs.db=PostgreSQL > /root/nuxeo-test-vcs-${DB_PGSQL}.properties"
+              sh "echo nuxeo.test.vcs.server=${APP_NAME}-postgresql.${NAMESPACE}.svc.cluster.local >> /root/nuxeo-test-vcs-${DB_PGSQL}.properties"
+              sh "echo nuxeo.test.vcs.database=nuxeo >> /root/nuxeo-test-vcs-${DB_PGSQL}.properties"
+              sh "echo nuxeo.test.vcs.user=nuxeo >> /root/nuxeo-test-vcs-${DB_PGSQL}.properties"
+              sh "echo nuxeo.test.vcs.password=nuxeo >> /root/nuxeo-test-vcs-${DB_PGSQL}.properties"
+
+              sh "helm install --name ${APP_NAME} --namespace ${NAMESPACE} jenkins-x/nuxeo-postgresql"
+
+              sh "mvn test -o -Pcustomdb,postgresql -Dalt.build.dir=${DB_PGSQL} ${mvnOpts}"
+            }
+          }
+          post {
+            always {
+              container('maven-nuxeo') {
+                sh "jx step helm delete $APP_NAME --purge || true"
+                sh "kubectl delete ns $NAMESPACE || true"
+              }
             }
           }
         }
@@ -168,15 +217,15 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-         sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-         sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+          sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
+          sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
         }
       }
     }
     stage('Preview - H2') {
       environment {
-        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER"
-      }   
+        NAMESPACE = formatNamespace "nss-$BRANCH_NAME-$BUILD_NUMBER"
+      }
       when {
         expression {
           targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL)
@@ -184,16 +233,16 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-            dir('charts/preview') {
+          dir('charts/preview') {
             sh "make preview"
             sh "jx preview --log-level debug --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-            }
+          }
         }
       }
     }
     stage('Preview - MongoDB') {
       environment {
-        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-mongo"
+        NAMESPACE = formatNamespace "nss-$BRANCH_NAME-$BUILD_NUMBER-mongo"
       }
       when {
         expression {
@@ -202,17 +251,17 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-            dir('charts/preview') {
-              sh "make mongodb"
-              sh "make preview"
-              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-           }
+          dir('charts/preview') {
+            sh "make mongodb"
+            sh "make preview"
+            sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+          }
         }
       }
     }
     stage('Preview - PostgreSQL') {
       environment {
-        NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER-postgresql"
+        NAMESPACE = formatNamespace "nss-$BRANCH_NAME-$BUILD_NUMBER-postgresql"
       }
       when {
         expression {
@@ -221,18 +270,21 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-            dir('charts/preview') {
-              sh "make postgresql"
-              sh "make preview"
-              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-           }
+          dir('charts/preview') {
+            sh "make postgresql"
+            sh "make preview"
+            sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+          }
         }
       }
     }
-    
+
   }
   post {
     always {
+      junit testResults: "**/target*/surefire-reports/*.xml, **/target*/failsafe-reports/*.xml, **/target*/failsafe-reports/**/*.xml"
+    }
+    cleanup {
       cleanWs()
     }
   }
