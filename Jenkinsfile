@@ -176,7 +176,7 @@ pipeline {
     stage('Preview - H2') {
       environment {
         NAMESPACE = "$APP_NAME-$BRANCH_NAME-$BUILD_NUMBER"
-      }   
+      }
       when {
         expression {
           targetPreviewEnvironments.contains(DB_H2) || !env.BRANCH.startsWith(WORK) || targetPreviewEnvironments.contains(DB_ALL)
@@ -187,7 +187,7 @@ pipeline {
             dir('charts/preview') {
             sh "make preview"
             sh "jx preview --log-level debug --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-            }
+          }
         }
       }
     }
@@ -202,11 +202,16 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-            dir('charts/preview') {
-              sh "make mongodb"
-              sh "make preview"
-              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-           }
+          dir('charts/preview') {
+            sh "make mongodb"
+            sh "make preview"
+            sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+          }
+          script {
+            previewMongoUrl = sh(script: "kubectl get ing --namespace $NAMESPACE | awk '{if (NR == 2) {print \$2}}'", returnStdout: true).trim()
+            sh "jx step git credentials"
+            sh "jx step pr comment --comment='Nuxeo Mongo Preview URL: $previewMongoUrl' -p $pullRequest.number -o $ORG -r 'nuxeo-notification-stream'"
+          }
         }
       }
     }
@@ -221,15 +226,20 @@ pipeline {
       }
       steps {
         container('maven-nuxeo') {
-            dir('charts/preview') {
-              sh "make postgresql"
-              sh "make preview"
-              sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
-           }
+          dir('charts/preview') {
+            sh "make postgresql"
+            sh "make preview"
+            sh "jx preview --log-level debug --pull-secrets instance-clid --app $APP_NAME --namespace=${NAMESPACE} --dir ../.."
+          }
+          script {
+            previewPGUrl = sh(script: "kubectl get ing --namespace $NAMESPACE | awk '{if (NR == 2) {print \$2}}'", returnStdout: true).trim()
+            sh "jx step git credentials"
+            sh "jx step pr comment --comment='Nuxeo PostgreSQL Preview URL: $previewPGUrl' -p $pullRequest.number -o $ORG -r 'nuxeo-notification-stream'"
+          }
         }
       }
     }
-    
+
   }
   post {
     always {
