@@ -2,13 +2,9 @@ OS := $(shell uname)
 
 postgresql:
 	printf "$'\nnuxeo:\n mongodb:\n  deploy: false" >> values.yaml
-	printf "$'\nmongodb:\n  deploy: false" >> values.yaml
 	printf "$'\nnuxeo:\n postgresql:\n  deploy: true" >> values.yaml
-	printf "$'\npostgresql:\n  deploy: true" >> values.yaml	
 mongodb:
-	printf "$'\npostgresql:\n  deploy: false" >> values.yaml
 	printf "$'\nnuxeo:\n postgresql:\n  deploy: false" >> values.yaml	
-	printf "$'\nmongodb:\n  deploy: true" >> values.yaml
 	printf "$'\nnuxeo:\n mongodb:\n  deploy: true" >> values.yaml		
 preview: 
 ifeq ($(OS),Darwin)
