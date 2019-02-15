@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/nuxeo-sandbox/nuxeo-notification-stream:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/nuxeo-sandbox/nuxeo-notification-stream:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: nuxeo-notification-stream
+        chartPath: charts/nuxeo-notification-stream
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/nuxeo-sandbox/nuxeo-notification-stream'
+          image.tag: '{{.DIGEST_HEX}}'
