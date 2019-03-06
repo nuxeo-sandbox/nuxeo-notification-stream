@@ -42,7 +42,7 @@ import static org.nuxeo.runtime.stream.StreamServiceImpl.DEFAULT_CODEC;
  * <p>
  * This abstract class stores subscriptions in a KVS based on an unique key per context.
  *
- * @since XXX
+ * @since 0.1
  */
 public abstract class SubscribableResolver extends Resolver {
 

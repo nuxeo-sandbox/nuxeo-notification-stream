@@ -31,7 +31,7 @@ import org.nuxeo.runtime.codec.CodecService;
 /**
  * Computation saving the notification settings for a given user.
  *
- * @since XXX
+ * @since 0.1
  */
 public class SaveNotificationSettingsComputation extends AbstractComputation {
 

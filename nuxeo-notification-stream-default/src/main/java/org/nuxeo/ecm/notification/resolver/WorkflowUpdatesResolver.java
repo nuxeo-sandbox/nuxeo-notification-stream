@@ -25,7 +25,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
  * Resolver to notify the initiator of a workflow of the different updates triggered during its process. It includes
  * notifications on tasks started, completed or canceled, cancellation of the workflow and end of the workflow.
  *
- * @since XXX
+ * @since 0.1
  */
 public class WorkflowUpdatesResolver extends SubscribableResolver {
 

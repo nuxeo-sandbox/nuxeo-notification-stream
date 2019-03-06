@@ -21,7 +21,7 @@ import org.nuxeo.ecm.platform.task.Task;
 /**
  * Extract the list of assigned users from the context of the event and add the id of the task document.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TaskEventTransformer extends EventTransformer {
 

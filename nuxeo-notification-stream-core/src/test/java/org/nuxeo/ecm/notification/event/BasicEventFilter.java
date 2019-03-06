@@ -17,7 +17,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Basic filter that filters events only if there is a flag in the context.
  *
- * @since XXX
+ * @since 0.1
  */
 public class BasicEventFilter extends EventFilter {
     @Override

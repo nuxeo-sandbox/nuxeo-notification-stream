@@ -37,7 +37,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 /**
  * Test class to validate the autosubscribe to the updates of a document at its creation.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, PlatformFeature.class })

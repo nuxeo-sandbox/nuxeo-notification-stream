@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Abstract class for all the Collection resolvers. It allows the resolvers to share the same key in the KVS ti get the
  * list of subscribers.
  *
- * @since XXX
+ * @since 0.1
  */
 public abstract class AbstractCollectionResolver extends SubscribableResolver {
 

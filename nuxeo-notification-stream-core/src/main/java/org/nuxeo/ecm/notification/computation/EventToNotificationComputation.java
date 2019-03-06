@@ -46,7 +46,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 /**
  * Computation that process an EventRecord to a Notification record.
  *
- * @since XXX
+ * @since 0.1
  */
 public class EventToNotificationComputation extends AbstractComputation {
 

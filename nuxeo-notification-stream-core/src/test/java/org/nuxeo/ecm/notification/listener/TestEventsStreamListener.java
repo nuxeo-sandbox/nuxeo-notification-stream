@@ -49,7 +49,7 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
 /**
  * Test class for the listener {@link EventsStreamListener}.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)

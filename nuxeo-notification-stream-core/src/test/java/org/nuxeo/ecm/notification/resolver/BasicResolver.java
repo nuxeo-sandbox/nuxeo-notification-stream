@@ -23,7 +23,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Basic resolver that accepts only a limited set of events and return a list of three users for the subscribers.
  *
- * @since XXX
+ * @since 0.1
  */
 public class BasicResolver extends Resolver {
 

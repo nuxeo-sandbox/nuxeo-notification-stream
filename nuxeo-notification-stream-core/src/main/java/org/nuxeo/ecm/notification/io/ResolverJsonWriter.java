@@ -32,7 +32,7 @@ import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @Setup(mode = SINGLETON, priority = REFERENCE)
 public class ResolverJsonWriter extends ExtensibleEntityJsonWriter<Resolver> {

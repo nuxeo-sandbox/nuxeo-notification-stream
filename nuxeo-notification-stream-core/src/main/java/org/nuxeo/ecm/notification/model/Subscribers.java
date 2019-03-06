@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class Subscribers implements Serializable {
     protected HashSet<String> usernames = new HashSet<>();

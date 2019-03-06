@@ -30,7 +30,7 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class SubscriptionAction {
     public enum Action {

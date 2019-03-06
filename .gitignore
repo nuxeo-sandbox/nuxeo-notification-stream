@@ -1,3 +1,5 @@
+.factorypath
+.vscode
 .tmp
 target
 .classpath

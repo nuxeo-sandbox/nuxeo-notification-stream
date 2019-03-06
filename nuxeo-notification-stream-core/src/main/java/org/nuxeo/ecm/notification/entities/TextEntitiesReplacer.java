@@ -40,7 +40,7 @@ import org.nuxeo.common.utils.i18n.I18NUtils;
  * - #replaceCtxKeys: transpose entity's value to the corresponding context's value - #buildTextEntities: build a list
  * of TextEntity obj that corresponds to matching entities.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TextEntitiesReplacer {
     public static final String DELIMITER = ":";

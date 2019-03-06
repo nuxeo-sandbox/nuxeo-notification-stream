@@ -16,7 +16,7 @@ import org.nuxeo.runtime.model.Descriptor;
 /**
  * Descriptor for the contribution of an EventTransformer.
  *
- * @since XXX
+ * @since 0.1
  */
 @XObject("eventTransformer")
 public class EventTransformerDescriptor implements Descriptor {

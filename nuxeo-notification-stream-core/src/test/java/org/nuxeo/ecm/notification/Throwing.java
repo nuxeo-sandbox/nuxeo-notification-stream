@@ -11,7 +11,7 @@ package org.nuxeo.ecm.notification;
 import java.util.function.Consumer;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public final class Throwing {
 

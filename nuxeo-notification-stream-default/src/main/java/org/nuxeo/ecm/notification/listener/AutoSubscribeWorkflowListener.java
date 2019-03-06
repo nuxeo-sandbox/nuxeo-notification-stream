@@ -25,7 +25,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Listener automatically subscribing the initiator of a Workflow to its updates.
  *
- * @since XXX
+ * @since 0.1
  * @XXX Move the listener in nuxeo-routing-core when the notifications will be merged in the platform.
  */
 public class AutoSubscribeWorkflowListener implements EventListener {

@@ -62,7 +62,7 @@ import org.nuxeo.runtime.model.Descriptor;
 import org.nuxeo.runtime.stream.StreamService;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class NotificationComponent extends DefaultComponent implements NotificationService, NotificationSettingsService,
         NotificationStreamConfig, NotificationStreamCallback {

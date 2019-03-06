@@ -31,7 +31,7 @@ import org.nuxeo.ecm.notification.model.UserNotifierSettings;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @Setup(mode = SINGLETON, priority = REFERENCE)
 public class UserNotifierSettingsJsonReader extends EntityJsonReader<UserNotifierSettings> {

@@ -17,7 +17,7 @@ import org.nuxeo.runtime.model.Descriptor;
 /**
  * Descriptor for the contribution of an EventFilter.
  *
- * @since XXX
+ * @since 0.1
  */
 @XObject("eventFilter")
 public class EventFilterDescriptor implements Descriptor {

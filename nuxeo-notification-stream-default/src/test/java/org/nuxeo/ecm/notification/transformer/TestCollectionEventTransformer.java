@@ -30,7 +30,7 @@ import org.nuxeo.ecm.core.event.impl.EventImpl;
 /**
  * Test for the EventTransformer {@link CollectionEventTransformer} on Collection events.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TestCollectionEventTransformer {
 

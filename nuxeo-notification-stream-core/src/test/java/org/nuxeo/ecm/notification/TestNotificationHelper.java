@@ -40,7 +40,7 @@ import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 import org.nuxeo.runtime.stream.StreamHelper;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class TestNotificationHelper {
 

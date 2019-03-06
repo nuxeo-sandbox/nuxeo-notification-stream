@@ -37,7 +37,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * A messageKey representing an Event.
  *
- * @since XXX
+ * @since 0.1
  */
 public class EventRecord implements Serializable {
 

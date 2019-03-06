@@ -32,7 +32,7 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.codec.CodecService;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public abstract class Notifier extends AbstractComputation {
 

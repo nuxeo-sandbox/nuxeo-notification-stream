@@ -35,7 +35,7 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
 /**
  * Test the filtering of EventRecords before appending them to the input stream.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features(NotificationFeature.class)

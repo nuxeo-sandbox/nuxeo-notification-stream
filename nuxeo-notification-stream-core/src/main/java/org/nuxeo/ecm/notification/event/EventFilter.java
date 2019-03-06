@@ -18,7 +18,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
  * duplicates. The following class allows to define a more complex logic to find and remove duplicates in a list of
  * events.
  *
- * @since XXX
+ * @since 0.1
  */
 public abstract class EventFilter {
 

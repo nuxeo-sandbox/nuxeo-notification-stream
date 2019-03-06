@@ -40,7 +40,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Allow users to be notified on updates through documents below a Folderish.
  *
- * @since XXX
+ * @since 0.1
  */
 public class DescendantChangesResolver extends SubscribableResolver {
 

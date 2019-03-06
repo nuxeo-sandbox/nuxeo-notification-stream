@@ -27,7 +27,7 @@ import org.nuxeo.ecm.notification.notifier.Notifier;
 /**
  * Service for managing the notification settings.
  *
- * @since XXX
+ * @since 0.1
  */
 public interface NotificationSettingsService {
     void updateSettings(String username, Map<String, UserNotifierSettings> userSettings);

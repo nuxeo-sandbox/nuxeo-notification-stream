@@ -46,7 +46,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, PlatformFeature.class })

@@ -54,7 +54,7 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
 /**
  * Test the notifications sent when updates occur on a workflow.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, WorkflowFeature.class })

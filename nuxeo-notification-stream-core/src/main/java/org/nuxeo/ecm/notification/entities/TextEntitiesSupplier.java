@@ -49,7 +49,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 /**
  * Resolve every entities from a Notification object; fetch Document from session, get user's metadata, ...
  *
- * @since XXX
+ * @since 0.1
  */
 public class TextEntitiesSupplier {
     private static final Logger log = LogManager.getLogger(TextEntitiesSupplier.class);

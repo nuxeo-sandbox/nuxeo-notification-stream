@@ -19,7 +19,7 @@
 package org.nuxeo.ecm.notification.io;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 
 import static org.nuxeo.ecm.core.io.registry.reflect.Instantiations.SINGLETON;

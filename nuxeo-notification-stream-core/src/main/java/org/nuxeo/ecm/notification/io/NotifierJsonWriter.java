@@ -32,7 +32,7 @@ import org.nuxeo.ecm.notification.notifier.Notifier;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @Setup(mode = SINGLETON, priority = REFERENCE)
 public class NotifierJsonWriter extends ExtensibleEntityJsonWriter<Notifier> {

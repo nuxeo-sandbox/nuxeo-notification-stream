@@ -16,7 +16,7 @@ import org.nuxeo.ecm.core.event.Event;
 /**
  * Basic EventTransformer for test purpose.
  *
- * @since XXX
+ * @since 0.1
  */
 public class BasicTransformer extends EventTransformer {
 

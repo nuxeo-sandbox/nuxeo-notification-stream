@@ -37,7 +37,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 /**
  * Test class for the service {@link NotificationSettingsService}.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features(CoreFeature.class)

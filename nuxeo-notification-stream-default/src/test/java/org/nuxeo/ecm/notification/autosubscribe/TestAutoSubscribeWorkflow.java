@@ -36,7 +36,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 /**
  * Test the auto-subscription of the initiator of a workflow to all its updates.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, WorkflowFeature.class })

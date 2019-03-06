@@ -42,7 +42,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @WebObject(type = ResolverObject.TYPE)
 @Produces(APPLICATION_JSON)

@@ -25,7 +25,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
  * that will trigger a second notification. The filter checks if there is an event 'addedToCollection' and then checks
  * the presence of a 'DocumentModified' event on the document added.
  *
- * @since XXX
+ * @since 0.1
  */
 public class CollectionEventsFilter extends EventFilter {
 

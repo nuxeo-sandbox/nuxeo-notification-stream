@@ -25,7 +25,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Test class for the resolver {@link TaskAssignedResolver}.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TestTaskAssignedResolver {
 

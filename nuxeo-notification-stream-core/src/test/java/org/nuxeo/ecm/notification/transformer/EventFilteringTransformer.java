@@ -16,8 +16,8 @@ import org.nuxeo.ecm.core.event.Event;
 /**
  * Transformer that adds a flag in the context of the EventRecord to test the filtering feature in the
  * EventStreamListener.
- * 
- * @since XXX
+ *
+ * @since 0.1
  */
 public class EventFilteringTransformer extends EventTransformer {
 
