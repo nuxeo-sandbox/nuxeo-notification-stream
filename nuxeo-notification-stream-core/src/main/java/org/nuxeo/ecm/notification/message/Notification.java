@@ -41,7 +41,7 @@ import org.nuxeo.ecm.notification.entities.TextEntity;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class Notification {
 

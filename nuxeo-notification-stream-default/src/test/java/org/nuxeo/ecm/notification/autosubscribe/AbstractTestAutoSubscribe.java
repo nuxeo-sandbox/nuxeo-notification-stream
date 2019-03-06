@@ -26,7 +26,7 @@ import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class AbstractTestAutoSubscribe {
 

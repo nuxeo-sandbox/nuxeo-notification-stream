@@ -24,7 +24,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.model.Descriptor;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @XObject("resolver")
 public class ResolverDescriptor implements Descriptor {

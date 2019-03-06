@@ -38,7 +38,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Resolver to be able to be notified when a document in a collection is updated.
  *
- * @since XXX
+ * @since 0.1
  */
 public class CollectionResolver extends AbstractCollectionResolver {
 

@@ -28,7 +28,7 @@ import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.runtime.model.Descriptor;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @XObject("notifier")
 public class NotifierDescriptor implements Descriptor {

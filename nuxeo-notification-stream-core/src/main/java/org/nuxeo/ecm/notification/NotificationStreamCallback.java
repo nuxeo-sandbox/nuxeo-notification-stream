@@ -21,7 +21,7 @@ package org.nuxeo.ecm.notification;
 import java.util.Map;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public interface NotificationStreamCallback {
     void doSubscribe(String username, String resolverId, Map<String, String> ctx);

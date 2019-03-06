@@ -34,7 +34,7 @@ import org.nuxeo.runtime.codec.CodecService;
 /**
  * A messageKey representing the notification user settings.
  *
- * @since XXX
+ * @since 0.1
  */
 public class UserSettings implements Serializable {
 

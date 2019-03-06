@@ -28,7 +28,7 @@ import org.apache.avro.reflect.Nullable;
  * Simple POJO to store MatchResult information (start, end, id...) and entity resolved information (for instance;
  * username, lastname, ...)
  *
- * @since XXX
+ * @since 0.1
  */
 public class TextEntity {
     public static final String DOCUMENT = "doc";

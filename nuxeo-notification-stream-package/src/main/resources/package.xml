@@ -12,7 +12,7 @@
   <uninstaller restart="true" />
   <nuxeo-validation>none</nuxeo-validation>
   <!-- Production State: production_ready | testing | proto -->
-  <production-state>proto</production-state>
+  <production-state>testing</production-state>
   <supported>false</supported>
   <platforms>
     <platform>server-@DISTRIB_VERSION@</platform>

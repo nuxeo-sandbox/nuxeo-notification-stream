@@ -24,7 +24,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Test class for the Resolver when a document is updated.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TestDocumentUpdateResolver {
 

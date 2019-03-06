@@ -27,8 +27,8 @@ import org.nuxeo.ecm.notification.resolver.SubscribableResolver;
 /**
  * Simple subscribable resolver that do not depend on context fields to isolate subscriptions. Each subscription is
  * global.
- * 
- * @since XXX
+ *
+ * @since 0.1
  */
 public abstract class SimpleSubscribableResolver extends SubscribableResolver {
 

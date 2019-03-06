@@ -30,7 +30,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.RunnerFeature;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @Features(CoreFeature.class)
 @Deploy("org.nuxeo.ecm.platform.notification.stream.core")

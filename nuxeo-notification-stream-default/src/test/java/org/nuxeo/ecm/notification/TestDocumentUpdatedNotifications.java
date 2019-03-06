@@ -42,7 +42,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 /**
  * Test to validate the resolver triggered when a document is updated.
  *
- * @since XXX
+ * @since 0.1
  */
 @RunWith(FeaturesRunner.class)
 @Features({ NotificationFeature.class, PlatformFeature.class })

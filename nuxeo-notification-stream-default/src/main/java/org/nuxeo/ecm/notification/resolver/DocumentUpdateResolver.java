@@ -29,7 +29,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Resolver to notify users whenever a followed document is updated.
  *
- * @since XXX
+ * @since 0.1
  */
 public class DocumentUpdateResolver extends SubscribableResolver {
 
@@ -71,7 +71,7 @@ public class DocumentUpdateResolver extends SubscribableResolver {
     /**
      * Override the default resolveTargetUser method to handle the creation of comment on a document. Instead of using
      * the source doc id (which is the comment id), the ancestor is fetched and used as source doc id.
-     * 
+     *
      * @param eventRecord
      * @return
      */

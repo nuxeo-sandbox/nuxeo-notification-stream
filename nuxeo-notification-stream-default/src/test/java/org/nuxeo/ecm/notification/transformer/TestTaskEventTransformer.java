@@ -34,7 +34,7 @@ import org.nuxeo.ecm.platform.task.TaskImpl;
 /**
  * Test class for the event transformer {@link TaskEventTransformer}.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TestTaskEventTransformer {
 

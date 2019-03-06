@@ -33,7 +33,7 @@ import org.nuxeo.ecm.notification.SettingsDescriptor;
 import org.nuxeo.ecm.notification.notifier.Notifier;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public class UserNotifierSettings implements Serializable {
 

@@ -34,7 +34,7 @@ import org.nuxeo.ecm.webengine.model.impl.ResourceTypeImpl;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public abstract class AbstractNotificationObject extends AbstractResource<ResourceTypeImpl> {
 

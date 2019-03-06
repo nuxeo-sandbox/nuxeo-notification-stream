@@ -39,7 +39,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 /**
  * Resolver class aims to be able to transform a CoreEvent to a Notification object
  *
- * @since XXX
+ * @since 0.1
  */
 public abstract class Resolver {
 
@@ -56,7 +56,7 @@ public abstract class Resolver {
 
     /**
      * Compute Resolver message property key following the pattern: label.notification.resolver.RESOLVER_NAME
-     * 
+     *
      * @return resolver's label message property entry key
      */
     public String getLabelKey() {
@@ -65,7 +65,7 @@ public abstract class Resolver {
 
     /**
      * Compute Resolver message property key following the pattern: description.notification.resolver.RESOLVER_NAME
-     * 
+     *
      * @return resolver's description message property entry key
      */
     public String getDescriptionKey() {
@@ -103,7 +103,7 @@ public abstract class Resolver {
 
     /**
      * Return some contextual informations needed to passed to the Notifier
-     * 
+     *
      * @param targetUsername user that will receive the notification
      * @param eventRecord that generates the notification
      * @return a map with contextual informations like document title, document path, document url, ...

@@ -29,7 +29,7 @@ import org.nuxeo.ecm.notification.resolver.Resolver;
 import org.nuxeo.ecm.notification.transformer.EventTransformer;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 public interface NotificationService {
 
@@ -65,7 +65,7 @@ public interface NotificationService {
 
     /**
      * List all contributed notifiers.
-     * 
+     *
      * @return list of notifiers, or an empty list otherwise.
      */
     Collection<Notifier> getNotifiers();
@@ -80,14 +80,14 @@ public interface NotificationService {
 
     /**
      * List all contributed resolvers.
-     * 
+     *
      * @return list of resolved, or an empty list otherwise.
      */
     Collection<Resolver> getResolvers();
 
     /**
      * List resolver that accept the event
-     * 
+     *
      * @param eventRecord that has to be tested
      * @return list of resolver that handle the event, or an empty list otherwise.
      */

@@ -38,7 +38,7 @@ import org.nuxeo.ecm.restapi.server.jaxrs.notification.webobject.SettingsObject;
 import org.nuxeo.ecm.webengine.model.WebObject;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @WebObject(type = "notification")
 @Produces(APPLICATION_JSON)

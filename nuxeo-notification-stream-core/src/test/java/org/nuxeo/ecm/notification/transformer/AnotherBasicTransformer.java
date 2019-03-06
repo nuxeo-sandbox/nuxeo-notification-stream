@@ -17,8 +17,8 @@ import org.nuxeo.ecm.core.event.Event;
 
 /**
  * Another basic EventTransformer adding a few information in the context for documentModified events.
- * 
- * @since XXX
+ *
+ * @since 0.1
  */
 public class AnotherBasicTransformer extends EventTransformer {
 

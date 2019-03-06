@@ -16,8 +16,8 @@ import org.nuxeo.ecm.notification.listener.EventsStreamListener;
 /**
  * The EventTransformer takes an event to extract context information from the event in order to add it to the
  * EventRecord created by {@link EventsStreamListener}.
- * 
- * @since XXX
+ *
+ * @since 0.1
  */
 public abstract class EventTransformer {
 
@@ -34,7 +34,7 @@ public abstract class EventTransformer {
 
     /**
      * Filter to only process the events the transformer knows how to process.
-     * 
+     *
      * @param event The Nuxeo Event triggered.
      * @return True if the transformer can process the event.
      */
@@ -43,7 +43,7 @@ public abstract class EventTransformer {
     /**
      * Build a map of String representing the context information extracted from the Event in order to add them to the
      * EventRecord built.
-     * 
+     *
      * @param event The Nuxeo Event triggered.
      * @return A map with context information.
      */

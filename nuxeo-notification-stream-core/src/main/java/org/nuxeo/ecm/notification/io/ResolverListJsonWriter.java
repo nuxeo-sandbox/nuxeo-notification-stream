@@ -26,7 +26,7 @@ import org.nuxeo.ecm.core.io.registry.reflect.Setup;
 import org.nuxeo.ecm.notification.resolver.Resolver;
 
 /**
- * @since XXX
+ * @since 0.1
  */
 @Setup(mode = SINGLETON, priority = REFERENCE + 1)
 public class ResolverListJsonWriter extends DefaultListJsonWriter<Resolver> {

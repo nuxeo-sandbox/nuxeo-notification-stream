@@ -22,7 +22,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
 /**
  * Resolver to notify a user when the content of a Collection is updated.
  *
- * @since XXX
+ * @since 0.1
  */
 public class CollectionUpdatesResolver extends AbstractCollectionResolver {
 

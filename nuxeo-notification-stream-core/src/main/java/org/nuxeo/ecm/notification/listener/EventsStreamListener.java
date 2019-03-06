@@ -54,7 +54,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 /**
  * Asynchronous events listener that pushed all the contributed events into a Log to feed the Notification Topology.
  *
- * @since XXX
+ * @since 0.1
  */
 public class EventsStreamListener implements EventListener, Synchronization {
 
@@ -160,7 +160,7 @@ public class EventsStreamListener implements EventListener, Synchronization {
 
     /**
      * Generates the key for the record that will be appended to the input stream of the topology.
-     * 
+     *
      * @param event
      * @return A String representing the key.
      */

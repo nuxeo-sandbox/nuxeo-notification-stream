@@ -27,7 +27,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Listener automatically subscribing the creator of a Document to its updates. It does not subscribe admins users.
  *
- * @since XXX
+ * @since 0.1
  */
 public class AutoSubscribeAtCreationListener implements EventListener {
 

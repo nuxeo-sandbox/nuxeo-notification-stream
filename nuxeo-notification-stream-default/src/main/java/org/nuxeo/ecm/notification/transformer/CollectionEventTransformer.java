@@ -25,7 +25,7 @@ import org.nuxeo.ecm.core.event.Event;
 /**
  * EventTransformer for the events related to documents added or removed from a Collection.
  *
- * @since XXX
+ * @since 0.1
  */
 public class CollectionEventTransformer extends EventTransformer {
 

@@ -31,7 +31,7 @@ import org.nuxeo.runtime.codec.CodecService;
 /**
  * Computation for saving the new subscriptions or unsubscribe users for a given notification.
  *
- * @since XXX
+ * @since 0.1
  */
 public class SubscriptionsComputation extends AbstractComputation {
 

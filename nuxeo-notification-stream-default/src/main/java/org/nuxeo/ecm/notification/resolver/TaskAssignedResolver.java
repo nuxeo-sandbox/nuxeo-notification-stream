@@ -27,7 +27,7 @@ import org.nuxeo.ecm.notification.message.EventRecord;
  * Resolver for the notifications sent when a task is assigned to a user. It triggers a notification also when a task is
  * reassigned or delegated.
  *
- * @since XXX
+ * @since 0.1
  */
 public class TaskAssignedResolver extends Resolver {
 
